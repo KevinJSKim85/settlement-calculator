@@ -1,0 +1,73 @@
+export const ko = {
+  app: {
+    title: '정산서',
+    subtitle: '정산 계산기',
+    reset: '초기화',
+  },
+  input: {
+    buying: '바잉',
+    returning: '리턴',
+    rolling: '롤링',
+    balance: '발란스',
+    rollingFee: '롤피',
+  },
+  result: {
+    revenue: '수익',
+    revenueA: '수익 A',
+    revenueB: '수익 B',
+    distribution: '수익분배',
+    loss: '손실',
+    total: '합계',
+  },
+  settings: {
+    title: '설정',
+    rollingFeePercent: '롤피 %',
+    revenueAPercent: '수익 A %',
+    revenueBPercent: '수익 B %',
+    baseCurrency: '기본 통화',
+    exchangeRates: '환율',
+    fetchRates: '실시간 환율 가져오기',
+    manualRate: '수동 입력',
+    rateStale: '환율이 오래되었습니다',
+    lastUpdated: '마지막 업데이트',
+    minutesAgo: '분 전',
+  },
+  members: {
+    title: '수익분배 멤버',
+    addMember: '멤버 추가',
+    removeMember: '삭제',
+    memberName: '이름',
+    percentage: '비율 (%)',
+    sumLabel: '합계',
+    sumError: '합계가 100%가 아닙니다',
+    maxMembers: '최대 10명까지 추가할 수 있습니다',
+    minMembers: '최소 1명은 필요합니다',
+  },
+  export: {
+    pdf: 'PDF 저장',
+    image: '이미지 저장',
+    exportSuccess: '저장 완료',
+    exportFail: '저장 실패',
+  },
+  currency: {
+    KRW: '원화',
+    CNY: '위안화',
+    HKD: '홍콩달러',
+    USDT: '테더',
+    USD: '미화',
+    JPY: '엔화',
+  },
+  language: {
+    ko: '한국어',
+    zh: '中文',
+  },
+  errors: {
+    invalidInput: '올바른 값을 입력하세요',
+    distributionSum: '분배 비율의 합이 100%가 아닙니다',
+    apiError: '환율 정보를 가져올 수 없습니다',
+    storageFull: '저장 공간이 부족합니다',
+    storageCorrupt: '설정이 초기화되었습니다',
+  },
+} as const;
+
+export type TranslationKeys = typeof ko;
