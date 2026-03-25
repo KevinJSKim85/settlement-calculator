@@ -28,7 +28,7 @@ function CurrencySelect({
 }) {
   return (
     <Select value={value} onValueChange={(val) => onValueChange(val as Currency)}>
-      <SelectTrigger size="sm" className="w-[100px] shrink-0">
+      <SelectTrigger size="sm" className="w-[100px] shrink-0 border-border/60 bg-secondary text-secondary-foreground">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -60,14 +60,14 @@ function InputRow({
   onBlur: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 sm:grid sm:items-center sm:gap-2" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
-      <span className="text-sm font-medium">{label}</span>
+    <div className="flex flex-col gap-1.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+      <span className="text-sm font-medium text-brand-gold/80">{label}</span>
       <div className="flex items-center gap-2 sm:contents">
         <CurrencySelect value={currency} onValueChange={onCurrencyChange} />
         <Input
           type="text"
           inputMode="decimal"
-          className="text-right tabular-nums flex-1 focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="flex-1 border-border/60 bg-secondary text-right tabular-nums text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
           value={value}
           onChange={(e) => onValueChange(e.target.value)}
           onFocus={onFocus}
@@ -98,16 +98,16 @@ function ComputedRow({
   const displayValue = `${sign}${formatted}`;
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg bg-stone-50 px-3 py-2 sm:grid sm:items-center sm:gap-2" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+    <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-surface px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
       <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {label}
         {badge && (
-          <Badge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary" className="border-brand-gold/20 bg-brand-gold/10 text-brand-gold text-[10px]">
             {badge}
           </Badge>
         )}
         {isNegative && (
-          <span className="text-[10px] text-red-500 font-semibold">(손실)</span>
+          <span className="text-[10px] font-semibold text-brand-red">(손실)</span>
         )}
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
@@ -116,7 +116,7 @@ function ComputedRow({
         </span>
         <span
           className={`text-right text-sm tabular-nums font-medium ${
-            isNegative ? 'text-red-500' : 'text-foreground'
+            isNegative ? 'text-brand-red' : 'text-foreground'
           }`}
         >
           {displayValue}
@@ -185,9 +185,9 @@ export function InputForm() {
   );
 
   return (
-    <Card>
+    <Card className="border-border/60 bg-card">
       <CardHeader>
-        <CardTitle>{t.app.title}</CardTitle>
+        <CardTitle className="text-brand-gold">{t.app.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <InputRow

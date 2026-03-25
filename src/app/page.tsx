@@ -93,23 +93,28 @@ function HomePageContent() {
   const showDistributionWarning = normalizedMemberSum !== 100 && members.length > 0;
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-6xl">
-        <header className="flex justify-between items-center mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-stone-800">{t.app.title}</h1>
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+        <header className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-brand-gold sm:text-3xl">
+              {t.app.title}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t.app.subtitle}</p>
+          </div>
           <LanguageToggle />
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <div className="space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+          <div className="space-y-5">
             <InputForm />
             <MemberManager />
             <SettingsPanel />
           </div>
 
-          <div>
+          <div className="space-y-5">
             {showDistributionWarning && !calculationResult && (
-              <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              <div className="rounded-xl border border-brand-red/30 bg-brand-red/10 px-4 py-3 text-sm text-red-400">
                 분배 비율 합계가 100%가 아닙니다 ({normalizedMemberSum}%)
               </div>
             )}
@@ -123,11 +128,13 @@ function HomePageContent() {
               revenueAPercent={revenueAPercent}
             />
 
-            <div className="mt-4">
-              <ExportButtons targetRef={resultsRef} />
-            </div>
+            <ExportButtons targetRef={resultsRef} />
 
-            <Button variant="outline" className="mt-4 w-full" onClick={resetInputs}>
+            <Button
+              variant="outline"
+              className="w-full border-border/60 text-muted-foreground transition-colors hover:border-brand-gold/40 hover:text-brand-gold"
+              onClick={resetInputs}
+            >
               {t.app.reset}
             </Button>
           </div>

@@ -30,14 +30,19 @@ export function ExportButtons({ targetRef }: ExportButtonsProps) {
   };
 
   return (
-    <div className="flex gap-2">
-      <Button onClick={() => handleExport('pdf')} disabled={exporting}>
+    <div className="flex flex-col gap-2 sm:flex-row">
+      <Button
+        onClick={() => handleExport('pdf')}
+        disabled={exporting}
+        className="flex-1 bg-brand-red text-white hover:bg-brand-red/80 disabled:opacity-40"
+      >
         PDF 저장
       </Button>
       <Button
         onClick={() => handleExport('image')}
         disabled={exporting}
         variant="outline"
+        className="flex-1 border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 disabled:opacity-40"
       >
         이미지 저장
       </Button>

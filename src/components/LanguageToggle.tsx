@@ -11,6 +11,7 @@ export function LanguageToggle() {
       variant="outline"
       size="sm"
       onClick={() => setLanguage(language === 'ko' ? 'zh' : 'ko')}
+      className="border-border/60 text-muted-foreground transition-colors hover:border-brand-gold/40 hover:text-brand-gold"
     >
       {language === 'ko' ? '中文' : '한국어'}
     </Button>

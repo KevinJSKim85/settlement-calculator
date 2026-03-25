@@ -40,10 +40,10 @@ function MultiCurrencyLine({
   }));
 
   return (
-    <div className="text-[11px] text-stone-400 mt-0.5 font-normal">
+    <div className="mt-0.5 text-[11px] font-normal text-muted-foreground/60">
       {converted.map((c, i) => (
         <React.Fragment key={c.currency}>
-          {i > 0 && <span className="mx-1 text-stone-300">|</span>}
+          {i > 0 && <span className="mx-1 text-muted-foreground/30">|</span>}
           <span>{c.formatted}</span>
         </React.Fragment>
       ))}
@@ -65,17 +65,17 @@ function AmountCell({
   const isNegative = amount < 0;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
-    <td className="text-right py-2.5 px-3 align-top whitespace-nowrap">
+    <td className="whitespace-nowrap px-3 py-3 text-right align-top">
       <div
         className={[
           bold ? 'font-semibold' : 'font-medium',
-          isNegative ? 'text-red-600' : '',
+          isNegative ? 'text-brand-red' : '',
         ]
           .filter(Boolean)
           .join(' ')}
       >
         {formatCurrency(safeAmount, baseCurrency)}
-        {isNegative && <span className="ml-1 text-[10px] text-red-500">(손실)</span>}
+        {isNegative && <span className="ml-1 text-[10px] text-brand-red">(손실)</span>}
       </div>
       <MultiCurrencyLine
         amount={safeAmount}
@@ -96,8 +96,8 @@ function NoteCell({
   return (
     <td
       className={[
-        'text-right py-2.5 px-3 text-sm tabular-nums',
-        bold ? 'font-semibold text-stone-700' : 'text-stone-400',
+        'px-3 py-3 text-right text-sm tabular-nums',
+        bold ? 'font-semibold text-brand-gold' : 'text-muted-foreground/60',
       ].join(' ')}
     >
       {children}
@@ -116,7 +116,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
       return (
         <div
           ref={ref}
-          className="rounded-xl border border-stone-200 bg-white p-8 text-center text-stone-400 text-sm"
+          className="rounded-xl border border-border/60 bg-card p-8 text-center text-sm text-muted-foreground"
         >
           {t.app.subtitle}
         </div>
@@ -132,26 +132,26 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
     return (
       <div
         ref={ref}
-        className="rounded-xl border border-stone-200 bg-white overflow-hidden shadow-sm"
+        className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg shadow-black/20"
       >
         <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse min-w-[400px]">
+        <table className="w-full min-w-[400px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-stone-200 bg-stone-50">
-              <th className="text-left py-2 px-3 font-medium text-stone-500 text-xs uppercase tracking-wider">
+            <tr className="border-b border-border/60 bg-surface">
+              <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 항목
               </th>
-              <th className="text-right py-2 px-3 font-medium text-stone-500 text-xs uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 금액
               </th>
-              <th className="text-right py-2 px-3 font-medium text-stone-500 text-xs uppercase tracking-wider w-20">
+              <th className="w-20 px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 비율
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-stone-100">
-              <td className="py-2.5 px-3 text-stone-700">{t.input.balance}</td>
+            <tr className="border-b border-border/40">
+              <td className="px-3 py-3 text-foreground/80">{t.input.balance}</td>
               <AmountCell
                 amount={result.balance}
                 baseCurrency={baseCurrency}
@@ -160,8 +160,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell />
             </tr>
 
-            <tr className="border-b border-stone-100">
-              <td className="py-2.5 px-3 text-stone-700">{t.input.rollingFee}</td>
+            <tr className="border-b border-border/40">
+              <td className="px-3 py-3 text-foreground/80">{t.input.rollingFee}</td>
               <AmountCell
                 amount={result.rollingFee}
                 baseCurrency={baseCurrency}
@@ -170,8 +170,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell>{rollingFeePercent}%</NoteCell>
             </tr>
 
-            <tr className="border-b border-stone-200 bg-amber-50">
-              <td className="py-2.5 px-3 font-semibold text-stone-800">
+            <tr className="border-b border-border/60 bg-brand-red/8">
+              <td className="px-3 py-3 font-semibold text-brand-gold">
                 {t.result.revenue}
               </td>
               <AmountCell
@@ -183,8 +183,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell bold>100%</NoteCell>
             </tr>
 
-            <tr className="border-b border-stone-100">
-              <td className="py-2.5 px-3 text-stone-700 pl-6">{t.result.revenueA}</td>
+            <tr className="border-b border-border/40">
+              <td className="py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueA}</td>
               <AmountCell
                 amount={result.revenueA}
                 baseCurrency={baseCurrency}
@@ -193,8 +193,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell>{revenueAPercent}%</NoteCell>
             </tr>
 
-            <tr className="border-b border-stone-100">
-              <td className="py-2.5 px-3 text-stone-700 pl-6">{t.result.revenueB}</td>
+            <tr className="border-b border-border/40">
+              <td className="py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueB}</td>
               <AmountCell
                 amount={result.revenueB}
                 baseCurrency={baseCurrency}
@@ -203,8 +203,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell>{revenueBPercent}%</NoteCell>
             </tr>
 
-            <tr className="border-b border-stone-200 bg-amber-50">
-              <td className="py-2.5 px-3 font-semibold text-stone-800">
+            <tr className="border-b border-border/60 bg-brand-gold/8">
+              <td className="px-3 py-3 font-semibold text-brand-gold">
                 {t.result.distribution}
               </td>
               <AmountCell
@@ -221,11 +221,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 key={dist.memberId}
                 className={
                   idx < result.distribution.length - 1
-                    ? 'border-b border-stone-100'
+                    ? 'border-b border-border/40'
                     : ''
                 }
               >
-                <td className="py-2.5 px-3 text-stone-700 pl-6">
+                <td className="py-3 pl-6 pr-3 text-foreground/80">
                   {t.result.distribution} {dist.memberName}
                 </td>
                 <AmountCell

@@ -72,15 +72,15 @@ export function SettingsPanel() {
   };
 
   return (
-    <Card size="sm">
+    <Card size="sm" className="border-border/60 bg-card">
       <CardHeader
         className="cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center justify-between">
-          <CardTitle>{t.settings.title}</CardTitle>
+          <CardTitle className="text-brand-gold/80">{t.settings.title}</CardTitle>
           <ChevronDown
-            className={`size-4 text-muted-foreground transition-transform duration-200 ${
+            className={`size-4 text-brand-gold/50 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
             }`}
           />
@@ -88,9 +88,9 @@ export function SettingsPanel() {
       </CardHeader>
 
       {isOpen && (
-        <CardContent className="space-y-3">
-          <div className="space-y-1">
-            <Label>{t.settings.rollingFeePercent}</Label>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-foreground/70">{t.settings.rollingFeePercent}</Label>
             <Input
               type="number"
               inputMode="decimal"
@@ -100,14 +100,14 @@ export function SettingsPanel() {
               onChange={(e) =>
                 setRollingFeePercent(parseFloat(e.target.value) || 0)
               }
-              className="focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
             />
           </div>
 
-          <div className="space-y-1">
-            <Label>{t.result.revenueA}/{t.result.revenueB}</Label>
+          <div className="space-y-1.5">
+            <Label className="text-foreground/70">{t.result.revenueA}/{t.result.revenueB}</Label>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground shrink-0">
+              <span className="shrink-0 text-sm text-muted-foreground">
                 {t.result.revenueA}:
               </span>
               <Input
@@ -119,23 +119,23 @@ export function SettingsPanel() {
                 onChange={(e) =>
                   setRevenueAPercent(parseFloat(e.target.value) || 0)
                 }
-                className="w-20 focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="w-20 border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
               />
               <span className="text-sm text-muted-foreground">%</span>
-              <span className="text-sm text-muted-foreground hidden sm:inline">|</span>
-              <span className="text-sm text-muted-foreground whitespace-nowrap">
+              <span className="hidden text-sm text-muted-foreground/40 sm:inline">|</span>
+              <span className="whitespace-nowrap text-sm text-muted-foreground">
                 {t.result.revenueB}: {revenueBPercent}%
               </span>
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label>{t.settings.baseCurrency}</Label>
+          <div className="space-y-1.5">
+            <Label className="text-foreground/70">{t.settings.baseCurrency}</Label>
             <Select
               value={baseCurrency}
               onValueChange={(val) => { if (val) setBaseCurrency(val as Currency); }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full border-border/60 bg-secondary text-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -148,14 +148,14 @@ export function SettingsPanel() {
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
-                <Label>{t.settings.exchangeRates}</Label>
+                <Label className="text-foreground/70">{t.settings.exchangeRates}</Label>
                 {stale && (
                   <Badge
                     variant="outline"
-                    className="border-yellow-500/50 bg-yellow-500/10 text-yellow-600"
+                    className="border-brand-red/40 bg-brand-red/10 text-brand-red"
                   >
                     {t.settings.rateStale}
                   </Badge>
@@ -166,13 +166,13 @@ export function SettingsPanel() {
                 size="sm"
                 disabled={isLoadingRates}
                 onClick={handleFetchRates}
-                className="w-full sm:w-auto"
+                className="w-full border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 sm:w-auto"
               >
                 {isLoadingRates ? '...' : t.settings.fetchRates}
               </Button>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {nonBaseCurrencies.map((currency) => (
                 <div key={currency} className="flex flex-wrap items-center gap-2">
                   <span className="w-24 shrink-0 text-sm text-muted-foreground">
@@ -190,9 +190,9 @@ export function SettingsPanel() {
                         setManualExchangeRate(currency, val);
                       }
                     }}
-                    className="w-28 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="w-28 flex-1 border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60 sm:flex-none"
                   />
-                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  <span className="whitespace-nowrap text-sm text-muted-foreground">
                     {currency} {CURRENCY_CONFIG[currency].symbol}
                   </span>
                 </div>

@@ -26,20 +26,24 @@ export function MemberManager() {
   };
 
   return (
-    <Card>
+    <Card className="border-border/60 bg-card">
       <CardHeader>
-        <CardTitle>{t.members.title}</CardTitle>
+        <CardTitle className="text-brand-gold">{t.members.title}</CardTitle>
         <CardAction>
-          <Button size="sm" onClick={handleAddMember}>
+          <Button
+            size="sm"
+            className="bg-brand-red text-white hover:bg-brand-red/80"
+            onClick={handleAddMember}
+          >
             + {t.members.addMember}
           </Button>
         </CardAction>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      <CardContent className="flex flex-col gap-2.5">
         {members.map((member) => (
           <div key={member.id} className="flex flex-wrap items-center gap-2">
             <Input
-              className="flex-1 min-w-[120px] focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="min-w-[120px] flex-1 border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
               placeholder={t.members.memberName}
               value={member.name}
               onChange={(e) =>
@@ -48,7 +52,7 @@ export function MemberManager() {
             />
             <div className="flex items-center gap-2">
               <Input
-                className="w-20 focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="w-20 border-border/60 bg-secondary text-right tabular-nums text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
                 type="number"
                 inputMode="decimal"
                 min={0}
@@ -68,6 +72,7 @@ export function MemberManager() {
                 disabled={members.length <= 1}
                 onClick={() => removeMember(member.id)}
                 aria-label={t.members.removeMember}
+                className="text-muted-foreground hover:text-brand-red"
               >
                 ✕
               </Button>
@@ -75,13 +80,13 @@ export function MemberManager() {
           </div>
         ))}
 
-        <div className="mt-4 flex items-center justify-between border-t pt-2">
+        <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3">
           <span className="text-sm text-muted-foreground">{t.members.sumLabel}</span>
           <span
             className={
               roundedSum === 100
-                ? 'font-bold text-green-600'
-                : 'font-bold text-red-600'
+                ? 'font-bold text-brand-gold'
+                : 'font-bold text-brand-red'
             }
           >
             {roundedSum}% / 100%
@@ -89,7 +94,7 @@ export function MemberManager() {
         </div>
 
         {roundedSum !== 100 && (
-          <p className="text-sm text-red-500">{t.members.sumError}</p>
+          <p className="text-sm text-brand-red">{t.members.sumError}</p>
         )}
       </CardContent>
     </Card>
