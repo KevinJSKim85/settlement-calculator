@@ -55,6 +55,43 @@
 }
 
 :root {
+  --background: #FAFAF8;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #C0301E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3F3F0;
+  --secondary-foreground: #2A2A2A;
+  --muted: #F0F0EC;
+  --muted-foreground: #6B6B6B;
+  --accent: #F6DA9D;
+  --accent-foreground: #1A1A1A;
+  --destructive: #C0301E;
+  --border: #E0E0DC;
+  --input: #E0E0DC;
+  --ring: #C0301E;
+  --chart-1: #C0301E;
+  --chart-2: #D4A04A;
+  --chart-3: #6B6B6B;
+  --chart-4: #999999;
+  --chart-5: #CCCCCC;
+  --radius: 0.75rem;
+  --sidebar: #F5F5F2;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #C0301E;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F0F0EC;
+  --sidebar-accent-foreground: #2A2A2A;
+  --sidebar-border: #E0E0DC;
+  --sidebar-ring: #C0301E;
+  --surface: #F5F5F2;
+  --surface-elevated: #FFFFFF;
+}
+
+.dark {
   --background: #0A0A0A;
   --foreground: #F0F0F0;
   --card: #141414;
@@ -78,7 +115,6 @@
   --chart-3: #808080;
   --chart-4: #555555;
   --chart-5: #333333;
-  --radius: 0.75rem;
   --sidebar: #111111;
   --sidebar-foreground: #EBEBEB;
   --sidebar-primary: #C0301E;
@@ -104,18 +140,18 @@
 }
 
 @layer base {
-  ::-webkit-scrollbar {
+  .dark ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-  ::-webkit-scrollbar-track {
+  .dark ::-webkit-scrollbar-track {
     background: transparent;
   }
-  ::-webkit-scrollbar-thumb {
+  .dark ::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 3px;
   }
-  ::-webkit-scrollbar-thumb:hover {
+  .dark ::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
 }

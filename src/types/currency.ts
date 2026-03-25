@@ -16,5 +16,6 @@ export interface ExchangeRateData {
   rates: ExchangeRates;
   baseCurrency: Currency;
   fetchedAt: Date | null;
+  apiUpdatedAt: Date | null;
   isManual: boolean;
 }

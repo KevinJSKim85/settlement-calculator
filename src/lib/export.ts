@@ -8,15 +8,37 @@ function getFilename(extension: string): string {
   return `정산서_${date}_${time}.${extension}`;
 }
 
+function resolveStyles(clone: Document) {
+  const allElements = clone.querySelectorAll('*');
+  allElements.forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    const computed = window.getComputedStyle(el);
+    el.style.color = computed.color;
+    el.style.backgroundColor = computed.backgroundColor;
+    el.style.borderColor = computed.borderColor;
+    el.style.fontSize = computed.fontSize;
+    el.style.fontWeight = computed.fontWeight;
+    el.style.fontFamily = computed.fontFamily;
+    el.style.padding = computed.padding;
+    el.style.margin = computed.margin;
+  });
+}
+
 export async function exportToImage(element: HTMLElement): Promise<void> {
+  const isDark = document.documentElement.classList.contains('dark');
   const canvas = await html2canvas(element, {
     scale: 2,
-    backgroundColor: '#ffffff',
+    backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
+    useCORS: true,
     logging: false,
+    onclone: (doc) => resolveStyles(doc),
   });
 
-  const blob = await new Promise<Blob>((resolve) => {
-    canvas.toBlob((b) => resolve(b!), 'image/png');
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((b) => {
+      if (b) resolve(b);
+      else reject(new Error('Canvas blob creation failed'));
+    }, 'image/png');
   });
 
   const url = URL.createObjectURL(blob);
@@ -28,10 +50,13 @@ export async function exportToImage(element: HTMLElement): Promise<void> {
 }
 
 export async function exportToPDF(element: HTMLElement): Promise<void> {
+  const isDark = document.documentElement.classList.contains('dark');
   const canvas = await html2canvas(element, {
     scale: 2,
-    backgroundColor: '#ffffff',
+    backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
+    useCORS: true,
     logging: false,
+    onclone: (doc) => resolveStyles(doc),
   });
 
   const imgData = canvas.toDataURL('image/png');

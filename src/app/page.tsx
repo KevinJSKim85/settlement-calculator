@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
+import { useTheme } from 'next-themes';
+import { Sun, Moon } from 'lucide-react';
 import { InputForm } from '@/components/InputForm';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
@@ -13,6 +15,21 @@ import { useSettlementStore } from '@/lib/store';
 import { calcSettlement } from '@/lib/calculator';
 import { convertAmount } from '@/lib/currency';
 import type { SettlementConfig, SettlementInput } from '@/types';
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <Button
+      variant="outline"
+      size="icon-sm"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="border-border/60 text-muted-foreground transition-colors hover:text-brand-gold"
+    >
+      {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    </Button>
+  );
+}
 
 function HomePageContent() {
   const { t } = useTranslation();
@@ -102,7 +119,10 @@ function HomePageContent() {
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{t.app.subtitle}</p>
           </div>
-          <LanguageToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageToggle />
+          </div>
         </header>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">

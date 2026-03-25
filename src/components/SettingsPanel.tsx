@@ -19,12 +19,30 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ArrowRightLeft } from 'lucide-react';
+
+const DEFAULT_SPREAD_PERCENT = 0.5;
+
+function formatDateTime(date: Date | null): string {
+  if (!date) return '-';
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}
 
 export function SettingsPanel() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoadingRates, setIsLoadingRates] = useState(false);
+  const [rateViewCurrency, setRateViewCurrency] = useState<Currency | null>(null);
+  const [showBidAsk, setShowBidAsk] = useState(false);
+  const [spreadPercent, setSpreadPercent] = useState(DEFAULT_SPREAD_PERCENT);
 
   const rollingFeePercent = useSettlementStore((s) => s.rollingFeePercent);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
@@ -38,6 +56,7 @@ export function SettingsPanel() {
   const setManualExchangeRate = useSettlementStore((s) => s.setManualExchangeRate);
 
   const revenueBPercent = 100 - revenueAPercent;
+  const viewBase = rateViewCurrency || baseCurrency;
 
   const handleFetchRates = async () => {
     setIsLoadingRates(true);
@@ -59,16 +78,48 @@ export function SettingsPanel() {
     ? isRateStale(exchangeRateData.fetchedAt)
     : false;
 
-  const nonBaseCurrencies = CURRENCIES.filter((c) => c !== baseCurrency);
+  const nonViewCurrencies = CURRENCIES.filter((c) => c !== viewBase);
 
-  const getEffectiveRate = (currency: Currency): string => {
-    if (manualExchangeRates[currency] !== undefined) {
-      return String(manualExchangeRates[currency]);
+  const getEffectiveRate = (currency: Currency): number | undefined => {
+    const manualRate = manualExchangeRates[currency];
+    const apiRate = exchangeRateData?.rates[currency];
+    return manualRate ?? apiRate;
+  };
+
+  const getRateForView = (targetCurrency: Currency): number | undefined => {
+    if (viewBase === baseCurrency) {
+      return getEffectiveRate(targetCurrency);
     }
-    if (exchangeRateData?.rates[currency] !== undefined) {
-      return String(exchangeRateData.rates[currency]);
-    }
-    return '';
+
+    const viewBaseRate = getEffectiveRate(viewBase);
+    const targetRate = getEffectiveRate(targetCurrency);
+
+    if (!viewBaseRate || viewBaseRate === 0) return undefined;
+    if (targetCurrency === baseCurrency) return 1 / viewBaseRate;
+    if (!targetRate) return undefined;
+    return targetRate / viewBaseRate;
+  };
+
+  const getRateDisplay = (currency: Currency): string => {
+    const rate = getRateForView(currency);
+    if (rate === undefined) return '';
+    if (rate >= 100) return rate.toFixed(2);
+    if (rate >= 1) return rate.toFixed(4);
+    return rate.toFixed(6);
+  };
+
+  const getBidAsk = (currency: Currency): { bid: string; ask: string } | null => {
+    const rate = getRateForView(currency);
+    if (rate === undefined) return null;
+    const halfSpread = spreadPercent / 100 / 2;
+    const bid = rate * (1 - halfSpread);
+    const ask = rate * (1 + halfSpread);
+    const fmt = (v: number) => {
+      if (v >= 100) return v.toFixed(2);
+      if (v >= 1) return v.toFixed(4);
+      return v.toFixed(6);
+    };
+    return { bid: fmt(bid), ask: fmt(ask) };
   };
 
   return (
@@ -148,7 +199,7 @@ export function SettingsPanel() {
             </Select>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <Label className="text-foreground/70">{t.settings.exchangeRates}</Label>
@@ -172,31 +223,114 @@ export function SettingsPanel() {
               </Button>
             </div>
 
-            <div className="space-y-2">
-              {nonBaseCurrencies.map((currency) => (
-                <div key={currency} className="flex flex-wrap items-center gap-2">
-                  <span className="w-24 shrink-0 text-sm text-muted-foreground">
-                    1 {baseCurrency} =
-                  </span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    step="any"
-                    min={0}
-                    value={getEffectiveRate(currency)}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      if (!Number.isNaN(val) && val >= 0) {
-                        setManualExchangeRate(currency, val);
-                      }
-                    }}
-                    className="w-28 flex-1 border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60 sm:flex-none"
-                  />
-                  <span className="whitespace-nowrap text-sm text-muted-foreground">
-                    {currency} {CURRENCY_CONFIG[currency].symbol}
-                  </span>
+            {exchangeRateData && (
+              <div className="space-y-1 rounded-lg border border-border/40 bg-surface px-3 py-2 text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>API 기준 시간</span>
+                  <span className="tabular-nums">{formatDateTime(exchangeRateData.apiUpdatedAt)}</span>
                 </div>
-              ))}
+                <div className="flex justify-between">
+                  <span>가져온 시간</span>
+                  <span className="tabular-nums">{formatDateTime(exchangeRateData.fetchedAt)}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-foreground/60">기준 통화</Label>
+                <Select
+                  value={viewBase}
+                  onValueChange={(val) => {
+                    if (val === baseCurrency) {
+                      setRateViewCurrency(null);
+                    } else {
+                      setRateViewCurrency(val as Currency);
+                    }
+                  }}
+                >
+                  <SelectTrigger size="sm" className="w-[110px] border-border/60 bg-secondary text-secondary-foreground">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c} {CURRENCY_CONFIG[c].symbol}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setShowBidAsk(!showBidAsk)}
+                className="text-xs text-muted-foreground hover:text-brand-gold"
+              >
+                <ArrowRightLeft className="mr-1 size-3" />
+                {showBidAsk ? '매매율 숨기기' : '매매율 보기'}
+              </Button>
+            </div>
+
+            {showBidAsk && (
+              <div className="flex items-center gap-2">
+                <Label className="shrink-0 text-xs text-foreground/60">스프레드</Label>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  step={0.1}
+                  min={0}
+                  max={10}
+                  value={spreadPercent}
+                  onChange={(e) => setSpreadPercent(parseFloat(e.target.value) || 0)}
+                  className="w-20 border-border/60 bg-secondary text-foreground text-xs focus-visible:ring-2 focus-visible:ring-brand-red/60"
+                />
+                <span className="text-xs text-muted-foreground">%</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {nonViewCurrencies.map((currency) => {
+                const bidAsk = showBidAsk ? getBidAsk(currency) : null;
+                return (
+                  <div key={currency} className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="w-24 shrink-0 text-sm text-muted-foreground">
+                        1 {viewBase} =
+                      </span>
+                      {viewBase === baseCurrency ? (
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          step="any"
+                          min={0}
+                          value={getEffectiveRate(currency) !== undefined ? String(getEffectiveRate(currency)) : ''}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            if (!Number.isNaN(val) && val >= 0) {
+                              setManualExchangeRate(currency, val);
+                            }
+                          }}
+                          className="w-28 flex-1 border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60 sm:flex-none"
+                        />
+                      ) : (
+                        <span className="w-28 flex-1 rounded-md border border-border/40 bg-surface px-3 py-1.5 text-sm tabular-nums text-foreground sm:flex-none">
+                          {getRateDisplay(currency) || '-'}
+                        </span>
+                      )}
+                      <span className="whitespace-nowrap text-sm text-muted-foreground">
+                        {currency} {CURRENCY_CONFIG[currency].symbol}
+                      </span>
+                    </div>
+                    {bidAsk && (
+                      <div className="ml-24 flex gap-3 pl-2 text-[11px] text-muted-foreground/70">
+                        <span>살때 <span className="tabular-nums text-brand-red/80">{bidAsk.ask}</span></span>
+                        <span>팔때 <span className="tabular-nums text-brand-gold/80">{bidAsk.bid}</span></span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </CardContent>

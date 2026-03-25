@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -27,19 +28,18 @@ export default function RootLayout({
     <html
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#0A0A0A]">
-        {children}
-        <Toaster
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: '#1E1E1E',
-              border: '1px solid #2A2A2A',
-              color: '#F0F0F0',
-            },
-          }}
-        />
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          {children}
+          <Toaster
+            theme="system"
+            toastOptions={{
+              className: 'border-border bg-card text-card-foreground',
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );
