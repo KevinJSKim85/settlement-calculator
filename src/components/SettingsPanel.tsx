@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { fetchExchangeRates, isRateStale } from '@/lib/exchange-rate';
@@ -58,6 +58,17 @@ export function SettingsPanel() {
   const revenueBPercent = 100 - revenueAPercent;
   const viewBase = rateViewCurrency || baseCurrency;
 
+  const prevBaseCurrencyRef = useRef(baseCurrency);
+  useEffect(() => {
+    if (prevBaseCurrencyRef.current !== baseCurrency) {
+      prevBaseCurrencyRef.current = baseCurrency;
+      setRateViewCurrency(null);
+      fetchExchangeRates(baseCurrency).then((data) => {
+        if (data) setExchangeRateData(data);
+      });
+    }
+  }, [baseCurrency, setExchangeRateData]);
+
   const handleFetchRates = async () => {
     setIsLoadingRates(true);
     try {
@@ -90,10 +101,8 @@ export function SettingsPanel() {
     if (viewBase === baseCurrency) {
       return getEffectiveRate(targetCurrency);
     }
-
     const viewBaseRate = getEffectiveRate(viewBase);
     const targetRate = getEffectiveRate(targetCurrency);
-
     if (!viewBaseRate || viewBaseRate === 0) return undefined;
     if (targetCurrency === baseCurrency) return 1 / viewBaseRate;
     if (!targetRate) return undefined;
@@ -129,7 +138,10 @@ export function SettingsPanel() {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center justify-between">
-          <CardTitle className="text-brand-gold/80">{t.settings.title}</CardTitle>
+          <div className="flex items-baseline gap-1.5">
+            <CardTitle className="text-brand-gold/80">{t.settings.title}</CardTitle>
+            <span className="text-xs text-muted-foreground">{t.settings.titleHint}</span>
+          </div>
           <ChevronDown
             className={`size-4 text-brand-gold/50 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
@@ -226,11 +238,11 @@ export function SettingsPanel() {
             {exchangeRateData && (
               <div className="space-y-1 rounded-lg border border-border/40 bg-surface px-3 py-2 text-xs text-muted-foreground">
                 <div className="flex justify-between">
-                  <span>API 기준 시간</span>
+                  <span>{t.settings.apiUpdateTime}</span>
                   <span className="tabular-nums">{formatDateTime(exchangeRateData.apiUpdatedAt)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>가져온 시간</span>
+                  <span>{t.settings.fetchedTime}</span>
                   <span className="tabular-nums">{formatDateTime(exchangeRateData.fetchedAt)}</span>
                 </div>
               </div>
@@ -238,7 +250,7 @@ export function SettingsPanel() {
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
-                <Label className="text-xs text-foreground/60">기준 통화</Label>
+                <Label className="text-xs text-foreground/60">{t.settings.viewCurrency}</Label>
                 <Select
                   value={viewBase}
                   onValueChange={(val) => {
@@ -268,13 +280,13 @@ export function SettingsPanel() {
                 className="text-xs text-muted-foreground hover:text-brand-gold"
               >
                 <ArrowRightLeft className="mr-1 size-3" />
-                {showBidAsk ? '매매율 숨기기' : '매매율 보기'}
+                {showBidAsk ? t.settings.hideBidAsk : t.settings.showBidAsk}
               </Button>
             </div>
 
             {showBidAsk && (
               <div className="flex items-center gap-2">
-                <Label className="shrink-0 text-xs text-foreground/60">스프레드</Label>
+                <Label className="shrink-0 text-xs text-foreground/60">{t.settings.spread}</Label>
                 <Input
                   type="number"
                   inputMode="decimal"
@@ -324,8 +336,8 @@ export function SettingsPanel() {
                     </div>
                     {bidAsk && (
                       <div className="ml-24 flex gap-3 pl-2 text-[11px] text-muted-foreground/70">
-                        <span>살때 <span className="tabular-nums text-brand-red/80">{bidAsk.ask}</span></span>
-                        <span>팔때 <span className="tabular-nums text-brand-gold/80">{bidAsk.bid}</span></span>
+                        <span>{t.settings.buyRate} <span className="tabular-nums text-brand-red/80">{bidAsk.ask}</span></span>
+                        <span>{t.settings.sellRate} <span className="tabular-nums text-brand-gold/80">{bidAsk.bid}</span></span>
                       </div>
                     )}
                   </div>

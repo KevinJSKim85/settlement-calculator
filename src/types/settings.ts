@@ -1,7 +1,7 @@
 import { Currency, ExchangeRates } from './currency';
 import { DistributionMember } from './member';
 
-export type Language = 'ko' | 'zh';
+export type Language = 'ko' | 'zh' | 'en';
 
 export interface AppSettings {
   rollingFeePercent: number;

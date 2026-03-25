@@ -139,13 +139,13 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
           <thead>
             <tr className="border-b border-border/60 bg-surface">
               <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-brand-gold/70">
-                항목
+                {t.result.item}
               </th>
               <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
-                금액
+                {t.result.amount}
               </th>
               <th className="w-20 px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
-                비율
+                {t.result.ratio}
               </th>
             </tr>
           </thead>

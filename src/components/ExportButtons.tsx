@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/i18n';
 import { Button } from '@/components/ui/button';
 import { exportToPDF, exportToImage } from '@/lib/export';
 import { toast } from 'sonner';
@@ -10,6 +11,7 @@ interface ExportButtonsProps {
 }
 
 export function ExportButtons({ targetRef }: ExportButtonsProps) {
+  const { t } = useTranslation();
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async (type: 'pdf' | 'image') => {
@@ -21,9 +23,9 @@ export function ExportButtons({ targetRef }: ExportButtonsProps) {
       } else {
         await exportToImage(targetRef.current);
       }
-      toast.success('저장 완료');
+      toast.success(t.export.exportSuccess);
     } catch {
-      toast.error('저장 실패');
+      toast.error(t.export.exportFail);
     } finally {
       setExporting(false);
     }
@@ -36,7 +38,7 @@ export function ExportButtons({ targetRef }: ExportButtonsProps) {
         disabled={exporting}
         className="flex-1 bg-brand-red text-white hover:bg-brand-red/80 disabled:opacity-40"
       >
-        PDF 저장
+        {t.export.pdf}
       </Button>
       <Button
         onClick={() => handleExport('image')}
@@ -44,7 +46,7 @@ export function ExportButtons({ targetRef }: ExportButtonsProps) {
         variant="outline"
         className="flex-1 border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 disabled:opacity-40"
       >
-        이미지 저장
+        {t.export.image}
       </Button>
     </div>
   );

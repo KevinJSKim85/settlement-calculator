@@ -3,10 +3,11 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { ko, TranslationKeys } from './ko';
 import { zh } from './zh';
+import { en } from './en';
 
-type Language = 'ko' | 'zh';
+type Language = 'ko' | 'zh' | 'en';
 
-const translations: Record<Language, any> = { ko, zh };
+const translations: Record<Language, TranslationKeys> = { ko, zh: zh as unknown as TranslationKeys, en: en as unknown as TranslationKeys };
 
 interface I18nContextType {
   language: Language;

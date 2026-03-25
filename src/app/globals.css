@@ -47,8 +47,8 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --color-brand-red: #C0301E;
-  --color-brand-gold: #F6DA9D;
-  --color-brand-gold-dim: #F6DA9D66;
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-dim: var(--brand-gold-dim);
   --color-brand-red-dim: #C0301E33;
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
@@ -89,6 +89,8 @@
   --sidebar-ring: #C0301E;
   --surface: #F5F5F2;
   --surface-elevated: #FFFFFF;
+  --brand-gold: #8B6B1E;
+  --brand-gold-dim: #8B6B1E66;
 }
 
 .dark {
@@ -125,6 +127,8 @@
   --sidebar-ring: #C0301E;
   --surface: #111111;
   --surface-elevated: #1E1E1E;
+  --brand-gold: #F6DA9D;
+  --brand-gold-dim: #F6DA9D66;
 }
 
 @layer base {
