@@ -66,7 +66,7 @@
   --secondary: #F3F3F0;
   --secondary-foreground: #2A2A2A;
   --muted: #F0F0EC;
-  --muted-foreground: #6B6B6B;
+  --muted-foreground: #4A4A4A;
   --accent: #F6DA9D;
   --accent-foreground: #1A1A1A;
   --destructive: #C0301E;
@@ -89,8 +89,8 @@
   --sidebar-ring: #C0301E;
   --surface: #F5F5F2;
   --surface-elevated: #FFFFFF;
-  --brand-gold: #8B6B1E;
-  --brand-gold-dim: #8B6B1E66;
+  --brand-gold: #6B4F0E;
+  --brand-gold-dim: #6B4F0E66;
 }
 
 .dark {
