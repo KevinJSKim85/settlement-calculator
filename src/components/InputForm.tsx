@@ -132,7 +132,7 @@ function RollingFeeRow({
   const [localFeeAmount, setLocalFeeAmount] = useState('');
 
   const decimals = CURRENCY_CONFIG[currency].decimals;
-  const displayAmount = formatNumber(Math.abs(feeAmount), decimals);
+  const displayAmount = feeAmount > 0 ? `-${formatNumber(feeAmount, decimals)}` : formatNumber(0, decimals);
 
   const handleFeeAmountFocus = () => {
     setEditingAmount(true);
@@ -178,7 +178,7 @@ function RollingFeeRow({
         <Input
           type="text"
           inputMode="decimal"
-          className="h-7 w-32 border-border/40 bg-transparent text-right text-sm tabular-nums font-medium text-foreground focus-visible:ring-1 focus-visible:ring-brand-red/60 sm:ml-auto"
+          className="h-7 w-32 border-border/40 bg-transparent text-right text-sm tabular-nums font-medium text-brand-red focus-visible:ring-1 focus-visible:ring-brand-red/60 sm:ml-auto"
           value={editingAmount ? localFeeAmount : displayAmount}
           onFocus={handleFeeAmountFocus}
           onBlur={handleFeeAmountBlur}

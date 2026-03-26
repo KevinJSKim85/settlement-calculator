@@ -55,14 +55,16 @@ function AmountCell({
   baseCurrency,
   exchangeRates,
   bold = false,
+  forceNegativeStyle = false,
 }: {
   amount: number;
   baseCurrency: Currency;
   exchangeRates?: ExchangeRates;
   bold?: boolean;
+  forceNegativeStyle?: boolean;
 }) {
   const { t } = useTranslation();
-  const isNegative = amount < 0;
+  const isNegative = amount < 0 || forceNegativeStyle;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
     <td className="whitespace-nowrap px-3 py-3 text-right align-top">
@@ -174,9 +176,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                   </span>
                 </td>
                 <AmountCell
-                  amount={rf.amount}
+                  amount={rf.amount > 0 ? -rf.amount : rf.amount}
                   baseCurrency={baseCurrency}
                   exchangeRates={exchangeRates}
+                  forceNegativeStyle
                 />
                 <NoteCell>{rf.feePercent}%</NoteCell>
               </tr>
