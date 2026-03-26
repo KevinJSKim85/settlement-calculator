@@ -250,7 +250,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                   <div>{dist.percentage}%</div>
                   {dist.overallPercent > 0 && (
                     <div className="text-[10px] text-muted-foreground/40">
-                      ={dist.overallPercent}% {t.result.total}
+                      {dist.overallPercent}% {t.result.withinB}
                     </div>
                   )}
                 </NoteCell>

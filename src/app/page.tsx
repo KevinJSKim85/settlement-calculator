@@ -68,7 +68,8 @@ function HomePageContent() {
 
     const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
     const normalizedMemberSum = Math.round(memberSum * 100) / 100;
-    if (normalizedMemberSum !== 100 || members.length === 0) return null;
+    const normalizedTarget = Math.round(revenueBPercent * 100) / 100;
+    if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
 
     const input: SettlementInput = {
       buying: buyingInBase,
@@ -91,12 +92,14 @@ function HomePageContent() {
     baseCurrency,
     effectiveRates,
     revenueAPercent,
+    revenueBPercent,
     members,
   ]);
 
   const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
   const normalizedMemberSum = Math.round(memberSum * 100) / 100;
-  const showDistributionWarning = normalizedMemberSum !== 100 && members.length > 0;
+  const normalizedTarget2 = Math.round(revenueBPercent * 100) / 100;
+  const showDistributionWarning = normalizedMemberSum !== normalizedTarget2 && members.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,7 +127,7 @@ function HomePageContent() {
           <div className="space-y-5">
             {showDistributionWarning && !calculationResult && (
               <div className="rounded-xl border border-brand-red/30 bg-brand-red/10 px-4 py-3 text-sm text-red-400">
-                {t.errors.distributionWarning} ({normalizedMemberSum}% / 100%)
+                {t.errors.distributionWarning} ({normalizedMemberSum}% / {normalizedTarget2}%)
               </div>
             )}
 
