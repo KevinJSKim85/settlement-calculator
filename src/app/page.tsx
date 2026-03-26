@@ -35,8 +35,10 @@ function HomePageContent() {
   const { t } = useTranslation();
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
-  const rolling = useSettlementStore((s) => s.rolling);
-  const rollingFeePercent = useSettlementStore((s) => s.rollingFeePercent);
+  const rollingA = useSettlementStore((s) => s.rollingA);
+  const rollingB = useSettlementStore((s) => s.rollingB);
+  const rollingFeePercentA = useSettlementStore((s) => s.rollingFeePercentA);
+  const rollingFeePercentB = useSettlementStore((s) => s.rollingFeePercentB);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
   const members = useSettlementStore((s) => s.members);
@@ -50,6 +52,8 @@ function HomePageContent() {
     const apiRates = exchangeRateData?.rates || {};
     return { ...apiRates, ...manualExchangeRates };
   }, [exchangeRateData, manualExchangeRates]);
+
+  const revenueBPercent = 100 - revenueAPercent;
 
   const calculationResult = useMemo(() => {
     const buyingInBase = convertAmount(
@@ -66,9 +70,16 @@ function HomePageContent() {
       effectiveRates,
       baseCurrency
     );
-    const rollingInBase = convertAmount(
-      rolling.amount,
-      rolling.currency,
+    const rollingAInBase = convertAmount(
+      rollingA.amount,
+      rollingA.currency,
+      baseCurrency,
+      effectiveRates,
+      baseCurrency
+    );
+    const rollingBInBase = convertAmount(
+      rollingB.amount,
+      rollingB.currency,
       baseCurrency,
       effectiveRates,
       baseCurrency
@@ -76,19 +87,23 @@ function HomePageContent() {
 
     const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
     const normalizedMemberSum = Math.round(memberSum * 100) / 100;
-    if (normalizedMemberSum !== 100 || members.length === 0) return null;
+    const normalizedTarget = Math.round(revenueBPercent * 100) / 100;
+    if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
 
     const input: SettlementInput = {
       buying: buyingInBase,
       buyingCurrency: baseCurrency,
       returning: returningInBase,
       returningCurrency: baseCurrency,
-      rolling: rollingInBase,
-      rollingCurrency: baseCurrency,
+      rollingA: rollingAInBase,
+      rollingACurrency: baseCurrency,
+      rollingB: rollingBInBase,
+      rollingBCurrency: baseCurrency,
     };
 
     const config: SettlementConfig = {
-      rollingFeePercent,
+      rollingFeePercentA,
+      rollingFeePercentB,
       revenueAPercent,
       members,
     };
@@ -97,17 +112,21 @@ function HomePageContent() {
   }, [
     buying,
     returning,
-    rolling,
+    rollingA,
+    rollingB,
     baseCurrency,
     effectiveRates,
-    rollingFeePercent,
+    rollingFeePercentA,
+    rollingFeePercentB,
     revenueAPercent,
+    revenueBPercent,
     members,
   ]);
 
   const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
   const normalizedMemberSum = Math.round(memberSum * 100) / 100;
-  const showDistributionWarning = normalizedMemberSum !== 100 && members.length > 0;
+  const normalizedTarget = Math.round(revenueBPercent * 100) / 100;
+  const showDistributionWarning = normalizedMemberSum !== normalizedTarget && members.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -135,7 +154,7 @@ function HomePageContent() {
           <div className="space-y-5">
             {showDistributionWarning && !calculationResult && (
               <div className="rounded-xl border border-brand-red/30 bg-brand-red/10 px-4 py-3 text-sm text-red-400">
-                분배 비율 합계가 100%가 아닙니다 ({normalizedMemberSum}%)
+                {t.errors.distributionWarning} ({normalizedMemberSum}% / {normalizedTarget}%)
               </div>
             )}
 
@@ -144,7 +163,8 @@ function HomePageContent() {
               result={calculationResult}
               exchangeRates={effectiveRates}
               baseCurrency={baseCurrency}
-              rollingFeePercent={rollingFeePercent}
+              rollingFeePercentA={rollingFeePercentA}
+              rollingFeePercentB={rollingFeePercentB}
               revenueAPercent={revenueAPercent}
             />
 

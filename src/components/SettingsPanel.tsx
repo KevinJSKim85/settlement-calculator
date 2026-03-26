@@ -44,12 +44,10 @@ export function SettingsPanel() {
   const [showBidAsk, setShowBidAsk] = useState(false);
   const [spreadPercent, setSpreadPercent] = useState(DEFAULT_SPREAD_PERCENT);
 
-  const rollingFeePercent = useSettlementStore((s) => s.rollingFeePercent);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
   const exchangeRateData = useSettlementStore((s) => s.exchangeRateData);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
-  const setRollingFeePercent = useSettlementStore((s) => s.setRollingFeePercent);
   const setRevenueAPercent = useSettlementStore((s) => s.setRevenueAPercent);
   const setBaseCurrency = useSettlementStore((s) => s.setBaseCurrency);
   const setExchangeRateData = useSettlementStore((s) => s.setExchangeRateData);
@@ -152,21 +150,6 @@ export function SettingsPanel() {
 
       {isOpen && (
         <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-foreground/70">{t.settings.rollingFeePercent}</Label>
-            <Input
-              type="number"
-              inputMode="decimal"
-              step={0.1}
-              min={0}
-              value={rollingFeePercent}
-              onChange={(e) =>
-                setRollingFeePercent(parseFloat(e.target.value) || 0)
-              }
-              className="border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
-            />
-          </div>
-
           <div className="space-y-1.5">
             <Label className="text-foreground/70">{t.result.revenueA}/{t.result.revenueB}</Label>
             <div className="flex flex-wrap items-center gap-2">

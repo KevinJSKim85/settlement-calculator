@@ -10,7 +10,8 @@ interface ResultsDisplayProps {
   result: SettlementResult | null;
   exchangeRates?: ExchangeRates;
   baseCurrency: Currency;
-  rollingFeePercent: number;
+  rollingFeePercentA: number;
+  rollingFeePercentB: number;
   revenueAPercent: number;
 }
 
@@ -62,6 +63,7 @@ function AmountCell({
   exchangeRates?: ExchangeRates;
   bold?: boolean;
 }) {
+  const { t } = useTranslation();
   const isNegative = amount < 0;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
@@ -75,7 +77,7 @@ function AmountCell({
           .join(' ')}
       >
         {formatCurrency(safeAmount, baseCurrency)}
-        {isNegative && <span className="ml-1 text-[10px] text-brand-red">(손실)</span>}
+        {isNegative && <span className="ml-1 text-[10px] text-brand-red">({t.result.loss})</span>}
       </div>
       <MultiCurrencyLine
         amount={safeAmount}
@@ -107,7 +109,7 @@ function NoteCell({
 
 const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
   function ResultsDisplay(
-    { result, exchangeRates, baseCurrency, rollingFeePercent, revenueAPercent },
+    { result, exchangeRates, baseCurrency, rollingFeePercentA, rollingFeePercentB, revenueAPercent },
     ref
   ) {
     const { t } = useTranslation();
@@ -161,13 +163,23 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/40">
-              <td className="px-3 py-3 text-foreground/80">{t.input.rollingFee}</td>
+              <td className="px-3 py-3 text-foreground/80">{t.input.rollingFeeA}</td>
               <AmountCell
-                amount={result.rollingFee}
+                amount={result.rollingFeeA}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{rollingFeePercent}%</NoteCell>
+              <NoteCell>{rollingFeePercentA}%</NoteCell>
+            </tr>
+
+            <tr className="border-b border-border/40">
+              <td className="px-3 py-3 text-foreground/80">{t.input.rollingFeeB}</td>
+              <AmountCell
+                amount={result.rollingFeeB}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+              />
+              <NoteCell>{rollingFeePercentB}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/60 bg-brand-red/8">
@@ -225,16 +237,17 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                     : ''
                 }
               >
-                <td className="py-3 pl-6 pr-3 text-foreground/80">
-                  {t.result.distribution} {dist.memberName}
-                </td>
+                <td className="py-3 pl-6 pr-3 text-foreground/80">{dist.memberName}</td>
                 <AmountCell
                   amount={dist.amount}
                   baseCurrency={baseCurrency}
                   exchangeRates={exchangeRates}
                 />
                 <NoteCell>
-                  {dist.percentage.toFixed(2)}%
+                  <div>{dist.percentage}%</div>
+                  <div className="text-[10px] text-muted-foreground/40">
+                    {dist.withinBPercent.toFixed(2)}% {t.result.withinB}
+                  </div>
                 </NoteCell>
               </tr>
             ))}

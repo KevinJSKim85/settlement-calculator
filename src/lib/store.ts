@@ -11,7 +11,8 @@ interface InputField {
 
 export interface SettlementStore {
   // === Settings (persisted) ===
-  rollingFeePercent: number;
+  rollingFeePercentA: number;
+  rollingFeePercentB: number;
   revenueAPercent: number;
   baseCurrency: Currency;
   members: DistributionMember[];
@@ -21,13 +22,15 @@ export interface SettlementStore {
   // === Input state (not persisted) ===
   buying: InputField;
   returning: InputField;
-  rolling: InputField;
+  rollingA: InputField;
+  rollingB: InputField;
 
   // === Exchange rate data (not persisted) ===
   exchangeRateData: ExchangeRateData | null;
 
   // === Settings actions ===
-  setRollingFeePercent: (percent: number) => void;
+  setRollingFeePercentA: (percent: number) => void;
+  setRollingFeePercentB: (percent: number) => void;
   setRevenueAPercent: (percent: number) => void;
   setBaseCurrency: (currency: Currency) => void;
   setLanguage: (language: Language) => void;
@@ -44,8 +47,10 @@ export interface SettlementStore {
   setBuyingCurrency: (currency: Currency) => void;
   setReturning: (amount: number) => void;
   setReturningCurrency: (currency: Currency) => void;
-  setRolling: (amount: number) => void;
-  setRollingCurrency: (currency: Currency) => void;
+  setRollingA: (amount: number) => void;
+  setRollingACurrency: (currency: Currency) => void;
+  setRollingB: (amount: number) => void;
+  setRollingBCurrency: (currency: Currency) => void;
 
   // === Exchange rate actions ===
   setExchangeRateData: (data: ExchangeRateData | null) => void;
@@ -59,7 +64,8 @@ export const useSettlementStore = create<SettlementStore>()(
   persist(
     (set, get) => ({
       // === Settings (persisted) ===
-      rollingFeePercent: DEFAULT_SETTINGS.rollingFeePercent,
+      rollingFeePercentA: DEFAULT_SETTINGS.rollingFeePercentA,
+      rollingFeePercentB: DEFAULT_SETTINGS.rollingFeePercentB,
       revenueAPercent: DEFAULT_SETTINGS.revenueAPercent,
       baseCurrency: DEFAULT_SETTINGS.baseCurrency,
       members: DEFAULT_SETTINGS.members,
@@ -75,7 +81,11 @@ export const useSettlementStore = create<SettlementStore>()(
         amount: 0,
         currency: DEFAULT_SETTINGS.baseCurrency,
       },
-      rolling: {
+      rollingA: {
+        amount: 0,
+        currency: DEFAULT_SETTINGS.baseCurrency,
+      },
+      rollingB: {
         amount: 0,
         currency: DEFAULT_SETTINGS.baseCurrency,
       },
@@ -84,8 +94,11 @@ export const useSettlementStore = create<SettlementStore>()(
       exchangeRateData: null,
 
       // === Settings actions ===
-      setRollingFeePercent: (percent: number) =>
-        set({ rollingFeePercent: percent }),
+      setRollingFeePercentA: (percent: number) =>
+        set({ rollingFeePercentA: percent }),
+
+      setRollingFeePercentB: (percent: number) =>
+        set({ rollingFeePercentB: percent }),
 
       setRevenueAPercent: (percent: number) =>
         set({ revenueAPercent: percent }),
@@ -97,7 +110,7 @@ export const useSettlementStore = create<SettlementStore>()(
         set({ language }),
 
       setManualExchangeRate: (currency: Currency, rate: number) =>
-        set((state: any) => ({
+        set((state: SettlementStore) => ({
           manualExchangeRates: {
             ...state.manualExchangeRates,
             [currency]: rate,
@@ -105,14 +118,14 @@ export const useSettlementStore = create<SettlementStore>()(
         })),
 
       clearManualExchangeRate: (currency: Currency) =>
-        set((state: any) => {
+        set((state: SettlementStore) => {
           const { [currency]: _, ...rest } = state.manualExchangeRates;
           return { manualExchangeRates: rest };
         }),
 
       // === Member actions ===
       addMember: (name: string, percentage: number) =>
-        set((state: any) => {
+        set((state: SettlementStore) => {
           if (state.members.length >= 10) {
             console.warn('Maximum 10 members allowed');
             return state;
@@ -128,52 +141,62 @@ export const useSettlementStore = create<SettlementStore>()(
         }),
 
       removeMember: (id: string) =>
-        set((state: any) => {
+        set((state: SettlementStore) => {
           if (state.members.length <= 1) {
             console.warn('Minimum 1 member required');
             return state;
           }
           return {
-            members: state.members.filter((m: any) => m.id !== id),
+            members: state.members.filter((m) => m.id !== id),
           };
         }),
 
       updateMember: (id: string, updates: Partial<Pick<DistributionMember, 'name' | 'percentage'>>) =>
-        set((state: any) => ({
-          members: state.members.map((m: any) =>
+        set((state: SettlementStore) => ({
+          members: state.members.map((m) =>
             m.id === id ? { ...m, ...updates } : m
           ),
         })),
 
       // === Input actions ===
       setBuying: (amount: number) =>
-        set((state: any) => ({
+        set((state: SettlementStore) => ({
           buying: { ...state.buying, amount },
         })),
 
       setBuyingCurrency: (currency: Currency) =>
-        set((state: any) => ({
+        set((state: SettlementStore) => ({
           buying: { ...state.buying, currency },
         })),
 
       setReturning: (amount: number) =>
-        set((state: any) => ({
+        set((state: SettlementStore) => ({
           returning: { ...state.returning, amount },
         })),
 
       setReturningCurrency: (currency: Currency) =>
-        set((state: any) => ({
+        set((state: SettlementStore) => ({
           returning: { ...state.returning, currency },
         })),
 
-      setRolling: (amount: number) =>
-        set((state: any) => ({
-          rolling: { ...state.rolling, amount },
+      setRollingA: (amount: number) =>
+        set((state: SettlementStore) => ({
+          rollingA: { ...state.rollingA, amount },
         })),
 
-      setRollingCurrency: (currency: Currency) =>
-        set((state: any) => ({
-          rolling: { ...state.rolling, currency },
+      setRollingACurrency: (currency: Currency) =>
+        set((state: SettlementStore) => ({
+          rollingA: { ...state.rollingA, currency },
+        })),
+
+      setRollingB: (amount: number) =>
+        set((state: SettlementStore) => ({
+          rollingB: { ...state.rollingB, amount },
+        })),
+
+      setRollingBCurrency: (currency: Currency) =>
+        set((state: SettlementStore) => ({
+          rollingB: { ...state.rollingB, currency },
         })),
 
       // === Exchange rate actions ===
@@ -185,11 +208,12 @@ export const useSettlementStore = create<SettlementStore>()(
         set({
           buying: { amount: 0, currency: get().baseCurrency },
           returning: { amount: 0, currency: get().baseCurrency },
-          rolling: { amount: 0, currency: get().baseCurrency },
+          rollingA: { amount: 0, currency: get().baseCurrency },
+          rollingB: { amount: 0, currency: get().baseCurrency },
         }),
 
       getMemberPercentageSum: () =>
-        get().members.reduce((sum: number, member: any) => sum + member.percentage, 0),
+        get().members.reduce((sum: number, member) => sum + member.percentage, 0),
     }),
     {
       name: 'settlement-settings',
@@ -205,8 +229,8 @@ export const useSettlementStore = create<SettlementStore>()(
           };
         }
       }),
-      partialize: (state: any) => {
-        const { buying, returning, rolling, exchangeRateData, ...persisted } = state;
+      partialize: (state) => {
+        const { buying, returning, rollingA, rollingB, exchangeRateData, ...persisted } = state;
         return persisted;
       },
     }

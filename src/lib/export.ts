@@ -24,6 +24,23 @@ function resolveStyles(clone: Document) {
   });
 }
 
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = filename;
+  link.rel = 'noopener';
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 1000);
+}
+
 export async function exportToImage(element: HTMLElement): Promise<void> {
   const isDark = document.documentElement.classList.contains('dark');
   const canvas = await html2canvas(element, {
@@ -41,12 +58,7 @@ export async function exportToImage(element: HTMLElement): Promise<void> {
     }, 'image/png');
   });
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = getFilename('png');
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, getFilename('png'));
 }
 
 export async function exportToPDF(element: HTMLElement): Promise<void> {
@@ -78,5 +90,7 @@ export async function exportToPDF(element: HTMLElement): Promise<void> {
       : margin;
 
   pdf.addImage(imgData, 'PNG', margin, yOffset, availableWidth, scaledHeight);
-  pdf.save(getFilename('pdf'));
+
+  const pdfBlob = pdf.output('blob');
+  downloadBlob(pdfBlob, getFilename('pdf'));
 }

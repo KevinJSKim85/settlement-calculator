@@ -4,7 +4,8 @@ import { DistributionMember } from './member';
 export type Language = 'ko' | 'zh' | 'en';
 
 export interface AppSettings {
-  rollingFeePercent: number;
+  rollingFeePercentA: number;
+  rollingFeePercentB: number;
   revenueAPercent: number;
   baseCurrency: Currency;
   members: DistributionMember[];
@@ -13,7 +14,8 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  rollingFeePercent: 1.6,
+  rollingFeePercentA: 1.6,
+  rollingFeePercentB: 1.6,
   revenueAPercent: 35,
   baseCurrency: 'KRW',
   members: [],
