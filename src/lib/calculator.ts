@@ -1,7 +1,7 @@
 import type { Currency, DistributionAmount, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
 
 export function calcBalance(buying: number, returning: number): number {
-  return returning - buying;
+  return buying - returning;
 }
 
 export function calcRollingFee(rolling: number, feePercent: number): number {

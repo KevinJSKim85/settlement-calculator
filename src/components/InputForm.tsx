@@ -178,7 +178,7 @@ export function InputForm() {
   const [focusedField, setFocusedField] = useState<FieldKey | null>(null);
   const [localValue, setLocalValue] = useState('');
 
-  const balance = returning.amount - buying.amount;
+  const balance = buying.amount - returning.amount;
   const rollingFee = (rolling.amount * rollingFeePercent) / 100;
 
   const handleFocus = useCallback((field: FieldKey, amount: number) => {
