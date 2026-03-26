@@ -5,23 +5,7 @@ function getFilename(extension: string): string {
   const now = new Date();
   const date = now.toISOString().slice(0, 10).replace(/-/g, '');
   const time = now.toTimeString().slice(0, 8).replace(/:/g, '');
-  return `정산서_${date}_${time}.${extension}`;
-}
-
-function resolveStyles(clone: Document) {
-  const allElements = clone.querySelectorAll('*');
-  allElements.forEach((el) => {
-    if (!(el instanceof HTMLElement)) return;
-    const computed = window.getComputedStyle(el);
-    el.style.color = computed.color;
-    el.style.backgroundColor = computed.backgroundColor;
-    el.style.borderColor = computed.borderColor;
-    el.style.fontSize = computed.fontSize;
-    el.style.fontWeight = computed.fontWeight;
-    el.style.fontFamily = computed.fontFamily;
-    el.style.padding = computed.padding;
-    el.style.margin = computed.margin;
-  });
+  return `settlement_${date}_${time}.${extension}`;
 }
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -41,15 +25,87 @@ function downloadBlob(blob: Blob, filename: string) {
   }, 1000);
 }
 
-export async function exportToImage(element: HTMLElement): Promise<void> {
+function collectCSSVariables(): Map<string, string> {
+  const vars = new Map<string, string>();
+  const rootStyle = getComputedStyle(document.documentElement);
+
+  for (let i = 0; i < rootStyle.length; i++) {
+    const prop = rootStyle[i];
+    if (prop.startsWith('--')) {
+      vars.set(prop, rootStyle.getPropertyValue(prop).trim());
+    }
+  }
+
+  return vars;
+}
+
+function collectElementStyles(element: HTMLElement): Map<number, Record<string, string>> {
+  const styleMap = new Map<number, Record<string, string>>();
+  const elements = element.querySelectorAll('*');
+
+  elements.forEach((el, index) => {
+    if (!(el instanceof HTMLElement)) return;
+    const cs = getComputedStyle(el);
+    styleMap.set(index, {
+      color: cs.color,
+      backgroundColor: cs.backgroundColor,
+      borderColor: cs.borderColor,
+      borderTopColor: cs.borderTopColor,
+      borderBottomColor: cs.borderBottomColor,
+      borderLeftColor: cs.borderLeftColor,
+      borderRightColor: cs.borderRightColor,
+      boxShadow: cs.boxShadow,
+      outlineColor: cs.outlineColor,
+    });
+  });
+
+  return styleMap;
+}
+
+function applyStylesToClone(
+  clonedDoc: Document,
+  cssVars: Map<string, string>,
+  elementStyles: Map<number, Record<string, string>>
+) {
+  const clonedRoot = clonedDoc.documentElement;
+  clonedRoot.className = document.documentElement.className;
+
+  cssVars.forEach((value, prop) => {
+    clonedRoot.style.setProperty(prop, value);
+  });
+
+  const clonedElements = clonedDoc.querySelectorAll('*');
+  clonedElements.forEach((el, index) => {
+    if (!(el instanceof HTMLElement)) return;
+    const styles = elementStyles.get(index);
+    if (!styles) return;
+
+    Object.entries(styles).forEach(([key, value]) => {
+      el.style.setProperty(
+        key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
+        value
+      );
+    });
+  });
+}
+
+async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> {
   const isDark = document.documentElement.classList.contains('dark');
-  const canvas = await html2canvas(element, {
+
+  const cssVars = collectCSSVariables();
+  const elementStyles = collectElementStyles(element);
+
+  return html2canvas(element, {
     scale: 2,
     backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
     useCORS: true,
     logging: false,
-    onclone: (doc) => resolveStyles(doc),
+    onclone: (doc) => applyStylesToClone(doc, cssVars, elementStyles),
   });
+}
+
+export async function exportToImage(element: HTMLElement): Promise<void> {
+  const canvas = await captureElement(element);
 
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((b) => {
@@ -62,14 +118,7 @@ export async function exportToImage(element: HTMLElement): Promise<void> {
 }
 
 export async function exportToPDF(element: HTMLElement): Promise<void> {
-  const isDark = document.documentElement.classList.contains('dark');
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
-    useCORS: true,
-    logging: false,
-    onclone: (doc) => resolveStyles(doc),
-  });
+  const canvas = await captureElement(element);
 
   const imgData = canvas.toDataURL('image/png');
   const pdf = new jsPDF('p', 'mm', 'a4');
