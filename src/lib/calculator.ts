@@ -72,8 +72,8 @@ export function calcSettlement(
   const revenueAFromBalance = Math.round((balance * config.revenueAPercent) / 100);
   const revenueBFromBalance = balance - revenueAFromBalance;
 
-  const revenueA = revenueAFromBalance + feeForA;
-  const revenueB = revenueBFromBalance + feeForB;
+  const revenueA = revenueAFromBalance - feeForA;
+  const revenueB = revenueBFromBalance - feeForB;
   const totalRevenue = revenueA + revenueB;
 
   const revenueBPercent = 100 - config.revenueAPercent;
