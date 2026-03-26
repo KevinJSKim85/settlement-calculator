@@ -128,7 +128,7 @@ export function SettingsPanel() {
   return (
     <Card size="sm" className="border-border/60 bg-card">
       <CardHeader
-        className="cursor-pointer select-none"
+        className="cursor-pointer select-none transition-colors hover:bg-surface/50"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center justify-between">
@@ -289,7 +289,7 @@ export function SettingsPanel() {
                       </span>
                     </div>
                     {bidAsk && (
-                      <div className="ml-24 flex gap-3 pl-2 text-[11px] text-muted-foreground/70">
+                      <div className="ml-24 flex gap-3 pl-2 text-xs text-muted-foreground/70">
                         <span>{t.settings.buyRate} <span className="tabular-nums text-brand-red/80">{bidAsk.ask}</span></span>
                         <span>{t.settings.sellRate} <span className="tabular-nums text-brand-gold/80">{bidAsk.bid}</span></span>
                       </div>

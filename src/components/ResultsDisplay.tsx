@@ -39,7 +39,7 @@ function MultiCurrencyLine({
   }));
 
   return (
-    <div className="mt-0.5 text-[11px] font-normal text-muted-foreground/60">
+    <div className="mt-0.5 text-xs font-normal text-muted-foreground/60">
       {converted.map((c, i) => (
         <React.Fragment key={c.currency}>
           {i > 0 && <span className="mx-1 text-muted-foreground/30">|</span>}
@@ -77,7 +77,7 @@ function AmountCell({
           .join(' ')}
       >
         {formatCurrency(safeAmount, baseCurrency)}
-        {isNegative && <span className="ml-1 text-[10px] text-brand-red">({t.result.loss})</span>}
+        {isNegative && <span className="ml-1 text-xs text-brand-red">({t.result.loss})</span>}
       </div>
       <MultiCurrencyLine
         amount={safeAmount}
@@ -145,13 +145,13 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
         <table className="w-full min-w-[400px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-border/60 bg-surface">
-              <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-brand-gold/70">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 {t.result.item}
               </th>
-              <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 {t.result.amount} ({baseCurrency})
               </th>
-              <th className="w-20 px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
+              <th className="w-20 px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 {t.result.ratio}
               </th>
             </tr>
@@ -171,7 +171,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <tr key={rf.label} className="border-b border-border/40">
                 <td className="whitespace-nowrap px-3 py-3 text-foreground/80">
                   {rollingFeeLabel(rf.label)}
-                  <span className="ml-1.5 text-[10px] text-muted-foreground/40">
+                  <span className="ml-1.5 text-xs text-muted-foreground/40">
                     →{rf.target}
                   </span>
                 </td>
@@ -185,7 +185,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               </tr>
             ))}
 
-            <tr className="border-b border-border/60 bg-brand-red/8">
+            <tr className="border-b border-border/60 bg-brand-red/10">
               <td className="whitespace-nowrap px-3 py-3 font-semibold text-brand-gold">
                 {t.result.revenue}
               </td>
@@ -218,7 +218,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell>{revenueBPercent}%</NoteCell>
             </tr>
 
-            <tr className="border-b border-border/60 bg-brand-gold/8">
+            <tr className="border-b border-border/60 bg-brand-gold/10">
               <td className="whitespace-nowrap px-3 py-3 font-semibold text-brand-gold">
                 {t.result.distribution}
               </td>
@@ -249,7 +249,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 <NoteCell>
                   <div>{dist.percentage}%</div>
                   {dist.overallPercent > 0 && (
-                    <div className="text-[10px] text-muted-foreground/40">
+                    <div className="text-xs text-muted-foreground/40">
                       {dist.overallPercent}% {t.result.withinB}
                     </div>
                   )}

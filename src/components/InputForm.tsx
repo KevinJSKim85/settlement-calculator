@@ -168,7 +168,7 @@ function RollingFeeRow({
             onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
             className="h-6 w-16 border-brand-gold/30 bg-secondary px-1.5 text-center text-xs tabular-nums text-brand-gold focus-visible:ring-1 focus-visible:ring-brand-red/60"
           />
-          <span className="text-[10px] text-muted-foreground/60">%</span>
+          <span className="text-xs text-muted-foreground/60">%</span>
         </span>
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
@@ -212,7 +212,7 @@ function ComputedRow({
       <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {label}
         {isNegative && (
-          <span className="text-[10px] font-semibold text-brand-red">({t.result.loss})</span>
+          <span className="text-xs font-semibold text-brand-red">({t.result.loss})</span>
         )}
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
@@ -276,7 +276,7 @@ function RollingSection({
   })();
 
   return (
-    <div className="space-y-2 rounded-lg border border-brand-gold/10 p-3">
+    <div className="space-y-2 rounded-lg border border-brand-gold/20 p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Button
@@ -284,8 +284,8 @@ function RollingSection({
             variant={entry.target === 'A' ? 'default' : 'outline'}
             size="xs"
             className={entry.target === 'A'
-              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-[10px] h-5 px-1.5'
-              : 'border-border/60 text-muted-foreground/60 text-[10px] h-5 px-1.5 hover:text-foreground'}
+              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-xs h-5 px-1.5'
+              : 'border-border/60 text-muted-foreground/60 text-xs h-5 px-1.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'A')}
           >
             {t.input.targetA} {revenueAPercent}%
@@ -295,8 +295,8 @@ function RollingSection({
             variant={entry.target === 'B' ? 'default' : 'outline'}
             size="xs"
             className={entry.target === 'B'
-              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-[10px] h-5 px-1.5'
-              : 'border-border/60 text-muted-foreground/60 text-[10px] h-5 px-1.5 hover:text-foreground'}
+              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-xs h-5 px-1.5'
+              : 'border-border/60 text-muted-foreground/60 text-xs h-5 px-1.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'B')}
           >
             {t.input.targetB} {revenueBPercent}%

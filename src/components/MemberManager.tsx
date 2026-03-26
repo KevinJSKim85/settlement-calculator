@@ -73,7 +73,7 @@ export function MemberManager() {
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-brand-gold/10 bg-surface px-3 py-2">
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-brand-gold/20 bg-surface px-3 py-2.5">
           <span className="shrink-0 text-sm text-muted-foreground">
             {t.result.revenueA}:
           </span>
@@ -140,7 +140,7 @@ export function MemberManager() {
                 </div>
               </div>
               {member.percentage > 0 && revenueBPercent > 0 && (
-                <div className="ml-1 text-[11px] tabular-nums text-muted-foreground/60">
+                <div className="ml-1 text-xs tabular-nums text-muted-foreground/60">
                   → {t.result.revenueB} {withinBPercent}%
                   <span className="ml-1.5 text-muted-foreground/40">
                     ({member.percentage}/{revenueBPercent}×100)
@@ -159,7 +159,7 @@ export function MemberManager() {
                 type="button"
                 variant="outline"
                 size="xs"
-                className="border-brand-gold/20 text-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold text-[10px]"
+                className="border-brand-gold/20 text-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold text-xs"
                 onClick={handleFillRemaining}
               >
                 +{remaining}%
