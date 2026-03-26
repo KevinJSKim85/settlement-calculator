@@ -72,12 +72,13 @@ export function calcSettlement(
   const revenueAFromBalance = Math.round((balance * config.revenueAPercent) / 100);
   const revenueBFromBalance = balance - revenueAFromBalance;
 
-  const revenueA = revenueAFromBalance - feeForA;
-  const revenueB = revenueBFromBalance - feeForB;
-  const totalRevenue = revenueA + revenueB;
+  const revenueA = revenueAFromBalance;
+  const revenueB = revenueBFromBalance;
+  const totalRevenue = balance;
 
   const revenueBPercent = 100 - config.revenueAPercent;
-  const distribution = calcDistribution(revenueB, config.members, revenueBPercent);
+  const distributionBase = revenueB - feeForB;
+  const distribution = calcDistribution(distributionBase, config.members, revenueBPercent);
 
   return {
     balance,
