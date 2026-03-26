@@ -43,6 +43,6 @@ export interface DistributionAmount {
   memberId: string;
   memberName: string;
   percentage: number;
-  withinBPercent: number;
+  overallPercent: number;
   amount: number;
 }

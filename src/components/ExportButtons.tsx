@@ -8,9 +8,10 @@ import { toast } from 'sonner';
 
 interface ExportButtonsProps {
   targetRef: React.RefObject<HTMLElement | null>;
+  disabled?: boolean;
 }
 
-export function ExportButtons({ targetRef }: ExportButtonsProps) {
+export function ExportButtons({ targetRef, disabled }: ExportButtonsProps) {
   const { t } = useTranslation();
   const [exporting, setExporting] = useState(false);
 
@@ -35,14 +36,14 @@ export function ExportButtons({ targetRef }: ExportButtonsProps) {
     <div className="flex flex-col gap-2 sm:flex-row">
       <Button
         onClick={() => handleExport('pdf')}
-        disabled={exporting}
+        disabled={exporting || disabled}
         className="flex-1 bg-brand-red text-white hover:bg-brand-red/80 disabled:opacity-40"
       >
         {t.export.pdf}
       </Button>
       <Button
         onClick={() => handleExport('image')}
-        disabled={exporting}
+        disabled={exporting || disabled}
         variant="outline"
         className="flex-1 border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 disabled:opacity-40"
       >

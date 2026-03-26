@@ -44,16 +44,12 @@ export function SettingsPanel() {
   const [showBidAsk, setShowBidAsk] = useState(false);
   const [spreadPercent, setSpreadPercent] = useState(DEFAULT_SPREAD_PERCENT);
 
-  const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
   const exchangeRateData = useSettlementStore((s) => s.exchangeRateData);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
-  const setRevenueAPercent = useSettlementStore((s) => s.setRevenueAPercent);
   const setBaseCurrency = useSettlementStore((s) => s.setBaseCurrency);
   const setExchangeRateData = useSettlementStore((s) => s.setExchangeRateData);
   const setManualExchangeRate = useSettlementStore((s) => s.setManualExchangeRate);
-
-  const revenueBPercent = 100 - revenueAPercent;
   const viewBase = rateViewCurrency || baseCurrency;
 
   const prevBaseCurrencyRef = useRef(baseCurrency);
@@ -150,31 +146,6 @@ export function SettingsPanel() {
 
       {isOpen && (
         <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-foreground/70">{t.result.revenueA}/{t.result.revenueB}</Label>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="shrink-0 text-sm text-muted-foreground">
-                {t.result.revenueA}:
-              </span>
-              <Input
-                type="number"
-                inputMode="decimal"
-                min={0}
-                max={100}
-                value={revenueAPercent}
-                onChange={(e) =>
-                  setRevenueAPercent(parseFloat(e.target.value) || 0)
-                }
-                className="w-20 border-border/60 bg-secondary text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
-              />
-              <span className="text-sm text-muted-foreground">%</span>
-              <span className="hidden text-sm text-muted-foreground/40 sm:inline">|</span>
-              <span className="whitespace-nowrap text-sm text-muted-foreground">
-                {t.result.revenueB}: {revenueBPercent}%
-              </span>
-            </div>
-          </div>
-
           <div className="space-y-1.5">
             <Label className="text-foreground/70">{t.settings.baseCurrency}</Label>
             <Select

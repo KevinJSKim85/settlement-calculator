@@ -13,18 +13,18 @@ export function calcDistribution(
   members: { id: string; name: string; percentage: number }[],
   revenueBPercent: number
 ): DistributionAmount[] {
-  if (members.length === 0 || revenueBPercent <= 0) {
+  if (members.length === 0) {
     return [];
   }
 
   const distribution = members.map((member) => {
-    const withinBPercent = (member.percentage / revenueBPercent) * 100;
+    const overallPercent = Math.round(member.percentage * revenueBPercent) / 100;
     return {
       memberId: member.id,
       memberName: member.name,
       percentage: member.percentage,
-      withinBPercent,
-      amount: Math.round((revenueB * member.percentage) / revenueBPercent),
+      overallPercent,
+      amount: Math.round((revenueB * member.percentage) / 100),
     };
   });
 

@@ -147,7 +147,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 {t.result.item}
               </th>
               <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
-                {t.result.amount}
+                {t.result.amount} ({baseCurrency})
               </th>
               <th className="w-20 px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-brand-gold/70">
                 {t.result.ratio}
@@ -245,9 +245,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 />
                 <NoteCell>
                   <div>{dist.percentage}%</div>
-                  <div className="text-[10px] text-muted-foreground/40">
-                    {dist.withinBPercent.toFixed(2)}% {t.result.withinB}
-                  </div>
+                  {dist.overallPercent > 0 && (
+                    <div className="text-[10px] text-muted-foreground/40">
+                      ={dist.overallPercent}% {t.result.total}
+                    </div>
+                  )}
                 </NoteCell>
               </tr>
             ))}

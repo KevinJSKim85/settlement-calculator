@@ -255,10 +255,13 @@ function RollingSection({
   onAddAmount: (id: string, currentAmount: number, addValue: number) => void;
 }) {
   const { t } = useTranslation();
+  const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const removeRolling = useSettlementStore((s) => s.removeRolling);
   const setRollingCurrency = useSettlementStore((s) => s.setRollingCurrency);
   const setRollingFeePercent = useSettlementStore((s) => s.setRollingFeePercent);
   const setRollingTarget = useSettlementStore((s) => s.setRollingTarget);
+
+  const revenueBPercent = 100 - revenueAPercent;
 
   const label = String.fromCharCode(65 + index);
   const rollingLabel = total > 1 ? `${t.input.rolling} ${label}` : t.input.rolling;
@@ -285,7 +288,7 @@ function RollingSection({
               : 'border-border/60 text-muted-foreground/60 text-[10px] h-5 px-1.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'A')}
           >
-            {t.input.targetA}
+            {t.input.targetA} {revenueAPercent}%
           </Button>
           <Button
             type="button"
@@ -296,7 +299,7 @@ function RollingSection({
               : 'border-border/60 text-muted-foreground/60 text-[10px] h-5 px-1.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'B')}
           >
-            {t.input.targetB}
+            {t.input.targetB} {revenueBPercent}%
           </Button>
         </div>
         {total > 1 && (
