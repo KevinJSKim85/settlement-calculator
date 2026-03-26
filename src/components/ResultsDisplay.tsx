@@ -158,7 +158,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
           </thead>
           <tbody>
             <tr className="border-b border-border/40">
-              <td className="px-3 py-3 text-foreground/80">{t.input.balance}</td>
+              <td className="whitespace-nowrap px-3 py-3 text-foreground/80">{t.input.balance}</td>
               <AmountCell
                 amount={result.balance}
                 baseCurrency={baseCurrency}
@@ -169,7 +169,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
 
             {result.rollingFees.map((rf) => (
               <tr key={rf.label} className="border-b border-border/40">
-                <td className="px-3 py-3 text-foreground/80">
+                <td className="whitespace-nowrap px-3 py-3 text-foreground/80">
                   {rollingFeeLabel(rf.label)}
                   <span className="ml-1.5 text-[10px] text-muted-foreground/40">
                     →{rf.target}
@@ -186,7 +186,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             ))}
 
             <tr className="border-b border-border/60 bg-brand-red/8">
-              <td className="px-3 py-3 font-semibold text-brand-gold">
+              <td className="whitespace-nowrap px-3 py-3 font-semibold text-brand-gold">
                 {t.result.revenue}
               </td>
               <AmountCell
@@ -199,7 +199,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/40">
-              <td className="py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueA}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueA}</td>
               <AmountCell
                 amount={result.revenueA}
                 baseCurrency={baseCurrency}
@@ -209,7 +209,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/40">
-              <td className="py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueB}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueB}</td>
               <AmountCell
                 amount={result.revenueB}
                 baseCurrency={baseCurrency}
@@ -219,7 +219,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/60 bg-brand-gold/8">
-              <td className="px-3 py-3 font-semibold text-brand-gold">
+              <td className="whitespace-nowrap px-3 py-3 font-semibold text-brand-gold">
                 {t.result.distribution}
               </td>
               <AmountCell
@@ -240,7 +240,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                     : ''
                 }
               >
-                <td className="py-3 pl-6 pr-3 text-foreground/80">{dist.memberName}</td>
+                <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{dist.memberName}</td>
                 <AmountCell
                   amount={dist.amount}
                   baseCurrency={baseCurrency}
