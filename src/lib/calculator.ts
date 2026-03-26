@@ -1,4 +1,4 @@
-import type { Currency, DistributionAmount, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
+import type { Currency, DistributionAmount, RollingFeeEntry, RollingFeeResult, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
 
 export function calcBalance(buying: number, returning: number): number {
   return buying - returning;
@@ -42,20 +42,36 @@ export function calcDistribution(
   );
 }
 
+export function calcRollingFees(entries: RollingFeeEntry[]): RollingFeeResult[] {
+  return entries.map((entry, index) => ({
+    label: String.fromCharCode(65 + index),
+    amount: calcRollingFee(entry.amount, entry.feePercent),
+    feePercent: entry.feePercent,
+    target: entry.target,
+  }));
+}
+
 export function calcSettlement(
   input: SettlementInput,
   config: SettlementConfig,
   baseCurrency: Currency
 ): SettlementResult {
   const balance = calcBalance(input.buying, input.returning);
-  const rollingFeeA = calcRollingFee(input.rollingA, config.rollingFeePercentA);
-  const rollingFeeB = calcRollingFee(input.rollingB, config.rollingFeePercentB);
+
+  const rollingFees = calcRollingFees(input.rollingEntries);
+
+  const feeForA = rollingFees
+    .filter((r) => r.target === 'A')
+    .reduce((sum, r) => sum + r.amount, 0);
+  const feeForB = rollingFees
+    .filter((r) => r.target === 'B')
+    .reduce((sum, r) => sum + r.amount, 0);
 
   const revenueAFromBalance = Math.round((balance * config.revenueAPercent) / 100);
   const revenueBFromBalance = balance - revenueAFromBalance;
 
-  const revenueA = revenueAFromBalance + rollingFeeA;
-  const revenueB = revenueBFromBalance + rollingFeeB;
+  const revenueA = revenueAFromBalance + feeForA;
+  const revenueB = revenueBFromBalance + feeForB;
   const totalRevenue = revenueA + revenueB;
 
   const revenueBPercent = 100 - config.revenueAPercent;
@@ -63,8 +79,7 @@ export function calcSettlement(
 
   return {
     balance,
-    rollingFeeA,
-    rollingFeeB,
+    rollingFees,
     totalRevenue,
     revenueA,
     revenueB,

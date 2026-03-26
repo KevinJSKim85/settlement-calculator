@@ -14,7 +14,7 @@ import { I18nProvider, useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { calcSettlement } from '@/lib/calculator';
 import { convertAmount } from '@/lib/currency';
-import type { SettlementConfig, SettlementInput } from '@/types';
+import type { RollingFeeEntry, SettlementConfig, SettlementInput } from '@/types';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -35,10 +35,7 @@ function HomePageContent() {
   const { t } = useTranslation();
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
-  const rollingA = useSettlementStore((s) => s.rollingA);
-  const rollingB = useSettlementStore((s) => s.rollingB);
-  const rollingFeePercentA = useSettlementStore((s) => s.rollingFeePercentA);
-  const rollingFeePercentB = useSettlementStore((s) => s.rollingFeePercentB);
+  const rollings = useSettlementStore((s) => s.rollings);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
   const members = useSettlementStore((s) => s.members);
@@ -57,33 +54,17 @@ function HomePageContent() {
 
   const calculationResult = useMemo(() => {
     const buyingInBase = convertAmount(
-      buying.amount,
-      buying.currency,
-      baseCurrency,
-      effectiveRates,
-      baseCurrency
+      buying.amount, buying.currency, baseCurrency, effectiveRates, baseCurrency
     );
     const returningInBase = convertAmount(
-      returning.amount,
-      returning.currency,
-      baseCurrency,
-      effectiveRates,
-      baseCurrency
+      returning.amount, returning.currency, baseCurrency, effectiveRates, baseCurrency
     );
-    const rollingAInBase = convertAmount(
-      rollingA.amount,
-      rollingA.currency,
-      baseCurrency,
-      effectiveRates,
-      baseCurrency
-    );
-    const rollingBInBase = convertAmount(
-      rollingB.amount,
-      rollingB.currency,
-      baseCurrency,
-      effectiveRates,
-      baseCurrency
-    );
+
+    const rollingEntries: RollingFeeEntry[] = rollings.map((r) => ({
+      amount: convertAmount(r.amount, r.currency, baseCurrency, effectiveRates, baseCurrency),
+      feePercent: r.feePercent,
+      target: r.target,
+    }));
 
     const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
     const normalizedMemberSum = Math.round(memberSum * 100) / 100;
@@ -95,15 +76,10 @@ function HomePageContent() {
       buyingCurrency: baseCurrency,
       returning: returningInBase,
       returningCurrency: baseCurrency,
-      rollingA: rollingAInBase,
-      rollingACurrency: baseCurrency,
-      rollingB: rollingBInBase,
-      rollingBCurrency: baseCurrency,
+      rollingEntries,
     };
 
     const config: SettlementConfig = {
-      rollingFeePercentA,
-      rollingFeePercentB,
       revenueAPercent,
       members,
     };
@@ -112,12 +88,9 @@ function HomePageContent() {
   }, [
     buying,
     returning,
-    rollingA,
-    rollingB,
+    rollings,
     baseCurrency,
     effectiveRates,
-    rollingFeePercentA,
-    rollingFeePercentB,
     revenueAPercent,
     revenueBPercent,
     members,
@@ -163,8 +136,6 @@ function HomePageContent() {
               result={calculationResult}
               exchangeRates={effectiveRates}
               baseCurrency={baseCurrency}
-              rollingFeePercentA={rollingFeePercentA}
-              rollingFeePercentB={rollingFeePercentB}
               revenueAPercent={revenueAPercent}
             />
 

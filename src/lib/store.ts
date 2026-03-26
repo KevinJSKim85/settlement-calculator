@@ -2,60 +2,66 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Currency, ExchangeRateData, ExchangeRates, DistributionMember, Language, DEFAULT_SETTINGS } from '@/types';
+import type { Currency, ExchangeRateData, ExchangeRates, DistributionMember, RollingTarget } from '@/types';
+import { DEFAULT_SETTINGS } from '@/types';
+import type { Language } from '@/types';
 
 interface InputField {
   amount: number;
   currency: Currency;
 }
 
+export interface RollingEntry {
+  id: string;
+  amount: number;
+  currency: Currency;
+  feePercent: number;
+  target: RollingTarget;
+}
+
+const MAX_ROLLINGS = 3;
+
+function makeRollingId(): string {
+  return `rolling-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+}
+
 export interface SettlementStore {
-  // === Settings (persisted) ===
-  rollingFeePercentA: number;
-  rollingFeePercentB: number;
   revenueAPercent: number;
   baseCurrency: Currency;
   members: DistributionMember[];
   manualExchangeRates: ExchangeRates;
   language: Language;
 
-  // === Input state (not persisted) ===
   buying: InputField;
   returning: InputField;
-  rollingA: InputField;
-  rollingB: InputField;
+  rollings: RollingEntry[];
 
-  // === Exchange rate data (not persisted) ===
   exchangeRateData: ExchangeRateData | null;
 
-  // === Settings actions ===
-  setRollingFeePercentA: (percent: number) => void;
-  setRollingFeePercentB: (percent: number) => void;
   setRevenueAPercent: (percent: number) => void;
   setBaseCurrency: (currency: Currency) => void;
   setLanguage: (language: Language) => void;
   setManualExchangeRate: (currency: Currency, rate: number) => void;
   clearManualExchangeRate: (currency: Currency) => void;
 
-  // === Member actions ===
   addMember: (name: string, percentage: number) => void;
   removeMember: (id: string) => void;
   updateMember: (id: string, updates: Partial<Pick<DistributionMember, 'name' | 'percentage'>>) => void;
 
-  // === Input actions ===
   setBuying: (amount: number) => void;
   setBuyingCurrency: (currency: Currency) => void;
   setReturning: (amount: number) => void;
   setReturningCurrency: (currency: Currency) => void;
-  setRollingA: (amount: number) => void;
-  setRollingACurrency: (currency: Currency) => void;
-  setRollingB: (amount: number) => void;
-  setRollingBCurrency: (currency: Currency) => void;
 
-  // === Exchange rate actions ===
+  addRolling: () => void;
+  removeRolling: (id: string) => void;
+  setRollingAmount: (id: string, amount: number) => void;
+  setRollingCurrency: (id: string, currency: Currency) => void;
+  setRollingFeePercent: (id: string, feePercent: number) => void;
+  setRollingTarget: (id: string, target: RollingTarget) => void;
+
   setExchangeRateData: (data: ExchangeRateData | null) => void;
 
-  // === Utility ===
   resetInputs: () => void;
   getMemberPercentageSum: () => number;
 }
@@ -63,42 +69,21 @@ export interface SettlementStore {
 export const useSettlementStore = create<SettlementStore>()(
   persist(
     (set, get) => ({
-      // === Settings (persisted) ===
-      rollingFeePercentA: DEFAULT_SETTINGS.rollingFeePercentA,
-      rollingFeePercentB: DEFAULT_SETTINGS.rollingFeePercentB,
       revenueAPercent: DEFAULT_SETTINGS.revenueAPercent,
       baseCurrency: DEFAULT_SETTINGS.baseCurrency,
       members: DEFAULT_SETTINGS.members,
       manualExchangeRates: DEFAULT_SETTINGS.manualExchangeRates,
       language: DEFAULT_SETTINGS.language,
 
-      // === Input state (not persisted) ===
-      buying: {
+      buying: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
+      returning: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
+      rollings: DEFAULT_SETTINGS.rollingSettings.map((s) => ({
+        ...s,
         amount: 0,
         currency: DEFAULT_SETTINGS.baseCurrency,
-      },
-      returning: {
-        amount: 0,
-        currency: DEFAULT_SETTINGS.baseCurrency,
-      },
-      rollingA: {
-        amount: 0,
-        currency: DEFAULT_SETTINGS.baseCurrency,
-      },
-      rollingB: {
-        amount: 0,
-        currency: DEFAULT_SETTINGS.baseCurrency,
-      },
+      })),
 
-      // === Exchange rate data (not persisted) ===
       exchangeRateData: null,
-
-      // === Settings actions ===
-      setRollingFeePercentA: (percent: number) =>
-        set({ rollingFeePercentA: percent }),
-
-      setRollingFeePercentB: (percent: number) =>
-        set({ rollingFeePercentB: percent }),
 
       setRevenueAPercent: (percent: number) =>
         set({ revenueAPercent: percent }),
@@ -123,32 +108,21 @@ export const useSettlementStore = create<SettlementStore>()(
           return { manualExchangeRates: rest };
         }),
 
-      // === Member actions ===
       addMember: (name: string, percentage: number) =>
         set((state: SettlementStore) => {
-          if (state.members.length >= 10) {
-            console.warn('Maximum 10 members allowed');
-            return state;
-          }
+          if (state.members.length >= 10) return state;
           const newMember: DistributionMember = {
             id: `member-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             name,
             percentage,
           };
-          return {
-            members: [...state.members, newMember],
-          };
+          return { members: [...state.members, newMember] };
         }),
 
       removeMember: (id: string) =>
         set((state: SettlementStore) => {
-          if (state.members.length <= 1) {
-            console.warn('Minimum 1 member required');
-            return state;
-          }
-          return {
-            members: state.members.filter((m) => m.id !== id),
-          };
+          if (state.members.length <= 1) return state;
+          return { members: state.members.filter((m) => m.id !== id) };
         }),
 
       updateMember: (id: string, updates: Partial<Pick<DistributionMember, 'name' | 'percentage'>>) =>
@@ -158,59 +132,76 @@ export const useSettlementStore = create<SettlementStore>()(
           ),
         })),
 
-      // === Input actions ===
       setBuying: (amount: number) =>
-        set((state: SettlementStore) => ({
-          buying: { ...state.buying, amount },
-        })),
+        set((state: SettlementStore) => ({ buying: { ...state.buying, amount } })),
 
       setBuyingCurrency: (currency: Currency) =>
-        set((state: SettlementStore) => ({
-          buying: { ...state.buying, currency },
-        })),
+        set((state: SettlementStore) => ({ buying: { ...state.buying, currency } })),
 
       setReturning: (amount: number) =>
-        set((state: SettlementStore) => ({
-          returning: { ...state.returning, amount },
-        })),
+        set((state: SettlementStore) => ({ returning: { ...state.returning, amount } })),
 
       setReturningCurrency: (currency: Currency) =>
+        set((state: SettlementStore) => ({ returning: { ...state.returning, currency } })),
+
+      addRolling: () =>
+        set((state: SettlementStore) => {
+          if (state.rollings.length >= MAX_ROLLINGS) return state;
+          const newEntry: RollingEntry = {
+            id: makeRollingId(),
+            amount: 0,
+            currency: state.baseCurrency,
+            feePercent: 1.6,
+            target: 'B',
+          };
+          return { rollings: [...state.rollings, newEntry] };
+        }),
+
+      removeRolling: (id: string) =>
+        set((state: SettlementStore) => {
+          if (state.rollings.length <= 1) return state;
+          return { rollings: state.rollings.filter((r) => r.id !== id) };
+        }),
+
+      setRollingAmount: (id: string, amount: number) =>
         set((state: SettlementStore) => ({
-          returning: { ...state.returning, currency },
+          rollings: state.rollings.map((r) =>
+            r.id === id ? { ...r, amount } : r
+          ),
         })),
 
-      setRollingA: (amount: number) =>
+      setRollingCurrency: (id: string, currency: Currency) =>
         set((state: SettlementStore) => ({
-          rollingA: { ...state.rollingA, amount },
+          rollings: state.rollings.map((r) =>
+            r.id === id ? { ...r, currency } : r
+          ),
         })),
 
-      setRollingACurrency: (currency: Currency) =>
+      setRollingFeePercent: (id: string, feePercent: number) =>
         set((state: SettlementStore) => ({
-          rollingA: { ...state.rollingA, currency },
+          rollings: state.rollings.map((r) =>
+            r.id === id ? { ...r, feePercent } : r
+          ),
         })),
 
-      setRollingB: (amount: number) =>
+      setRollingTarget: (id: string, target: RollingTarget) =>
         set((state: SettlementStore) => ({
-          rollingB: { ...state.rollingB, amount },
+          rollings: state.rollings.map((r) =>
+            r.id === id ? { ...r, target } : r
+          ),
         })),
 
-      setRollingBCurrency: (currency: Currency) =>
-        set((state: SettlementStore) => ({
-          rollingB: { ...state.rollingB, currency },
-        })),
-
-      // === Exchange rate actions ===
       setExchangeRateData: (data: ExchangeRateData | null) =>
         set({ exchangeRateData: data }),
 
-      // === Utility ===
-      resetInputs: () =>
-        set({
-          buying: { amount: 0, currency: get().baseCurrency },
-          returning: { amount: 0, currency: get().baseCurrency },
-          rollingA: { amount: 0, currency: get().baseCurrency },
-          rollingB: { amount: 0, currency: get().baseCurrency },
-        }),
+      resetInputs: () => {
+        const base = get().baseCurrency;
+        set((state: SettlementStore) => ({
+          buying: { amount: 0, currency: base },
+          returning: { amount: 0, currency: base },
+          rollings: state.rollings.map((r) => ({ ...r, amount: 0, currency: base })),
+        }));
+      },
 
       getMemberPercentageSum: () =>
         get().members.reduce((sum: number, member) => sum + member.percentage, 0),
@@ -221,7 +212,6 @@ export const useSettlementStore = create<SettlementStore>()(
         try {
           return localStorage;
         } catch {
-          // Fallback for private browsing or environments without localStorage
           return {
             getItem: () => null,
             setItem: () => {},
@@ -229,10 +219,20 @@ export const useSettlementStore = create<SettlementStore>()(
           };
         }
       }),
-      partialize: (state) => {
-        const { buying, returning, rollingA, rollingB, exchangeRateData, ...persisted } = state;
-        return persisted;
-      },
+      partialize: (state) => ({
+        revenueAPercent: state.revenueAPercent,
+        baseCurrency: state.baseCurrency,
+        members: state.members,
+        manualExchangeRates: state.manualExchangeRates,
+        language: state.language,
+        rollings: state.rollings.map((r) => ({
+          id: r.id,
+          amount: 0,
+          currency: state.baseCurrency,
+          feePercent: r.feePercent,
+          target: r.target,
+        })),
+      }),
     }
   )
 );

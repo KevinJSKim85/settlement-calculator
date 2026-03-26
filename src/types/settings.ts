@@ -1,24 +1,33 @@
 import { Currency, ExchangeRates } from './currency';
 import { DistributionMember } from './member';
+import { RollingTarget } from './settlement';
 
 export type Language = 'ko' | 'zh' | 'en';
 
+export interface RollingSetting {
+  id: string;
+  feePercent: number;
+  target: RollingTarget;
+}
+
 export interface AppSettings {
-  rollingFeePercentA: number;
-  rollingFeePercentB: number;
   revenueAPercent: number;
   baseCurrency: Currency;
   members: DistributionMember[];
   manualExchangeRates: ExchangeRates;
   language: Language;
+  rollingSettings: RollingSetting[];
 }
 
+export const DEFAULT_ROLLING_ID = 'rolling-default';
+
 export const DEFAULT_SETTINGS: AppSettings = {
-  rollingFeePercentA: 1.6,
-  rollingFeePercentB: 1.6,
   revenueAPercent: 35,
   baseCurrency: 'KRW',
   members: [],
   manualExchangeRates: {},
   language: 'ko',
+  rollingSettings: [
+    { id: DEFAULT_ROLLING_ID, feePercent: 1.6, target: 'A' },
+  ],
 };

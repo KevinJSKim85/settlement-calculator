@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslation } from '@/i18n';
-import { useSettlementStore } from '@/lib/store';
+import { useSettlementStore, RollingEntry } from '@/lib/store';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
 import { CURRENCIES, CURRENCY_CONFIG } from '@/types';
 import type { Currency } from '@/types';
@@ -15,10 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-type FieldKey = 'buying' | 'returning' | 'rollingA' | 'rollingB';
 
 function CurrencySelect({
   value,
@@ -116,22 +113,93 @@ function InputRow({
   );
 }
 
+function RollingFeeRow({
+  label,
+  feeAmount,
+  feePercent,
+  rollingAmount,
+  currency,
+  onFeePercentChange,
+}: {
+  label: string;
+  feeAmount: number;
+  feePercent: number;
+  rollingAmount: number;
+  currency: Currency;
+  onFeePercentChange: (percent: number) => void;
+}) {
+  const [editingAmount, setEditingAmount] = useState(false);
+  const [localFeeAmount, setLocalFeeAmount] = useState('');
+
+  const decimals = CURRENCY_CONFIG[currency].decimals;
+  const displayAmount = formatNumber(Math.abs(feeAmount), decimals);
+
+  const handleFeeAmountFocus = () => {
+    setEditingAmount(true);
+    const rounded = Math.round(feeAmount * 100) / 100;
+    setLocalFeeAmount(rounded === 0 ? '' : rounded.toString());
+  };
+
+  const handleFeeAmountBlur = () => {
+    setEditingAmount(false);
+    const parsed = parseFormattedNumber(localFeeAmount);
+    if (rollingAmount > 0 && parsed >= 0) {
+      const newPercent = Math.round((parsed / rollingAmount) * 10000) / 100;
+      onFeePercentChange(newPercent);
+    }
+    setLocalFeeAmount('');
+  };
+
+  const handleFeeAmountChange = (value: string) => {
+    setLocalFeeAmount(value);
+  };
+
+  return (
+    <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-surface px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+      <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+        {label}
+        <span className="flex items-center gap-1">
+          <Input
+            type="number"
+            inputMode="decimal"
+            step={0.1}
+            min={0}
+            value={feePercent}
+            onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
+            className="h-6 w-16 border-brand-gold/30 bg-secondary px-1.5 text-center text-xs tabular-nums text-brand-gold focus-visible:ring-1 focus-visible:ring-brand-red/60"
+          />
+          <span className="text-[10px] text-muted-foreground/60">%</span>
+        </span>
+      </span>
+      <div className="flex items-center justify-between gap-2 sm:contents">
+        <span className="text-sm text-muted-foreground">
+          {currency} {CURRENCY_CONFIG[currency].symbol}
+        </span>
+        <Input
+          type="text"
+          inputMode="decimal"
+          className="h-7 w-32 border-border/40 bg-transparent text-right text-sm tabular-nums font-medium text-foreground focus-visible:ring-1 focus-visible:ring-brand-red/60 sm:ml-auto"
+          value={editingAmount ? localFeeAmount : displayAmount}
+          onFocus={handleFeeAmountFocus}
+          onBlur={handleFeeAmountBlur}
+          onChange={(e) => handleFeeAmountChange(e.target.value)}
+          placeholder="0"
+        />
+      </div>
+    </div>
+  );
+}
+
 function ComputedRow({
   label,
   value,
   currency,
   isNegative,
-  badge,
-  feePercent,
-  onFeePercentChange,
 }: {
   label: string;
   value: number;
   currency: Currency;
   isNegative?: boolean;
-  badge?: string;
-  feePercent?: number;
-  onFeePercentChange?: (percent: number) => void;
 }) {
   const { t } = useTranslation();
   const decimals = CURRENCY_CONFIG[currency].decimals;
@@ -143,25 +211,6 @@ function ComputedRow({
     <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-surface px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
       <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {label}
-        {badge && !feePercent && (
-          <Badge variant="secondary" className="border-brand-gold/20 bg-brand-gold/10 text-brand-gold text-[10px]">
-            {badge}
-          </Badge>
-        )}
-        {feePercent !== undefined && onFeePercentChange && (
-          <span className="flex items-center gap-1">
-            <Input
-              type="number"
-              inputMode="decimal"
-              step={0.1}
-              min={0}
-              value={feePercent}
-              onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
-              className="h-6 w-16 border-brand-gold/30 bg-secondary px-1.5 text-center text-xs tabular-nums text-brand-gold focus-visible:ring-1 focus-visible:ring-brand-red/60"
-            />
-            <span className="text-[10px] text-muted-foreground/60">%</span>
-          </span>
-        )}
         {isNegative && (
           <span className="text-[10px] font-semibold text-brand-red">({t.result.loss})</span>
         )}
@@ -182,6 +231,111 @@ function ComputedRow({
   );
 }
 
+function RollingSection({
+  entry,
+  index,
+  total,
+  quickAmountLabels,
+  focusedField,
+  localValue,
+  onFocus,
+  onBlur,
+  onChange,
+  onAddAmount,
+}: {
+  entry: RollingEntry;
+  index: number;
+  total: number;
+  quickAmountLabels: string[];
+  focusedField: string | null;
+  localValue: string;
+  onFocus: (id: string, amount: number) => void;
+  onBlur: () => void;
+  onChange: (id: string, value: string) => void;
+  onAddAmount: (id: string, currentAmount: number, addValue: number) => void;
+}) {
+  const { t } = useTranslation();
+  const removeRolling = useSettlementStore((s) => s.removeRolling);
+  const setRollingCurrency = useSettlementStore((s) => s.setRollingCurrency);
+  const setRollingFeePercent = useSettlementStore((s) => s.setRollingFeePercent);
+  const setRollingTarget = useSettlementStore((s) => s.setRollingTarget);
+
+  const label = String.fromCharCode(65 + index);
+  const rollingLabel = total > 1 ? `${t.input.rolling} ${label}` : t.input.rolling;
+  const feeLabel = total > 1 ? `${t.input.rollingFee} ${label}` : t.input.rollingFee;
+  const feeAmount = (entry.amount * entry.feePercent) / 100;
+  const fieldId = entry.id;
+
+  const displayValue = (() => {
+    if (focusedField === fieldId) return localValue;
+    if (entry.amount === 0) return '';
+    return formatNumber(entry.amount, CURRENCY_CONFIG[entry.currency].decimals);
+  })();
+
+  return (
+    <div className="space-y-2 rounded-lg border border-brand-gold/10 p-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Button
+            type="button"
+            variant={entry.target === 'A' ? 'default' : 'outline'}
+            size="xs"
+            className={entry.target === 'A'
+              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-[10px] h-5 px-1.5'
+              : 'border-border/60 text-muted-foreground/60 text-[10px] h-5 px-1.5 hover:text-foreground'}
+            onClick={() => setRollingTarget(entry.id, 'A')}
+          >
+            {t.input.targetA}
+          </Button>
+          <Button
+            type="button"
+            variant={entry.target === 'B' ? 'default' : 'outline'}
+            size="xs"
+            className={entry.target === 'B'
+              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-[10px] h-5 px-1.5'
+              : 'border-border/60 text-muted-foreground/60 text-[10px] h-5 px-1.5 hover:text-foreground'}
+            onClick={() => setRollingTarget(entry.id, 'B')}
+          >
+            {t.input.targetB}
+          </Button>
+        </div>
+        {total > 1 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground/40 hover:text-brand-red"
+            onClick={() => removeRolling(entry.id)}
+          >
+            ✕
+          </Button>
+        )}
+      </div>
+
+      <InputRow
+        label={rollingLabel}
+        value={displayValue}
+        currency={entry.currency}
+        quickAmountLabels={quickAmountLabels}
+        onValueChange={(v) => onChange(fieldId, v)}
+        onCurrencyChange={(c) => setRollingCurrency(entry.id, c)}
+        onAddAmount={(val) => onAddAmount(fieldId, entry.amount, val)}
+        onFocus={() => onFocus(fieldId, entry.amount)}
+        onBlur={onBlur}
+      />
+
+      <RollingFeeRow
+        label={feeLabel}
+        feeAmount={feeAmount}
+        feePercent={entry.feePercent}
+        rollingAmount={entry.amount}
+        currency={entry.currency}
+        onFeePercentChange={(p) => setRollingFeePercent(entry.id, p)}
+      />
+    </div>
+  );
+}
+
 export function InputForm() {
   const { t } = useTranslation();
   const quickAmountLabels = [
@@ -193,30 +347,20 @@ export function InputForm() {
   ];
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
-  const rollingA = useSettlementStore((s) => s.rollingA);
-  const rollingB = useSettlementStore((s) => s.rollingB);
-  const rollingFeePercentA = useSettlementStore((s) => s.rollingFeePercentA);
-  const rollingFeePercentB = useSettlementStore((s) => s.rollingFeePercentB);
-
+  const rollings = useSettlementStore((s) => s.rollings);
   const setBuying = useSettlementStore((s) => s.setBuying);
   const setBuyingCurrency = useSettlementStore((s) => s.setBuyingCurrency);
   const setReturning = useSettlementStore((s) => s.setReturning);
   const setReturningCurrency = useSettlementStore((s) => s.setReturningCurrency);
-  const setRollingA = useSettlementStore((s) => s.setRollingA);
-  const setRollingACurrency = useSettlementStore((s) => s.setRollingACurrency);
-  const setRollingB = useSettlementStore((s) => s.setRollingB);
-  const setRollingBCurrency = useSettlementStore((s) => s.setRollingBCurrency);
-  const setRollingFeePercentA = useSettlementStore((s) => s.setRollingFeePercentA);
-  const setRollingFeePercentB = useSettlementStore((s) => s.setRollingFeePercentB);
+  const setRollingAmount = useSettlementStore((s) => s.setRollingAmount);
+  const addRolling = useSettlementStore((s) => s.addRolling);
 
-  const [focusedField, setFocusedField] = useState<FieldKey | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const [localValue, setLocalValue] = useState('');
 
   const balance = buying.amount - returning.amount;
-  const rollingFeeA = (rollingA.amount * rollingFeePercentA) / 100;
-  const rollingFeeB = (rollingB.amount * rollingFeePercentB) / 100;
 
-  const handleFocus = useCallback((field: FieldKey, amount: number) => {
+  const handleFocus = useCallback((field: string, amount: number) => {
     setFocusedField(field);
     setLocalValue(amount === 0 ? '' : amount.toString());
   }, []);
@@ -227,53 +371,29 @@ export function InputForm() {
   }, []);
 
   const handleChange = useCallback(
-    (field: FieldKey, value: string) => {
+    (field: string, value: string) => {
       setLocalValue(value);
       const parsed = parseFormattedNumber(value);
-      switch (field) {
-        case 'buying':
-          setBuying(parsed);
-          break;
-        case 'returning':
-          setReturning(parsed);
-          break;
-        case 'rollingA':
-          setRollingA(parsed);
-          break;
-        case 'rollingB':
-          setRollingB(parsed);
-          break;
-      }
+      if (field === 'buying') setBuying(parsed);
+      else if (field === 'returning') setReturning(parsed);
+      else setRollingAmount(field, parsed);
     },
-    [setBuying, setReturning, setRollingA, setRollingB]
+    [setBuying, setReturning, setRollingAmount]
   );
 
   const handleAddAmount = useCallback(
-    (field: FieldKey, currentAmount: number, addValue: number) => {
+    (field: string, currentAmount: number, addValue: number) => {
       const newAmount = currentAmount + addValue;
-      switch (field) {
-        case 'buying':
-          setBuying(newAmount);
-          break;
-        case 'returning':
-          setReturning(newAmount);
-          break;
-        case 'rollingA':
-          setRollingA(newAmount);
-          break;
-        case 'rollingB':
-          setRollingB(newAmount);
-          break;
-      }
-      if (focusedField === field) {
-        setLocalValue(newAmount.toString());
-      }
+      if (field === 'buying') setBuying(newAmount);
+      else if (field === 'returning') setReturning(newAmount);
+      else setRollingAmount(field, newAmount);
+      if (focusedField === field) setLocalValue(newAmount.toString());
     },
-    [focusedField, setBuying, setReturning, setRollingA, setRollingB]
+    [focusedField, setBuying, setReturning, setRollingAmount]
   );
 
   const getDisplayValue = useCallback(
-    (field: FieldKey, amount: number, currency: Currency) => {
+    (field: string, amount: number, currency: Currency) => {
       if (focusedField === field) return localValue;
       if (amount === 0) return '';
       return formatNumber(amount, CURRENCY_CONFIG[currency].decimals);
@@ -318,47 +438,33 @@ export function InputForm() {
           isNegative={balance < 0}
         />
 
-        <div className="space-y-2 rounded-lg border border-brand-gold/10 p-3">
-          <InputRow
-            label={t.input.rollingA}
-            value={getDisplayValue('rollingA', rollingA.amount, rollingA.currency)}
-            currency={rollingA.currency}
+        {rollings.map((entry, index) => (
+          <RollingSection
+            key={entry.id}
+            entry={entry}
+            index={index}
+            total={rollings.length}
             quickAmountLabels={quickAmountLabels}
-            onValueChange={(v) => handleChange('rollingA', v)}
-            onCurrencyChange={setRollingACurrency}
-            onAddAmount={(val) => handleAddAmount('rollingA', rollingA.amount, val)}
-            onFocus={() => handleFocus('rollingA', rollingA.amount)}
+            focusedField={focusedField}
+            localValue={localValue}
+            onFocus={handleFocus}
             onBlur={handleBlur}
+            onChange={handleChange}
+            onAddAmount={handleAddAmount}
           />
-          <ComputedRow
-            label={t.input.rollingFeeA}
-            value={rollingFeeA}
-            currency={rollingA.currency}
-            feePercent={rollingFeePercentA}
-            onFeePercentChange={setRollingFeePercentA}
-          />
-        </div>
+        ))}
 
-        <div className="space-y-2 rounded-lg border border-brand-gold/10 p-3">
-          <InputRow
-            label={t.input.rollingB}
-            value={getDisplayValue('rollingB', rollingB.amount, rollingB.currency)}
-            currency={rollingB.currency}
-            quickAmountLabels={quickAmountLabels}
-            onValueChange={(v) => handleChange('rollingB', v)}
-            onCurrencyChange={setRollingBCurrency}
-            onAddAmount={(val) => handleAddAmount('rollingB', rollingB.amount, val)}
-            onFocus={() => handleFocus('rollingB', rollingB.amount)}
-            onBlur={handleBlur}
-          />
-          <ComputedRow
-            label={t.input.rollingFeeB}
-            value={rollingFeeB}
-            currency={rollingB.currency}
-            feePercent={rollingFeePercentB}
-            onFeePercentChange={setRollingFeePercentB}
-          />
-        </div>
+        {rollings.length < 3 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full border-brand-gold/20 text-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold"
+            onClick={addRolling}
+          >
+            {t.input.addRolling}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

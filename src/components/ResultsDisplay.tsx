@@ -10,8 +10,6 @@ interface ResultsDisplayProps {
   result: SettlementResult | null;
   exchangeRates?: ExchangeRates;
   baseCurrency: Currency;
-  rollingFeePercentA: number;
-  rollingFeePercentB: number;
   revenueAPercent: number;
 }
 
@@ -109,7 +107,7 @@ function NoteCell({
 
 const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
   function ResultsDisplay(
-    { result, exchangeRates, baseCurrency, rollingFeePercentA, rollingFeePercentB, revenueAPercent },
+    { result, exchangeRates, baseCurrency, revenueAPercent },
     ref
   ) {
     const { t } = useTranslation();
@@ -130,6 +128,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
       (sum, d) => sum + d.amount,
       0
     );
+
+    const rollingFeeLabel = (label: string) =>
+      result.rollingFees.length > 1
+        ? `${t.input.rollingFee} ${label}`
+        : t.input.rollingFee;
 
     return (
       <div
@@ -162,25 +165,22 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell />
             </tr>
 
-            <tr className="border-b border-border/40">
-              <td className="px-3 py-3 text-foreground/80">{t.input.rollingFeeA}</td>
-              <AmountCell
-                amount={result.rollingFeeA}
-                baseCurrency={baseCurrency}
-                exchangeRates={exchangeRates}
-              />
-              <NoteCell>{rollingFeePercentA}%</NoteCell>
-            </tr>
-
-            <tr className="border-b border-border/40">
-              <td className="px-3 py-3 text-foreground/80">{t.input.rollingFeeB}</td>
-              <AmountCell
-                amount={result.rollingFeeB}
-                baseCurrency={baseCurrency}
-                exchangeRates={exchangeRates}
-              />
-              <NoteCell>{rollingFeePercentB}%</NoteCell>
-            </tr>
+            {result.rollingFees.map((rf) => (
+              <tr key={rf.label} className="border-b border-border/40">
+                <td className="px-3 py-3 text-foreground/80">
+                  {rollingFeeLabel(rf.label)}
+                  <span className="ml-1.5 text-[10px] text-muted-foreground/40">
+                    →{rf.target}
+                  </span>
+                </td>
+                <AmountCell
+                  amount={rf.amount}
+                  baseCurrency={baseCurrency}
+                  exchangeRates={exchangeRates}
+                />
+                <NoteCell>{rf.feePercent}%</NoteCell>
+              </tr>
+            ))}
 
             <tr className="border-b border-border/60 bg-brand-red/8">
               <td className="px-3 py-3 font-semibold text-brand-gold">
