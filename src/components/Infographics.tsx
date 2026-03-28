@@ -101,16 +101,16 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
       </svg>
       <div className="flex flex-col gap-1.5 text-xs">
         {outerSegments.map((s) => (
-          <div key={s.label} className="flex items-center gap-2">
-            <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: s.color }} />
+          <div key={s.label} className="flex items-center gap-2 whitespace-nowrap">
+            <span className="inline-block size-3 shrink-0 rounded-sm" style={{ backgroundColor: s.color }} />
             <span className="text-muted-foreground">{s.label}</span>
             <span className="font-bold tabular-nums text-foreground">{s.pct}%</span>
           </div>
         ))}
         <div className="my-0.5 border-t border-border/30" />
         {innerSegments.map((s) => (
-          <div key={s.label} className="flex items-center gap-2">
-            <span className="inline-block size-2.5 rounded-sm" style={{ backgroundColor: s.color }} />
+          <div key={s.label} className="flex items-center gap-2 whitespace-nowrap">
+            <span className="inline-block size-2.5 shrink-0 rounded-sm" style={{ backgroundColor: s.color }} />
             <span className="text-muted-foreground">{s.label}</span>
             <span className="tabular-nums text-foreground">{s.pct.toFixed(1)}%</span>
           </div>
