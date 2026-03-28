@@ -175,7 +175,7 @@ function StackedBar({ result, revenueAPercent }: InfographicsProps) {
   const totalPct = result.distribution.reduce((s, d) => s + Math.abs(d.percentage), 0);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 overflow-hidden">
       <div>
         <div className="mb-1 text-xs text-muted-foreground">{t.result.revenue}</div>
         <div className="flex h-7 overflow-hidden rounded-md">
@@ -240,7 +240,7 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
           <DonutChart result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
         </div>
 
-        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-gold/70">
             {t.result.distribution}
           </h3>
