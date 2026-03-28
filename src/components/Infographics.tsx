@@ -302,7 +302,8 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
   return (
     <div className="flex flex-col gap-2">
       {items.map((item, idx) => {
-        const widthPct = Math.min((Math.abs(item.value) / maxAbs) * 100, 100);
+        const rawPct = Math.min((Math.abs(item.value) / maxAbs) * 100, 100);
+        const widthPct = rawPct > 0 ? Math.max(rawPct, 3) : 0;
         const barColor =
           item.type === 'negative'
             ? 'bg-brand-red'
