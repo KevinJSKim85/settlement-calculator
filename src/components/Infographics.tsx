@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/lib/currency';
 import type { Currency, SettlementResult } from '@/types';
@@ -9,6 +10,53 @@ interface InfographicsProps {
   result: SettlementResult;
   baseCurrency: Currency;
   revenueAPercent: number;
+}
+
+/* ── Chart Tooltip ── */
+
+interface TooltipData {
+  label: string;
+  amount: string;
+  detail: string;
+}
+
+function ChartTooltip({ data, x, y }: { data: TooltipData | null; x: number; y: number }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted || !data) return null;
+
+  return createPortal(
+    <div
+      className="pointer-events-none fixed z-50 rounded-lg border border-border/60 bg-popover px-3 py-2 text-popover-foreground shadow-xl"
+      style={{ left: x + 14, top: y - 10 }}
+    >
+      <div className="text-xs font-semibold">{data.label}</div>
+      <div className="mt-0.5 text-sm font-bold tabular-nums">{data.amount}</div>
+      {data.detail && (
+        <div className="mt-0.5 text-[11px] text-muted-foreground">{data.detail}</div>
+      )}
+    </div>,
+    document.body
+  );
+}
+
+function useTooltip() {
+  const [data, setData] = useState<TooltipData | null>(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const show = useCallback((e: React.MouseEvent, d: TooltipData) => {
+    setPos({ x: e.clientX, y: e.clientY });
+    setData(d);
+  }, []);
+
+  const move = useCallback((e: React.MouseEvent) => {
+    setPos({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  const hide = useCallback(() => { setData(null); }, []);
+
+  return { data, pos, show, move, hide };
 }
 
 /* ── Summary Cards ── */
@@ -46,26 +94,108 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
 
 /* ── Donut Chart (SVG) ── */
 
+interface ChartSegment {
+  key: string;
+  label: string;
+  pct: number;
+  color: string;
+  amount: number;
+}
+
 function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
   const { t } = useTranslation();
+  const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
+  const [hovered, setHovered] = useState<string | null>(null);
+  const hoveredRef = useRef<string | null>(null);
   const revenueBPercent = 100 - revenueAPercent;
 
-  const outerSegments = [
-    { label: t.result.revenueA, pct: revenueAPercent, color: '#C0301E' },
-    { label: t.result.revenueB, pct: revenueBPercent, color: 'var(--brand-gold)' },
+  const outerSegments: ChartSegment[] = [
+    { key: 'o-0', label: t.result.revenueA, pct: revenueAPercent, color: '#C0301E', amount: result.revenueA },
+    { key: 'o-1', label: t.result.revenueB, pct: revenueBPercent, color: 'var(--brand-gold)', amount: result.revenueB },
   ];
 
-  const innerSegments = result.distribution.map((d, i) => ({
+  const innerSegments: ChartSegment[] = result.distribution.map((d, i) => ({
+    key: `i-${i}`,
     label: d.memberName,
     pct: d.overallPercent > 0 ? d.overallPercent : d.percentage,
     color: `hsl(${15 + i * 25}, 70%, ${45 + i * 8}%)`,
+    amount: d.amount,
   }));
 
-  const renderRing = (
-    segments: { label: string; pct: number; color: string }[],
-    r: number,
-    stroke: number
-  ) => {
+  const setHoveredSync = useCallback((key: string | null) => {
+    hoveredRef.current = key;
+    setHovered(key);
+  }, []);
+
+  const onSegEnter = useCallback((e: React.MouseEvent, seg: ChartSegment) => {
+    setHoveredSync(seg.key);
+    show(e, {
+      label: seg.label,
+      amount: formatCurrency(seg.amount, baseCurrency),
+      detail: `${seg.pct.toFixed(1)}%`,
+    });
+  }, [baseCurrency, show, setHoveredSync]);
+
+  const onSegMove = move;
+
+  const onSegLeave = useCallback(() => {
+    setHoveredSync(null);
+    hide();
+  }, [hide, setHoveredSync]);
+
+  const findSegmentAtAngle = (segments: ChartSegment[], angleDeg: number) => {
+    const totalPct = segments.reduce((s, seg) => s + Math.abs(seg.pct), 0);
+    if (totalPct === 0) return null;
+    let cum = 0;
+    for (const seg of segments) {
+      const span = (Math.abs(seg.pct) / totalPct) * 360;
+      if (angleDeg >= cum && angleDeg < cum + span) return seg;
+      cum += span;
+    }
+    return null;
+  };
+
+  const handleSvgMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const vx = ((e.clientX - rect.left) / rect.width) * 120;
+    const vy = ((e.clientY - rect.top) / rect.height) * 120;
+
+    const sx = 120 - vy;
+    const sy = vx;
+    const dx = sx - 60;
+    const dy = sy - 60;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    let segments: ChartSegment[] | null = null;
+    if (dist >= 43 && dist <= 57) segments = outerSegments;
+    else if (dist >= 29 && dist <= 39 && innerSegments.length > 0) segments = innerSegments;
+
+    if (!segments) {
+      if (hoveredRef.current !== null) { setHoveredSync(null); hide(); }
+      return;
+    }
+
+    let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    if (angle < 0) angle += 360;
+
+    const found = findSegmentAtAngle(segments, angle);
+    if (found) {
+      if (found.key !== hoveredRef.current) {
+        setHoveredSync(found.key);
+        show(e, {
+          label: found.label,
+          amount: formatCurrency(found.amount, baseCurrency),
+          detail: `${found.pct.toFixed(1)}%`,
+        });
+      } else {
+        move(e);
+      }
+    } else {
+      if (hoveredRef.current !== null) { setHoveredSync(null); hide(); }
+    }
+  };
+
+  const renderRing = (segments: ChartSegment[], r: number, stroke: number) => {
     const circumference = 2 * Math.PI * r;
     let offset = 0;
     const totalPct = segments.reduce((s, seg) => s + Math.abs(seg.pct), 0);
@@ -74,34 +204,53 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
       const normalizedPct = totalPct > 0 ? (Math.abs(seg.pct) / totalPct) * 100 : 0;
       const dashLength = (normalizedPct / 100) * circumference;
       const dashGap = circumference - dashLength;
-      const el = (
+      const curOffset = offset;
+      offset += dashLength;
+
+      const isActive = hovered === seg.key;
+      const anyHovered = hovered !== null;
+
+      return (
         <circle
-          key={seg.label}
-          cx="60"
-          cy="60"
-          r={r}
+          key={seg.key}
+          cx="60" cy="60" r={r}
           fill="none"
           stroke={seg.color}
-          strokeWidth={stroke}
+          strokeWidth={isActive ? stroke + 2 : stroke}
           strokeDasharray={`${dashLength} ${dashGap}`}
-          strokeDashoffset={-offset}
-          className="transition-all duration-500"
+          strokeDashoffset={-curOffset}
+          className="transition-all duration-300"
+          style={{ opacity: anyHovered ? (isActive ? 1 : 0.3) : 1 }}
         />
       );
-      offset += dashLength;
-      return el;
     });
   };
 
   return (
     <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-5">
-      <svg viewBox="0 0 120 120" className="mx-auto size-32 shrink-0 -rotate-90" aria-hidden="true">
+      <svg
+        viewBox="0 0 120 120"
+        className="mx-auto size-32 shrink-0 -rotate-90 cursor-pointer"
+        aria-hidden="true"
+        onMouseMove={handleSvgMove}
+        onMouseLeave={() => { setHoveredSync(null); hide(); }}
+      >
         {renderRing(outerSegments, 50, 14)}
         {innerSegments.length > 0 && renderRing(innerSegments, 34, 10)}
       </svg>
+
       <div className="min-w-0 space-y-1.5 text-xs">
         {outerSegments.map((s) => (
-          <div key={s.label} className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] items-center gap-2">
+          <div
+            key={s.label}
+            role="img"
+            aria-label={`${s.label}: ${s.pct}%`}
+            className="grid cursor-pointer grid-cols-[0.75rem_minmax(0,1fr)_auto] items-center gap-2 rounded px-1 transition-colors duration-200"
+            style={{ backgroundColor: hovered === s.key ? 'var(--surface)' : 'transparent' }}
+            onMouseEnter={(e) => onSegEnter(e, s)}
+            onMouseMove={onSegMove}
+            onMouseLeave={onSegLeave}
+          >
             <span className="inline-block size-3 shrink-0 rounded-sm" style={{ backgroundColor: s.color }} />
             <span className="truncate text-muted-foreground">{s.label}</span>
             <span className="font-bold tabular-nums text-foreground">{s.pct}%</span>
@@ -109,13 +258,24 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
         ))}
         <div className="my-0.5 border-t border-border/30" />
         {innerSegments.map((s) => (
-          <div key={s.label} className="grid grid-cols-[0.625rem_minmax(0,1fr)_auto] items-center gap-2">
+          <div
+            key={s.key}
+            role="img"
+            aria-label={`${s.label}: ${s.pct.toFixed(1)}%`}
+            className="grid cursor-pointer grid-cols-[0.625rem_minmax(0,1fr)_auto] items-center gap-2 rounded px-1 transition-colors duration-200"
+            style={{ backgroundColor: hovered === s.key ? 'var(--surface)' : 'transparent' }}
+            onMouseEnter={(e) => onSegEnter(e, s)}
+            onMouseMove={onSegMove}
+            onMouseLeave={onSegLeave}
+          >
             <span className="inline-block size-2.5 shrink-0 rounded-sm" style={{ backgroundColor: s.color }} />
             <span className="truncate text-muted-foreground">{s.label}</span>
             <span className="tabular-nums text-foreground">{s.pct.toFixed(1)}%</span>
           </div>
         ))}
       </div>
+
+      <ChartTooltip data={tipData} x={tipPos.x} y={tipPos.y} />
     </div>
   );
 }
@@ -124,6 +284,8 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
 function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
   const { t } = useTranslation();
+  const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const totalFees = result.rollingFees.reduce((s, r) => s + r.amount, 0);
   const distributionTotal = result.distribution.reduce((s, d) => s + d.amount, 0);
 
@@ -139,7 +301,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      {items.map((item) => {
+      {items.map((item, idx) => {
         const widthPct = Math.min((Math.abs(item.value) / maxAbs) * 100, 100);
         const barColor =
           item.type === 'negative'
@@ -148,13 +310,35 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
               ? 'bg-brand-gold/80'
               : 'bg-brand-gold/40';
 
+        const isActive = hoveredIdx === idx;
+        const anyHovered = hoveredIdx !== null;
+
         return (
-          <div key={item.label} className="flex items-center gap-2">
+          <div
+            key={item.label}
+            role="img"
+            aria-label={`${item.label}: ${formatCurrency(item.value, baseCurrency)}`}
+            className="flex cursor-pointer items-center gap-2 rounded-md px-1 transition-opacity duration-200"
+            style={{ opacity: anyHovered ? (isActive ? 1 : 0.4) : 1 }}
+            onMouseEnter={(e) => {
+              setHoveredIdx(idx);
+              show(e, {
+                label: item.label,
+                amount: formatCurrency(item.value, baseCurrency),
+                detail: `${widthPct.toFixed(1)}%`,
+              });
+            }}
+            onMouseMove={move}
+            onMouseLeave={() => { setHoveredIdx(null); hide(); }}
+          >
             <span className="w-16 shrink-0 text-right text-xs text-muted-foreground">{item.label}</span>
             <div className="relative h-6 flex-1 overflow-hidden rounded bg-surface">
               <div
-                className={`absolute inset-y-0 left-0 rounded transition-all duration-500 ${barColor}`}
-                style={{ width: `${widthPct}%` }}
+                className={`absolute inset-y-0 left-0 rounded transition-all duration-300 ${barColor}`}
+                style={{
+                  width: `${widthPct}%`,
+                  filter: isActive ? 'brightness(1.15)' : 'none',
+                }}
               />
             </div>
             <span className={`w-24 shrink-0 text-right text-xs font-medium tabular-nums ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
@@ -163,14 +347,17 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
           </div>
         );
       })}
+      <ChartTooltip data={tipData} x={tipPos.x} y={tipPos.y} />
     </div>
   );
 }
 
 /* ── Stacked Bar ── */
 
-function StackedBar({ result, revenueAPercent }: InfographicsProps) {
+function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
   const { t } = useTranslation();
+  const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
+  const [hovered, setHovered] = useState<string | null>(null);
   const revenueBPercent = 100 - revenueAPercent;
   const totalPct = result.distribution.reduce((s, d) => s + Math.abs(d.percentage), 0);
 
@@ -180,14 +367,46 @@ function StackedBar({ result, revenueAPercent }: InfographicsProps) {
         <div className="mb-1 text-xs text-muted-foreground">{t.result.revenue}</div>
         <div className="flex h-7 overflow-hidden rounded-md">
           <div
-            className="flex items-center justify-center bg-brand-red text-xs font-bold text-white"
-            style={{ width: `${revenueAPercent}%` }}
+            role="img"
+            aria-label={`${t.result.revenueA}: ${revenueAPercent}%`}
+            className="flex cursor-pointer items-center justify-center bg-brand-red text-xs font-bold text-white transition-all duration-200"
+            style={{
+              width: `${revenueAPercent}%`,
+              opacity: hovered !== null ? (hovered === 'rev-a' ? 1 : 0.4) : 1,
+              filter: hovered === 'rev-a' ? 'brightness(1.15)' : 'none',
+            }}
+            onMouseEnter={(e) => {
+              setHovered('rev-a');
+              show(e, {
+                label: t.result.revenueA,
+                amount: formatCurrency(result.revenueA, baseCurrency),
+                detail: `${revenueAPercent}%`,
+              });
+            }}
+            onMouseMove={move}
+            onMouseLeave={() => { setHovered(null); hide(); }}
           >
             {revenueAPercent > 10 && `A ${revenueAPercent}%`}
           </div>
           <div
-            className="flex items-center justify-center bg-brand-gold text-xs font-bold text-background"
-            style={{ width: `${revenueBPercent}%` }}
+            role="img"
+            aria-label={`${t.result.revenueB}: ${revenueBPercent}%`}
+            className="flex cursor-pointer items-center justify-center bg-brand-gold text-xs font-bold text-background transition-all duration-200"
+            style={{
+              width: `${revenueBPercent}%`,
+              opacity: hovered !== null ? (hovered === 'rev-b' ? 1 : 0.4) : 1,
+              filter: hovered === 'rev-b' ? 'brightness(1.15)' : 'none',
+            }}
+            onMouseEnter={(e) => {
+              setHovered('rev-b');
+              show(e, {
+                label: t.result.revenueB,
+                amount: formatCurrency(result.revenueB, baseCurrency),
+                detail: `${revenueBPercent}%`,
+              });
+            }}
+            onMouseMove={move}
+            onMouseLeave={() => { setHovered(null); hide(); }}
           >
             {revenueBPercent > 10 && `B ${revenueBPercent}%`}
           </div>
@@ -201,14 +420,34 @@ function StackedBar({ result, revenueAPercent }: InfographicsProps) {
             {result.distribution.map((d, i) => {
               const widthPct = (Math.abs(d.percentage) / totalPct) * 100;
               const hue = 15 + i * 25;
+              const key = `dist-${i}`;
+              const isActive = hovered === key;
+              const anyHovered = hovered !== null;
+              const detailParts = [`${d.percentage}%`];
+              if (d.overallPercent > 0) detailParts.push(`${d.overallPercent}% ${t.result.withinB}`);
+
               return (
                 <div
                   key={d.memberId}
-                  className="flex items-center justify-center text-xs font-medium text-white"
+                  role="img"
+                  aria-label={`${d.memberName}: ${d.percentage}%`}
+                  className="flex cursor-pointer items-center justify-center text-xs font-medium text-white transition-all duration-200"
                   style={{
                     width: `${widthPct}%`,
                     backgroundColor: `hsl(${hue}, 70%, ${45 + i * 8}%)`,
+                    opacity: anyHovered ? (isActive ? 1 : 0.4) : 1,
+                    filter: isActive ? 'brightness(1.15)' : 'none',
                   }}
+                  onMouseEnter={(e) => {
+                    setHovered(key);
+                    show(e, {
+                      label: d.memberName,
+                      amount: formatCurrency(d.amount, baseCurrency),
+                      detail: detailParts.join(' · '),
+                    });
+                  }}
+                  onMouseMove={move}
+                  onMouseLeave={() => { setHovered(null); hide(); }}
                 >
                   {widthPct > 12 && d.memberName}
                 </div>
@@ -217,6 +456,7 @@ function StackedBar({ result, revenueAPercent }: InfographicsProps) {
           </div>
         </div>
       )}
+      <ChartTooltip data={tipData} x={tipPos.x} y={tipPos.y} />
     </div>
   );
 }
