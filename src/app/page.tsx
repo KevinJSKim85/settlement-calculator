@@ -31,28 +31,28 @@ function ThemeToggle() {
   );
 }
 
-function AdBanner({ href, label, primary = false }: { href?: string; label: string; primary?: boolean }) {
-  const content = (
-    <div
-      className={[
-        'flex items-center justify-center rounded-lg border px-4 py-3 text-center text-sm font-bold tracking-wide transition-colors',
-        primary
-          ? 'border-foreground/20 bg-foreground text-background hover:opacity-90'
-          : 'border-border/60 bg-surface text-muted-foreground/40',
-      ].join(' ')}
-    >
+function PoweredBy() {
+  return (
+    <div className="flex items-center justify-center gap-1.5 py-1 text-xs text-muted-foreground/50">
+      <span>Powered by</span>
+      <a
+        href="https://beat.gg"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-bold tracking-wide text-brand-gold/70 transition-colors hover:text-brand-gold"
+      >
+        BEAT.GG
+      </a>
+    </div>
+  );
+}
+
+function AdBanner({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-center rounded-lg border border-border/40 bg-surface px-4 py-3 text-center text-xs text-muted-foreground/30">
       {label}
     </div>
   );
-
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer">
-        {content}
-      </a>
-    );
-  }
-  return content;
 }
 
 function HomePageContent() {
@@ -141,9 +141,9 @@ function HomePageContent() {
           </div>
         </header>
 
-        <AdBanner href="https://beat.gg" label="BEAT.GG" primary />
+        <PoweredBy />
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           <div className="space-y-5">
             <InputForm />
             <AdBanner label="AD SPACE" />
