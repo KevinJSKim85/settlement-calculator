@@ -167,6 +167,48 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <NoteCell />
             </tr>
 
+            <tr className="border-b border-border/40">
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingA}</td>
+              <AmountCell
+                amount={result.buyingA}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+              />
+              <NoteCell>{revenueAPercent}%</NoteCell>
+            </tr>
+
+            <tr className="border-b border-border/40">
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingB}</td>
+              <AmountCell
+                amount={result.buyingB}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+              />
+              <NoteCell>{revenueBPercent}%</NoteCell>
+            </tr>
+
+            <tr className="border-b border-border/40">
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.returningA}</td>
+              <AmountCell
+                amount={result.returningA > 0 ? -result.returningA : result.returningA}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+                forceNegativeStyle={result.returningA > 0}
+              />
+              <NoteCell>{revenueAPercent}%</NoteCell>
+            </tr>
+
+            <tr className="border-b border-border/40">
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.returningB}</td>
+              <AmountCell
+                amount={result.returningB > 0 ? -result.returningB : result.returningB}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+                forceNegativeStyle={result.returningB > 0}
+              />
+              <NoteCell>{revenueBPercent}%</NoteCell>
+            </tr>
+
             {result.rollingFees.map((rf) => (
               <tr key={rf.label} className="border-b border-border/40">
                 <td className="whitespace-nowrap px-3 py-3 text-foreground/80">

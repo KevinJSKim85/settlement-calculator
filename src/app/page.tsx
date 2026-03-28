@@ -31,6 +31,30 @@ function ThemeToggle() {
   );
 }
 
+function AdBanner({ href, label, primary = false }: { href?: string; label: string; primary?: boolean }) {
+  const content = (
+    <div
+      className={[
+        'flex items-center justify-center rounded-lg border px-4 py-3 text-center text-sm font-bold tracking-wide transition-colors',
+        primary
+          ? 'border-foreground/20 bg-foreground text-background hover:opacity-90'
+          : 'border-border/60 bg-surface text-muted-foreground/40',
+      ].join(' ')}
+    >
+      {label}
+    </div>
+  );
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {content}
+      </a>
+    );
+  }
+  return content;
+}
+
 function HomePageContent() {
   const { t } = useTranslation();
   const buying = useSettlementStore((s) => s.buying);
@@ -117,9 +141,12 @@ function HomePageContent() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        <AdBanner href="https://beat.gg" label="BEAT.GG" primary />
+
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           <div className="space-y-5">
             <InputForm />
+            <AdBanner label="AD SPACE" />
             <MemberManager />
             <SettingsPanel />
           </div>
@@ -148,6 +175,8 @@ function HomePageContent() {
             >
               {t.app.reset}
             </Button>
+
+            <AdBanner label="AD SPACE" />
           </div>
         </div>
       </div>

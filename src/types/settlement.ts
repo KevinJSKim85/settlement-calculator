@@ -1,5 +1,5 @@
-import { Currency } from './currency';
-import { DistributionMember } from './member';
+import type { Currency } from './currency';
+import type { DistributionMember } from './member';
 
 export type RollingTarget = 'A' | 'B';
 
@@ -31,6 +31,10 @@ export interface SettlementConfig {
 
 export interface SettlementResult {
   balance: number;
+  buyingA: number;
+  buyingB: number;
+  returningA: number;
+  returningB: number;
   rollingFees: RollingFeeResult[];
   totalRevenue: number;
   revenueA: number;

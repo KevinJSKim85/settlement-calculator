@@ -17,6 +17,16 @@ export function calcDistribution(
     return [];
   }
 
+  if (revenueBPercent <= 0) {
+    return members.map((member) => ({
+      memberId: member.id,
+      memberName: member.name,
+      percentage: member.percentage,
+      overallPercent: 0,
+      amount: 0,
+    }));
+  }
+
   const distribution = members.map((member) => {
     const withinBPercent = revenueBPercent > 0
       ? Math.round((member.percentage / revenueBPercent) * 10000) / 100
@@ -58,6 +68,10 @@ export function calcSettlement(
   config: SettlementConfig,
   baseCurrency: Currency
 ): SettlementResult {
+  const buyingA = Math.round((input.buying * config.revenueAPercent) / 100);
+  const buyingB = input.buying - buyingA;
+  const returningA = Math.round((input.returning * config.revenueAPercent) / 100);
+  const returningB = input.returning - returningA;
   const balance = calcBalance(input.buying, input.returning);
 
   const rollingFees = calcRollingFees(input.rollingEntries);
@@ -69,19 +83,23 @@ export function calcSettlement(
     .filter((r) => r.target === 'B')
     .reduce((sum, r) => sum + r.amount, 0);
 
-  const revenueAFromBalance = Math.round((balance * config.revenueAPercent) / 100);
-  const revenueBFromBalance = balance - revenueAFromBalance;
+  const revenueAFromBalance = buyingA - returningA;
+  const revenueBFromBalance = buyingB - returningB;
 
-  const revenueA = revenueAFromBalance;
-  const revenueB = revenueBFromBalance;
+  const revenueA = revenueAFromBalance - feeForA;
+  const revenueB = revenueBFromBalance - feeForB;
   const totalRevenue = balance;
 
   const revenueBPercent = 100 - config.revenueAPercent;
-  const distributionBase = revenueB - feeForB;
+  const distributionBase = revenueB;
   const distribution = calcDistribution(distributionBase, config.members, revenueBPercent);
 
   return {
     balance,
+    buyingA,
+    buyingB,
+    returningA,
+    returningB,
     rollingFees,
     totalRevenue,
     revenueA,
