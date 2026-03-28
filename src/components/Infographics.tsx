@@ -233,7 +233,7 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-gold/70">
             {t.result.revenue}
           </h3>
