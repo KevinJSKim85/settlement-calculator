@@ -7,6 +7,7 @@ import { InputForm } from '@/components/InputForm';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
 import ResultsDisplay from '@/components/ResultsDisplay';
+import { Infographics } from '@/components/Infographics';
 import { ExportButtons } from '@/components/ExportButtons';
 import { Button } from '@/components/ui/button';
 import { LanguageToggle } from '@/components/LanguageToggle';
@@ -165,6 +166,14 @@ function HomePageContent() {
               baseCurrency={baseCurrency}
               revenueAPercent={revenueAPercent}
             />
+
+            {calculationResult && (
+              <Infographics
+                result={calculationResult}
+                baseCurrency={baseCurrency}
+                revenueAPercent={revenueAPercent}
+              />
+            )}
 
             <ExportButtons targetRef={resultsRef} disabled={!calculationResult} />
 
