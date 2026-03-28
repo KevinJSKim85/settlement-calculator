@@ -94,24 +94,24 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-      <svg viewBox="0 0 120 120" className="size-32 shrink-0 -rotate-90" aria-hidden="true">
+    <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-5">
+      <svg viewBox="0 0 120 120" className="mx-auto size-32 shrink-0 -rotate-90" aria-hidden="true">
         {renderRing(outerSegments, 50, 14)}
         {innerSegments.length > 0 && renderRing(innerSegments, 34, 10)}
       </svg>
-      <div className="flex flex-col gap-1.5 text-xs">
+      <div className="min-w-0 space-y-1.5 text-xs">
         {outerSegments.map((s) => (
-          <div key={s.label} className="flex items-center gap-2 whitespace-nowrap">
+          <div key={s.label} className="grid grid-cols-[0.75rem_minmax(0,1fr)_auto] items-center gap-2">
             <span className="inline-block size-3 shrink-0 rounded-sm" style={{ backgroundColor: s.color }} />
-            <span className="text-muted-foreground">{s.label}</span>
+            <span className="truncate text-muted-foreground">{s.label}</span>
             <span className="font-bold tabular-nums text-foreground">{s.pct}%</span>
           </div>
         ))}
         <div className="my-0.5 border-t border-border/30" />
         {innerSegments.map((s) => (
-          <div key={s.label} className="flex items-center gap-2 whitespace-nowrap">
+          <div key={s.label} className="grid grid-cols-[0.625rem_minmax(0,1fr)_auto] items-center gap-2">
             <span className="inline-block size-2.5 shrink-0 rounded-sm" style={{ backgroundColor: s.color }} />
-            <span className="text-muted-foreground">{s.label}</span>
+            <span className="truncate text-muted-foreground">{s.label}</span>
             <span className="tabular-nums text-foreground">{s.pct.toFixed(1)}%</span>
           </div>
         ))}
