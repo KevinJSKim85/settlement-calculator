@@ -162,9 +162,11 @@ export function MemberManager() {
                 </div>
               </div>
               {member.percentage > 0 && revenueBPercent > 0 && (
-                <div className="ml-7 text-xs tabular-nums text-muted-foreground">
-                  {t.result.revenueB} {withinBPercent}%
-                  <span className="ml-1.5 text-muted-foreground/70">
+                <div className="ml-7 flex items-center gap-1.5 text-xs">
+                  <span className="font-medium tabular-nums text-brand-gold/80">
+                    {t.result.revenueB} {withinBPercent}%
+                  </span>
+                  <span className="tabular-nums text-muted-foreground">
                     ({member.percentage}/{revenueBPercent})
                   </span>
                 </div>

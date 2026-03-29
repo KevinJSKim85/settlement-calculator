@@ -119,9 +119,9 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
       return (
         <div
           ref={ref}
-          className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/40 bg-card/50 p-12 text-center backdrop-blur-sm"
+          className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border/40 bg-card/50 p-16 text-center backdrop-blur-sm"
         >
-          <FileText className="size-8 text-muted-foreground/60" />
+          <FileText className="size-10 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">{t.app.subtitle}</p>
         </div>
       );
@@ -146,14 +146,14 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
         <div className="overflow-x-auto">
         <table className="w-full min-w-[400px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border/40 bg-surface/50">
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <tr className="border-b border-border/40 bg-surface/70">
+              <th className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.result.item}
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <th className="px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.result.amount} ({baseCurrency})
               </th>
-              <th className="w-20 px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <th className="w-20 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.result.ratio}
               </th>
             </tr>
@@ -230,8 +230,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             ))}
 
             {/* Revenue total - accent bar */}
-            <tr className="accent-bar-red border-b border-border/40 bg-brand-red/5">
-              <td className="whitespace-nowrap px-3 py-3.5 font-semibold text-foreground">
+            <tr className="accent-bar-red border-b border-border/40 bg-brand-red/8">
+              <td className="whitespace-nowrap px-3 py-4 text-base font-bold text-foreground">
                 {t.result.revenue}
               </td>
               <AmountCell
@@ -264,8 +264,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             {/* Distribution total - accent bar */}
-            <tr className="accent-bar-gold border-b border-border/40 bg-brand-gold/5">
-              <td className="whitespace-nowrap px-3 py-3.5 font-semibold text-foreground">
+            <tr className="accent-bar-gold border-b border-border/40 bg-brand-gold/8">
+              <td className="whitespace-nowrap px-3 py-4 text-base font-bold text-foreground">
                 {t.result.distribution}
               </td>
               <AmountCell

@@ -83,8 +83,8 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
           key={c.label}
           className="flex flex-col items-center rounded-xl border border-border/30 bg-surface/50 px-2 py-3 text-center transition-all duration-200 hover:scale-[1.02] hover:border-border/50 hover:shadow-sm"
         >
-          <span className="text-xs text-muted-foreground">{c.label}</span>
-          <span className={`mt-1 text-sm font-bold tabular-nums ${c.color}`}>
+          <span className="text-[11px] font-medium text-muted-foreground">{c.label}</span>
+          <span className={`mt-1.5 text-sm font-bold tabular-nums ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
         </div>
@@ -229,7 +229,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
   return (
     <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-5">
-      <div className="relative mx-auto size-32 shrink-0">
+      <div className="relative mx-auto size-36 shrink-0">
         <svg
           viewBox="0 0 120 120"
           className="size-full -rotate-90 cursor-pointer"
@@ -242,8 +242,8 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
         </svg>
         {/* Center label */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xs text-muted-foreground">{t.result.revenue}</span>
-          <span className="text-xs font-bold tabular-nums text-foreground">
+          <span className="text-[10px] text-muted-foreground">{t.result.revenue}</span>
+          <span className="text-sm font-bold tabular-nums text-foreground">
             {formatCurrency(result.totalRevenue, baseCurrency)}
           </span>
         </div>
@@ -313,7 +313,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
     <div className="flex flex-col gap-2.5">
       {items.map((item, idx) => {
         const rawPct = Math.min((Math.abs(item.value) / maxAbs) * 100, 100);
-        const widthPct = rawPct > 0 ? Math.max(rawPct, 3) : 0;
+        const widthPct = Math.max(rawPct, 2);
         const barColor =
           item.type === 'negative'
             ? 'bg-brand-red'
