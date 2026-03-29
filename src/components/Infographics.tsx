@@ -83,7 +83,7 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
           key={c.label}
           className="flex flex-col items-center rounded-xl border border-border/30 bg-surface/50 px-2 py-3 text-center transition-all duration-200 hover:scale-[1.02] hover:border-border/50 hover:shadow-sm"
         >
-          <span className="text-xs text-muted-foreground/60">{c.label}</span>
+          <span className="text-xs text-muted-foreground">{c.label}</span>
           <span className={`mt-1 text-sm font-bold tabular-nums ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
@@ -242,7 +242,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
         </svg>
         {/* Center label */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xs text-muted-foreground/40">{t.result.revenue}</span>
+          <span className="text-xs text-muted-foreground">{t.result.revenue}</span>
           <span className="text-xs font-bold tabular-nums text-foreground">
             {formatCurrency(result.totalRevenue, baseCurrency)}
           </span>
@@ -342,7 +342,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             onMouseMove={move}
             onMouseLeave={() => { setHoveredIdx(null); hide(); }}
           >
-            <span className="w-16 shrink-0 text-right text-xs text-muted-foreground/60">{item.label}</span>
+            <span className="w-16 shrink-0 text-right text-xs text-muted-foreground">{item.label}</span>
             <div className="relative h-6 flex-1 overflow-hidden rounded-md bg-surface/50">
               <div
                 className={`absolute inset-y-0 left-0 rounded-md transition-all duration-300 ${barColor}`}
@@ -352,7 +352,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
                 }}
               />
             </div>
-            <span className={`w-24 shrink-0 text-right text-xs font-medium tabular-nums ${item.value < 0 ? 'text-brand-red' : 'text-foreground/70'}`}>
+            <span className={`w-24 shrink-0 text-right text-xs font-medium tabular-nums ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
               {formatCurrency(item.value, baseCurrency)}
             </span>
           </div>
@@ -375,7 +375,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
   return (
     <div className="space-y-3 overflow-hidden">
       <div>
-        <div className="mb-1.5 text-xs text-muted-foreground/50">{t.result.revenue}</div>
+        <div className="mb-1.5 text-xs text-muted-foreground">{t.result.revenue}</div>
         <div className="flex h-7 overflow-hidden rounded-lg">
           <div
             role="img"
@@ -426,7 +426,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
       {result.distribution.length > 0 && totalPct > 0 && (
         <div>
-          <div className="mb-1.5 text-xs text-muted-foreground/50">{t.result.distribution}</div>
+          <div className="mb-1.5 text-xs text-muted-foreground">{t.result.distribution}</div>
           <div className="flex h-7 overflow-hidden rounded-lg">
             {result.distribution.map((d, i) => {
               const widthPct = (Math.abs(d.percentage) / totalPct) * 100;
@@ -485,7 +485,7 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="premium-card overflow-hidden rounded-xl border border-border/40 bg-card p-4">
-          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             <PieChart className="size-3.5" />
             {t.result.revenue}
           </h3>
@@ -493,7 +493,7 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
         </div>
 
         <div className="premium-card overflow-hidden rounded-xl border border-border/40 bg-card p-4">
-          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             <BarChart3 className="size-3.5" />
             {t.result.distribution}
           </h3>
@@ -502,7 +502,7 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
       </div>
 
       <div className="premium-card rounded-xl border border-border/40 bg-card p-4">
-        <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+        <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <TrendingUp className="size-3.5" />
           Cash Flow
         </h3>

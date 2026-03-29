@@ -40,10 +40,10 @@ function MultiCurrencyLine({
   }));
 
   return (
-    <div className="mt-0.5 text-xs font-normal text-muted-foreground/40">
+    <div className="mt-0.5 text-xs font-normal text-muted-foreground">
       {converted.map((c, i) => (
         <React.Fragment key={c.currency}>
-          {i > 0 && <span className="mx-1 text-muted-foreground/20">|</span>}
+          {i > 0 && <span className="mx-1 text-muted-foreground/60">|</span>}
           <span>{c.formatted}</span>
         </React.Fragment>
       ))}
@@ -78,7 +78,7 @@ function AmountCell({
           .join(' ')}
       >
         {formatCurrency(safeAmount, baseCurrency)}
-        {isNegative && <span className="ml-1 text-xs text-brand-red/70">({t.result.loss})</span>}
+        {isNegative && <span className="ml-1 text-xs text-brand-red">({t.result.loss})</span>}
       </div>
       <MultiCurrencyLine
         amount={safeAmount}
@@ -100,7 +100,7 @@ function NoteCell({
     <td
       className={[
         'px-3 py-3 text-right text-sm tabular-nums',
-        bold ? 'font-bold text-brand-gold' : 'text-muted-foreground/40',
+        bold ? 'font-bold text-brand-gold' : 'text-muted-foreground',
       ].join(' ')}
     >
       {children}
@@ -121,8 +121,8 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
           ref={ref}
           className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/40 bg-card/50 p-12 text-center backdrop-blur-sm"
         >
-          <FileText className="size-8 text-muted-foreground/20" />
-          <p className="text-sm text-muted-foreground/40">{t.app.subtitle}</p>
+          <FileText className="size-8 text-muted-foreground/60" />
+          <p className="text-sm text-muted-foreground">{t.app.subtitle}</p>
         </div>
       );
     }
@@ -147,20 +147,20 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
         <table className="w-full min-w-[400px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-border/40 bg-surface/50">
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground/50">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t.result.item}
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground/50">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t.result.amount} ({baseCurrency})
               </th>
-              <th className="w-20 px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground/50">
+              <th className="w-20 px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t.result.ratio}
               </th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap px-3 py-3 text-foreground/70">{t.input.balance}</td>
+              <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.input.balance}</td>
               <AmountCell
                 amount={result.balance}
                 baseCurrency={baseCurrency}
@@ -170,7 +170,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{t.result.buyingA}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingA}</td>
               <AmountCell
                 amount={result.buyingA}
                 baseCurrency={baseCurrency}
@@ -180,7 +180,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{t.result.buyingB}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingB}</td>
               <AmountCell
                 amount={result.buyingB}
                 baseCurrency={baseCurrency}
@@ -190,7 +190,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{t.result.returningA}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.returningA}</td>
               <AmountCell
                 amount={result.returningA > 0 ? -result.returningA : result.returningA}
                 baseCurrency={baseCurrency}
@@ -201,7 +201,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{t.result.returningB}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.returningB}</td>
               <AmountCell
                 amount={result.returningB > 0 ? -result.returningB : result.returningB}
                 baseCurrency={baseCurrency}
@@ -213,9 +213,9 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
 
             {result.rollingFees.map((rf) => (
               <tr key={rf.label} className="border-b border-border/20 transition-colors hover:bg-surface/30">
-                <td className="whitespace-nowrap px-3 py-3 text-foreground/70">
+                <td className="whitespace-nowrap px-3 py-3 text-foreground">
                   {rollingFeeLabel(rf.label)}
-                  <span className="ml-1.5 text-xs text-muted-foreground/30">
+                  <span className="ml-1.5 text-xs text-muted-foreground/70">
                     {rf.target}
                   </span>
                 </td>
@@ -244,7 +244,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{t.result.revenueA}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueA}</td>
               <AmountCell
                 amount={result.revenueA}
                 baseCurrency={baseCurrency}
@@ -254,7 +254,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{t.result.revenueB}</td>
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueB}</td>
               <AmountCell
                 amount={result.revenueB}
                 baseCurrency={baseCurrency}
@@ -286,7 +286,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                     : ''
                 }`}
               >
-                <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/60">{dist.memberName}</td>
+                <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{dist.memberName}</td>
                 <AmountCell
                   amount={dist.amount}
                   baseCurrency={baseCurrency}
@@ -295,7 +295,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 <NoteCell>
                   <div>{dist.percentage}%</div>
                   {dist.overallPercent > 0 && (
-                    <div className="text-xs text-muted-foreground/30">
+                    <div className="text-xs text-muted-foreground/70">
                       {dist.overallPercent}% {t.result.withinB}
                     </div>
                   )}

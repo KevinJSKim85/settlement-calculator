@@ -64,7 +64,7 @@ export function MemberManager() {
     <Card className="premium-card border-border/40 bg-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
-          <Users className="size-4 text-muted-foreground/40" />
+          <Users className="size-4 text-muted-foreground" />
           {t.members.title}
         </CardTitle>
         <CardAction>
@@ -97,7 +97,7 @@ export function MemberManager() {
               className="h-8 w-16 border-brand-gold/20 bg-surface text-center tabular-nums text-foreground focus-glow"
             />
             <span className="text-sm text-muted-foreground">%</span>
-            <span className="text-sm text-muted-foreground/30">|</span>
+            <span className="text-sm text-muted-foreground/70">|</span>
             <span className="whitespace-nowrap text-sm text-muted-foreground">
               {t.result.revenueB}: {revenueBPercent}%
             </span>
@@ -124,7 +124,7 @@ export function MemberManager() {
           return (
             <div key={member.id} className="slide-in group space-y-1 rounded-xl border border-border/30 bg-surface/30 p-3 transition-colors hover:border-border/50">
               <div className="flex flex-wrap items-center gap-2">
-                <UserCircle className="size-5 shrink-0 text-muted-foreground/30" />
+                <UserCircle className="size-5 shrink-0 text-muted-foreground/70" />
                 <Input
                   className="min-w-[120px] flex-1 border-border/40 bg-surface text-foreground focus-glow"
                   placeholder={t.members.memberName}
@@ -148,23 +148,23 @@ export function MemberManager() {
                       })
                     }
                   />
-                  <span className="text-sm text-muted-foreground/50">%</span>
+                  <span className="text-sm text-muted-foreground">%</span>
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     disabled={members.length <= 1}
                     onClick={() => removeMember(member.id)}
                     aria-label={t.members.removeMember}
-                    className="text-muted-foreground/30 opacity-0 transition-all hover:text-brand-red group-hover:opacity-100"
+                    className="text-muted-foreground/70 opacity-0 transition-all hover:text-brand-red group-hover:opacity-100"
                   >
                     <X className="size-3.5" />
                   </Button>
                 </div>
               </div>
               {member.percentage > 0 && revenueBPercent > 0 && (
-                <div className="ml-7 text-xs tabular-nums text-muted-foreground/50">
+                <div className="ml-7 text-xs tabular-nums text-muted-foreground">
                   {t.result.revenueB} {withinBPercent}%
-                  <span className="ml-1.5 text-muted-foreground/30">
+                  <span className="ml-1.5 text-muted-foreground/70">
                     ({member.percentage}/{revenueBPercent})
                   </span>
                 </div>
@@ -185,13 +185,13 @@ export function MemberManager() {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground/60">{t.members.sumLabel}</span>
+              <span className="text-sm text-muted-foreground">{t.members.sumLabel}</span>
               {remaining > 0 && members.length > 0 && (
                 <Button
                   type="button"
                   variant="outline"
                   size="xs"
-                  className="rounded-full border-brand-gold/15 text-brand-gold/50 text-xs transition-all hover:border-brand-gold/30 hover:bg-brand-gold/5 hover:text-brand-gold"
+                  className="rounded-full border-brand-gold/30 text-brand-gold/80 text-xs transition-all hover:border-brand-gold/50 hover:bg-brand-gold/5 hover:text-brand-gold"
                   onClick={handleFillRemaining}
                 >
                   +{remaining}%
@@ -210,7 +210,7 @@ export function MemberManager() {
           </div>
 
           {roundedSum !== roundedTarget && (
-            <p className="text-sm text-brand-red/80">{t.members.sumError}</p>
+            <p className="text-sm text-brand-red">{t.members.sumError}</p>
           )}
         </div>
       </CardContent>

@@ -58,7 +58,7 @@ function QuickAmountButtons({
           type="button"
           variant="outline"
           size="xs"
-          className="rounded-full border-brand-gold/15 text-brand-gold/60 transition-all hover:border-brand-gold/30 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
+          className="rounded-full border-brand-gold/30 text-brand-gold/80 transition-all hover:border-brand-gold/50 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
           onClick={() => onAdd(value)}
         >
           {labels[index]}
@@ -94,8 +94,8 @@ function InputRow({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground/50">{icon}</span>
-        <span className="text-sm font-medium text-foreground/70">{label}</span>
+        <span className="text-muted-foreground">{icon}</span>
+        <span className="text-sm font-medium text-foreground">{label}</span>
       </div>
       <div className="flex items-center gap-2">
         <CurrencySelect value={currency} onValueChange={onCurrencyChange} />
@@ -170,11 +170,11 @@ function RollingFeeRow({
             onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
             className="h-6 w-16 border-brand-gold/20 bg-surface px-1.5 text-center text-xs tabular-nums text-brand-gold focus-glow"
           />
-          <span className="text-xs text-muted-foreground/40">%</span>
+          <span className="text-xs text-muted-foreground">%</span>
         </span>
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
-        <span className="text-sm text-muted-foreground/60">
+        <span className="text-sm text-muted-foreground">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <Input
@@ -211,15 +211,15 @@ function ComputedRow({
 
   return (
     <div className={`flex flex-col gap-1 rounded-xl px-4 py-3 sm:grid sm:items-center sm:gap-3 ${isNegative ? 'bg-brand-red/5 border border-brand-red/10' : 'bg-brand-gold/5 border border-brand-gold/10'}`} style={{ gridTemplateColumns: '120px 100px 1fr' }}>
-      <span className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-        <Scale className="size-4 text-muted-foreground/40" />
+      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <Scale className="size-4 text-muted-foreground" />
         {label}
         {isNegative && (
           <span className="text-xs font-semibold text-brand-red">({t.result.loss})</span>
         )}
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
-        <span className="text-sm text-muted-foreground/60">
+        <span className="text-sm text-muted-foreground">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <span
@@ -288,7 +288,7 @@ function RollingSection({
             size="xs"
             className={entry.target === 'A'
               ? 'rounded-full bg-brand-red text-white hover:bg-brand-red/80 text-xs h-6 px-2.5'
-              : 'rounded-full border-border/40 text-muted-foreground/50 text-xs h-6 px-2.5 hover:text-foreground'}
+              : 'rounded-full border-border/40 text-muted-foreground text-xs h-6 px-2.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'A')}
           >
             {t.input.targetA} {revenueAPercent}%
@@ -299,7 +299,7 @@ function RollingSection({
             size="xs"
             className={entry.target === 'B'
               ? 'rounded-full bg-brand-red text-white hover:bg-brand-red/80 text-xs h-6 px-2.5'
-              : 'rounded-full border-border/40 text-muted-foreground/50 text-xs h-6 px-2.5 hover:text-foreground'}
+              : 'rounded-full border-border/40 text-muted-foreground text-xs h-6 px-2.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'B')}
           >
             {t.input.targetB} {revenueBPercent}%
@@ -310,7 +310,7 @@ function RollingSection({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-muted-foreground/30 hover:text-brand-red"
+            className="text-muted-foreground/60 hover:text-brand-red"
             onClick={() => removeRolling(entry.id)}
           >
             <X className="size-3.5" />
@@ -470,7 +470,7 @@ export function InputForm() {
             type="button"
             variant="outline"
             size="sm"
-            className="w-full rounded-xl border-dashed border-brand-gold/20 text-brand-gold/50 transition-all hover:border-brand-gold/40 hover:bg-brand-gold/5 hover:text-brand-gold"
+            className="w-full rounded-xl border-dashed border-brand-gold/30 text-brand-gold/80 transition-all hover:border-brand-gold/50 hover:bg-brand-gold/5 hover:text-brand-gold"
             onClick={addRolling}
           >
             <Plus className="mr-1.5 size-3.5" />

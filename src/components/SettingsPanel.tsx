@@ -132,14 +132,14 @@ export function SettingsPanel() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Settings className="size-4 text-muted-foreground/40" />
+            <Settings className="size-4 text-muted-foreground" />
             <div className="flex items-baseline gap-1.5">
-              <CardTitle className="text-foreground/80">{t.settings.title}</CardTitle>
-              <span className="text-xs text-muted-foreground/40">{t.settings.titleHint}</span>
+              <CardTitle className="text-foreground">{t.settings.title}</CardTitle>
+              <span className="text-xs text-muted-foreground">{t.settings.titleHint}</span>
             </div>
           </div>
           <ChevronDown
-            className={`size-4 text-muted-foreground/40 transition-transform duration-300 ${
+            className={`size-4 text-muted-foreground transition-transform duration-300 ${
               isOpen ? 'rotate-180' : ''
             }`}
           />
@@ -149,7 +149,7 @@ export function SettingsPanel() {
       {isOpen && (
         <CardContent className="slide-in space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-foreground/60">{t.settings.baseCurrency}</Label>
+            <Label className="text-foreground">{t.settings.baseCurrency}</Label>
             <Select
               value={baseCurrency}
               onValueChange={(val) => { if (val) setBaseCurrency(val as Currency); }}
@@ -170,7 +170,7 @@ export function SettingsPanel() {
           <div className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
-                <Label className="text-foreground/60">{t.settings.exchangeRates}</Label>
+                <Label className="text-foreground">{t.settings.exchangeRates}</Label>
                 {stale && (
                   <div className="flex items-center gap-1 rounded-full bg-brand-red/10 px-2 py-0.5 text-xs text-brand-red">
                     <AlertTriangle className="size-3" />
@@ -190,7 +190,7 @@ export function SettingsPanel() {
             </div>
 
             {exchangeRateData && (
-              <div className="space-y-1 rounded-lg bg-surface/50 px-3 py-2 text-xs text-muted-foreground/60">
+              <div className="space-y-1 rounded-lg bg-surface/50 px-3 py-2 text-xs text-muted-foreground">
                 <div className="flex justify-between">
                   <span>{t.settings.apiUpdateTime}</span>
                   <span className="tabular-nums">{formatDateTime(exchangeRateData.apiUpdatedAt)}</span>
@@ -204,7 +204,7 @@ export function SettingsPanel() {
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
-                <Label className="text-xs text-foreground/50">{t.settings.viewCurrency}</Label>
+                <Label className="text-xs text-foreground">{t.settings.viewCurrency}</Label>
                 <Select
                   value={viewBase}
                   onValueChange={(val) => {
@@ -231,7 +231,7 @@ export function SettingsPanel() {
                 variant="ghost"
                 size="xs"
                 onClick={() => setShowBidAsk(!showBidAsk)}
-                className="text-xs text-muted-foreground/50 hover:text-brand-gold"
+                className="text-xs text-muted-foreground hover:text-brand-gold"
               >
                 <ArrowRightLeft className="mr-1 size-3" />
                 {showBidAsk ? t.settings.hideBidAsk : t.settings.showBidAsk}
@@ -240,7 +240,7 @@ export function SettingsPanel() {
 
             {showBidAsk && (
               <div className="flex items-center gap-2">
-                <Label className="shrink-0 text-xs text-foreground/50">{t.settings.spread}</Label>
+                <Label className="shrink-0 text-xs text-foreground">{t.settings.spread}</Label>
                 <Input
                   type="number"
                   inputMode="decimal"
@@ -251,7 +251,7 @@ export function SettingsPanel() {
                   onChange={(e) => setSpreadPercent(parseFloat(e.target.value) || 0)}
                   className="w-20 border-border/40 bg-surface text-foreground text-xs focus-glow"
                 />
-                <span className="text-xs text-muted-foreground/40">%</span>
+                <span className="text-xs text-muted-foreground">%</span>
               </div>
             )}
 
@@ -261,7 +261,7 @@ export function SettingsPanel() {
                 return (
                   <div key={currency} className="space-y-1 rounded-lg border border-border/20 bg-surface/30 px-3 py-2 transition-colors hover:border-border/40">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="w-24 shrink-0 text-sm text-muted-foreground/60">
+                      <span className="w-24 shrink-0 text-sm text-muted-foreground">
                         1 {viewBase} =
                       </span>
                       {viewBase === baseCurrency ? (
@@ -284,14 +284,14 @@ export function SettingsPanel() {
                           {getRateDisplay(currency) || '-'}
                         </span>
                       )}
-                      <span className="whitespace-nowrap text-sm text-muted-foreground/50">
+                      <span className="whitespace-nowrap text-sm text-muted-foreground">
                         {currency} {CURRENCY_CONFIG[currency].symbol}
                       </span>
                     </div>
                     {bidAsk && (
-                      <div className="ml-24 flex gap-3 pl-2 text-xs text-muted-foreground/50">
-                        <span>{t.settings.buyRate} <span className="tabular-nums text-brand-red/70">{bidAsk.ask}</span></span>
-                        <span>{t.settings.sellRate} <span className="tabular-nums text-brand-gold/70">{bidAsk.bid}</span></span>
+                      <div className="ml-24 flex gap-3 pl-2 text-xs text-muted-foreground">
+                        <span>{t.settings.buyRate} <span className="tabular-nums text-brand-red">{bidAsk.ask}</span></span>
+                        <span>{t.settings.sellRate} <span className="tabular-nums text-brand-gold">{bidAsk.bid}</span></span>
                       </div>
                     )}
                   </div>

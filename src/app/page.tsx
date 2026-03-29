@@ -32,13 +32,13 @@ function ThemeToggle() {
 
 function PoweredBy() {
   return (
-    <div className="flex items-center justify-center gap-1.5 py-6 text-xs text-muted-foreground/40">
+    <div className="flex items-center justify-center gap-1.5 py-6 text-xs text-muted-foreground/70">
       <span>Powered by</span>
       <a
         href="https://beat.gg"
         target="_blank"
         rel="noopener noreferrer"
-        className="font-semibold tracking-wide text-brand-gold/50 transition-colors hover:text-brand-gold"
+        className="font-semibold tracking-wide text-brand-gold/80 transition-colors hover:text-brand-gold"
       >
         BEAT.GG
       </a>
@@ -48,7 +48,7 @@ function PoweredBy() {
 
 function AdBanner({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center rounded-xl border border-dashed border-border/30 bg-surface/50 px-4 py-3 text-center text-xs text-muted-foreground/20">
+    <div className="flex items-center justify-center rounded-xl border border-dashed border-border/40 bg-surface/50 px-4 py-3 text-center text-xs text-muted-foreground/50">
       {label}
     </div>
   );
@@ -140,7 +140,7 @@ function HomePageContent() {
               <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
                 {t.app.title}
               </h1>
-              <p className="text-xs text-muted-foreground/60">{t.app.subtitle}</p>
+              <p className="text-xs text-muted-foreground">{t.app.subtitle}</p>
             </div>
           </div>
           <div className="pill-group">
@@ -193,7 +193,7 @@ function HomePageContent() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground/60 transition-colors hover:text-brand-red"
+                className="text-muted-foreground transition-colors hover:text-brand-red"
                 onClick={resetInputs}
               >
                 <RotateCcw className="mr-1.5 size-3.5" />
