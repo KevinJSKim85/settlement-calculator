@@ -57,7 +57,7 @@
 :root {
   --background: #FAFAF8;
   --foreground: #1A1A1A;
-  --card: #FFFFFF;
+  --card: rgba(255, 255, 255, 0.8);
   --card-foreground: #1A1A1A;
   --popover: #FFFFFF;
   --popover-foreground: #1A1A1A;
@@ -91,44 +91,48 @@
   --surface-elevated: #FFFFFF;
   --brand-gold: #6B4F0E;
   --brand-gold-dim: #6B4F0E66;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .dark {
-  --background: #0A0A0A;
+  --background: #09090B;
   --foreground: #F0F0F0;
-  --card: #141414;
+  --card: rgba(20, 20, 22, 0.8);
   --card-foreground: #EBEBEB;
-  --popover: #181818;
+  --popover: #18181B;
   --popover-foreground: #EBEBEB;
   --primary: #C0301E;
   --primary-foreground: #FFFFFF;
-  --secondary: #1E1E1E;
+  --secondary: #1E1E20;
   --secondary-foreground: #D4D4D4;
-  --muted: #1A1A1A;
+  --muted: #1A1A1C;
   --muted-foreground: #808080;
   --accent: #F6DA9D;
   --accent-foreground: #0A0A0A;
   --destructive: #C0301E;
-  --border: #2A2A2A;
-  --input: #2A2A2A;
+  --border: #27272A;
+  --input: #27272A;
   --ring: #C0301E;
   --chart-1: #C0301E;
   --chart-2: #F6DA9D;
   --chart-3: #808080;
   --chart-4: #555555;
   --chart-5: #333333;
-  --sidebar: #111111;
+  --sidebar: #111113;
   --sidebar-foreground: #EBEBEB;
   --sidebar-primary: #C0301E;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1E1E1E;
+  --sidebar-accent: #1E1E20;
   --sidebar-accent-foreground: #D4D4D4;
-  --sidebar-border: #2A2A2A;
+  --sidebar-border: #27272A;
   --sidebar-ring: #C0301E;
-  --surface: #111111;
-  --surface-elevated: #1E1E1E;
+  --surface: #111113;
+  --surface-elevated: #1E1E20;
   --brand-gold: #F6DA9D;
   --brand-gold-dim: #F6DA9D66;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+  --card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 @layer base {
@@ -136,26 +140,99 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
   html {
     @apply font-sans;
   }
 }
 
+/* Subtle background pattern */
+body {
+  background-image: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(192, 48, 30, 0.03), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 50%, rgba(246, 218, 157, 0.02), transparent);
+}
+.dark body {
+  background-image: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(192, 48, 30, 0.06), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 50%, rgba(246, 218, 157, 0.03), transparent);
+}
+
+/* Premium card styling */
+@layer components {
+  .premium-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .premium-card:hover {
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .gradient-line {
+    height: 2px;
+    background: linear-gradient(90deg, #C0301E 0%, #D4A04A 50%, #F6DA9D 100%);
+    opacity: 0.6;
+  }
+
+  .pill-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 9999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .accent-bar-red {
+    border-left: 3px solid #C0301E;
+  }
+  .accent-bar-gold {
+    border-left: 3px solid var(--brand-gold);
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom scrollbar - both modes */
 @layer base {
-  .dark ::-webkit-scrollbar {
+  ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-  .dark ::-webkit-scrollbar-track {
+  ::-webkit-scrollbar-track {
     background: transparent;
   }
-  .dark ::-webkit-scrollbar-thumb {
-    background: #333;
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
     border-radius: 3px;
   }
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+}
+
+/* Focus glow effect */
+@layer utilities {
+  .focus-glow:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px rgba(192, 48, 30, 0.3), 0 0 12px rgba(192, 48, 30, 0.1);
   }
 }

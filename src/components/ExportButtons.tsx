@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Download, Image } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { Button } from '@/components/ui/button';
 import { exportToPDF, exportToImage } from '@/lib/export';
@@ -37,16 +38,18 @@ export function ExportButtons({ targetRef, disabled }: ExportButtonsProps) {
       <Button
         onClick={() => handleExport('pdf')}
         disabled={exporting || disabled}
-        className="flex-1 bg-brand-red text-white hover:bg-brand-red/80 disabled:opacity-40"
+        className="flex-1 rounded-lg bg-brand-red text-white shadow-sm transition-all hover:bg-brand-red/80 active:scale-[0.98] disabled:opacity-30"
       >
+        <Download className="mr-1.5 size-3.5" />
         {t.export.pdf}
       </Button>
       <Button
         onClick={() => handleExport('image')}
         disabled={exporting || disabled}
         variant="outline"
-        className="flex-1 border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 disabled:opacity-40"
+        className="flex-1 rounded-lg border-brand-gold/20 text-brand-gold transition-all hover:border-brand-gold/40 hover:bg-brand-gold/5 active:scale-[0.98] disabled:opacity-30"
       >
+        <Image className="mr-1.5 size-3.5" />
         {t.export.image}
       </Button>
     </div>

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from 'react';
 import { useTheme } from 'next-themes';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Calculator, RotateCcw } from 'lucide-react';
 import { InputForm } from '@/components/InputForm';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
@@ -21,26 +21,24 @@ function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <Button
-      variant="outline"
-      size="icon-sm"
+    <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="border-border/60 text-muted-foreground transition-colors hover:text-brand-gold"
+      className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-brand-gold"
     >
       {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-    </Button>
+    </button>
   );
 }
 
 function PoweredBy() {
   return (
-    <div className="flex items-center justify-center gap-1.5 py-1 text-xs text-muted-foreground/50">
+    <div className="flex items-center justify-center gap-1.5 py-6 text-xs text-muted-foreground/40">
       <span>Powered by</span>
       <a
         href="https://beat.gg"
         target="_blank"
         rel="noopener noreferrer"
-        className="font-bold tracking-wide text-brand-gold/70 transition-colors hover:text-brand-gold"
+        className="font-semibold tracking-wide text-brand-gold/50 transition-colors hover:text-brand-gold"
       >
         BEAT.GG
       </a>
@@ -50,7 +48,7 @@ function PoweredBy() {
 
 function AdBanner({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center rounded-lg border border-border/40 bg-surface px-4 py-3 text-center text-xs text-muted-foreground/30">
+    <div className="flex items-center justify-center rounded-xl border border-dashed border-border/30 bg-surface/50 px-4 py-3 text-center text-xs text-muted-foreground/20">
       {label}
     </div>
   );
@@ -128,23 +126,32 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+      {/* Top gradient accent line */}
+      <div className="gradient-line" />
+
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        {/* Header */}
         <header className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-brand-gold sm:text-3xl">
-              {t.app.title}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t.app.subtitle}</p>
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-brand-red/10 text-brand-red">
+              <Calculator className="size-5" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                {t.app.title}
+              </h1>
+              <p className="text-xs text-muted-foreground/60">{t.app.subtitle}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="pill-group">
             <ThemeToggle />
             <LanguageToggle />
           </div>
         </header>
 
-        <PoweredBy />
-
-        <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        {/* Main grid */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+          {/* Left: Input */}
           <div className="space-y-5">
             <InputForm />
             <AdBanner label="AD SPACE" />
@@ -152,9 +159,10 @@ function HomePageContent() {
             <SettingsPanel />
           </div>
 
+          {/* Right: Results */}
           <div className="space-y-5">
             {showDistributionWarning && !calculationResult && (
-              <div className="rounded-xl border border-brand-red/30 bg-brand-red/10 px-4 py-3 text-sm text-red-400">
+              <div className="fade-in rounded-xl border border-brand-red/20 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
                 {t.errors.distributionWarning} ({normalizedMemberSum}% / {normalizedTarget2}%)
               </div>
             )}
@@ -168,26 +176,37 @@ function HomePageContent() {
             />
 
             {calculationResult && (
-              <Infographics
-                result={calculationResult}
-                baseCurrency={baseCurrency}
-                revenueAPercent={revenueAPercent}
-              />
+              <div className="fade-in">
+                <Infographics
+                  result={calculationResult}
+                  baseCurrency={baseCurrency}
+                  revenueAPercent={revenueAPercent}
+                />
+              </div>
             )}
 
-            <ExportButtons targetRef={resultsRef} disabled={!calculationResult} />
-
-            <Button
-              variant="outline"
-              className="w-full border-border/60 text-muted-foreground transition-colors hover:border-brand-gold/40 hover:text-brand-gold"
-              onClick={resetInputs}
-            >
-              {t.app.reset}
-            </Button>
+            {/* Action bar */}
+            <div className="flex flex-col gap-2 rounded-xl border border-border/40 bg-card/50 p-3 backdrop-blur-sm sm:flex-row sm:items-center">
+              <div className="flex-1">
+                <ExportButtons targetRef={resultsRef} disabled={!calculationResult} />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground/60 transition-colors hover:text-brand-red"
+                onClick={resetInputs}
+              >
+                <RotateCcw className="mr-1.5 size-3.5" />
+                {t.app.reset}
+              </Button>
+            </div>
 
             <AdBanner label="AD SPACE" />
           </div>
         </div>
+
+        {/* Footer */}
+        <PoweredBy />
       </div>
     </div>
   );

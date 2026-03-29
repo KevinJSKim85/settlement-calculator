@@ -2,7 +2,6 @@
 
 import { useTranslation } from '@/i18n';
 import type { Language } from '@/i18n';
-import { Button } from '@/components/ui/button';
 
 const LANG_ORDER: Language[] = ['ko', 'en', 'zh'];
 const LANG_LABELS: Record<Language, string> = {
@@ -21,13 +20,11 @@ export function LanguageToggle() {
   };
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
+    <button
       onClick={nextLang}
-      className="border-border/60 text-muted-foreground transition-colors hover:border-brand-gold/40 hover:text-brand-gold"
+      className="flex h-8 items-center rounded-full px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-brand-gold"
     >
       {LANG_LABELS[language]}
-    </Button>
+    </button>
   );
 }

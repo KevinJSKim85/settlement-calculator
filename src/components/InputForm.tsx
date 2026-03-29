@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { ShoppingCart, RotateCcw, Scale, Plus, X } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore, RollingEntry } from '@/lib/store';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
@@ -26,7 +27,7 @@ function CurrencySelect({
 }) {
   return (
     <Select value={value} onValueChange={(val) => onValueChange(val as Currency)}>
-      <SelectTrigger size="sm" className="w-[100px] shrink-0 border-border/60 bg-secondary text-secondary-foreground">
+      <SelectTrigger size="sm" className="w-[100px] shrink-0 border-border/40 bg-surface text-secondary-foreground">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -57,7 +58,7 @@ function QuickAmountButtons({
           type="button"
           variant="outline"
           size="xs"
-          className="border-brand-gold/20 text-brand-gold/70 hover:bg-brand-gold/10 hover:text-brand-gold"
+          className="rounded-full border-brand-gold/15 text-brand-gold/60 transition-all hover:border-brand-gold/30 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
           onClick={() => onAdd(value)}
         >
           {labels[index]}
@@ -69,6 +70,7 @@ function QuickAmountButtons({
 
 function InputRow({
   label,
+  icon,
   value,
   currency,
   quickAmountLabels,
@@ -79,6 +81,7 @@ function InputRow({
   onBlur,
 }: {
   label: string;
+  icon: React.ReactNode;
   value: string;
   currency: Currency;
   quickAmountLabels: string[];
@@ -89,26 +92,25 @@ function InputRow({
   onBlur: () => void;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex flex-col gap-1.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
-        <span className="text-sm font-medium text-brand-gold/80">{label}</span>
-        <div className="flex items-center gap-2 sm:contents">
-          <CurrencySelect value={currency} onValueChange={onCurrencyChange} />
-          <Input
-            type="text"
-            inputMode="decimal"
-            className="flex-1 border-border/60 bg-secondary text-right tabular-nums text-foreground focus-visible:ring-2 focus-visible:ring-brand-red/60"
-            value={value}
-            onChange={(e) => onValueChange(e.target.value)}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            placeholder="0"
-          />
-        </div>
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground/50">{icon}</span>
+        <span className="text-sm font-medium text-foreground/70">{label}</span>
       </div>
-      <div className="sm:ml-3 sm:pl-[120px]">
-        <QuickAmountButtons onAdd={onAddAmount} labels={quickAmountLabels} />
+      <div className="flex items-center gap-2">
+        <CurrencySelect value={currency} onValueChange={onCurrencyChange} />
+        <Input
+          type="text"
+          inputMode="decimal"
+          className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+          value={value}
+          onChange={(e) => onValueChange(e.target.value)}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder="0"
+        />
       </div>
+      <QuickAmountButtons onAdd={onAddAmount} labels={quickAmountLabels} />
     </div>
   );
 }
@@ -155,7 +157,7 @@ function RollingFeeRow({
   };
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-surface px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+    <div className="flex flex-col gap-1 rounded-lg bg-surface/60 px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
       <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {label}
         <span className="flex items-center gap-1">
@@ -166,19 +168,19 @@ function RollingFeeRow({
             min={0}
             value={feePercent}
             onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
-            className="h-6 w-16 border-brand-gold/30 bg-secondary px-1.5 text-center text-xs tabular-nums text-brand-gold focus-visible:ring-1 focus-visible:ring-brand-red/60"
+            className="h-6 w-16 border-brand-gold/20 bg-surface px-1.5 text-center text-xs tabular-nums text-brand-gold focus-glow"
           />
-          <span className="text-xs text-muted-foreground/60">%</span>
+          <span className="text-xs text-muted-foreground/40">%</span>
         </span>
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground/60">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <Input
           type="text"
           inputMode="decimal"
-          className="h-7 w-32 border-border/40 bg-transparent text-right text-sm tabular-nums font-medium text-brand-red focus-visible:ring-1 focus-visible:ring-brand-red/60 sm:ml-auto"
+          className="h-7 w-32 border-border/30 bg-transparent text-right text-sm tabular-nums font-medium text-brand-red focus-glow sm:ml-auto"
           value={editingAmount ? localFeeAmount : displayAmount}
           onFocus={handleFeeAmountFocus}
           onBlur={handleFeeAmountBlur}
@@ -208,20 +210,21 @@ function ComputedRow({
   const displayValue = `${sign}${formatted}`;
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-surface px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
-      <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+    <div className={`flex flex-col gap-1 rounded-xl px-4 py-3 sm:grid sm:items-center sm:gap-3 ${isNegative ? 'bg-brand-red/5 border border-brand-red/10' : 'bg-brand-gold/5 border border-brand-gold/10'}`} style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+      <span className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+        <Scale className="size-4 text-muted-foreground/40" />
         {label}
         {isNegative && (
           <span className="text-xs font-semibold text-brand-red">({t.result.loss})</span>
         )}
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground/60">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <span
-          className={`text-right text-sm tabular-nums font-medium ${
-            isNegative ? 'text-brand-red' : 'text-foreground'
+          className={`text-right text-base tabular-nums font-bold ${
+            isNegative ? 'text-brand-red' : 'text-brand-gold'
           }`}
         >
           {displayValue}
@@ -276,7 +279,7 @@ function RollingSection({
   })();
 
   return (
-    <div className="space-y-2 rounded-lg border border-brand-gold/20 p-3">
+    <div className="slide-in space-y-2 rounded-xl border border-brand-gold/15 bg-surface/30 p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Button
@@ -284,8 +287,8 @@ function RollingSection({
             variant={entry.target === 'A' ? 'default' : 'outline'}
             size="xs"
             className={entry.target === 'A'
-              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-xs h-5 px-1.5'
-              : 'border-border/60 text-muted-foreground/60 text-xs h-5 px-1.5 hover:text-foreground'}
+              ? 'rounded-full bg-brand-red text-white hover:bg-brand-red/80 text-xs h-6 px-2.5'
+              : 'rounded-full border-border/40 text-muted-foreground/50 text-xs h-6 px-2.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'A')}
           >
             {t.input.targetA} {revenueAPercent}%
@@ -295,8 +298,8 @@ function RollingSection({
             variant={entry.target === 'B' ? 'default' : 'outline'}
             size="xs"
             className={entry.target === 'B'
-              ? 'bg-brand-red text-white hover:bg-brand-red/80 text-xs h-5 px-1.5'
-              : 'border-border/60 text-muted-foreground/60 text-xs h-5 px-1.5 hover:text-foreground'}
+              ? 'rounded-full bg-brand-red text-white hover:bg-brand-red/80 text-xs h-6 px-2.5'
+              : 'rounded-full border-border/40 text-muted-foreground/50 text-xs h-6 px-2.5 hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'B')}
           >
             {t.input.targetB} {revenueBPercent}%
@@ -307,16 +310,17 @@ function RollingSection({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-muted-foreground/40 hover:text-brand-red"
+            className="text-muted-foreground/30 hover:text-brand-red"
             onClick={() => removeRolling(entry.id)}
           >
-            ✕
+            <X className="size-3.5" />
           </Button>
         )}
       </div>
 
       <InputRow
         label={rollingLabel}
+        icon={<RotateCcw className="size-4" />}
         value={displayValue}
         currency={entry.currency}
         quickAmountLabels={quickAmountLabels}
@@ -405,13 +409,14 @@ export function InputForm() {
   );
 
   return (
-    <Card className="border-border/60 bg-card">
+    <Card className="premium-card border-border/40 bg-card">
       <CardHeader>
-        <CardTitle className="text-brand-gold">{t.app.title}</CardTitle>
+        <CardTitle className="text-foreground">{t.app.title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         <InputRow
           label={t.input.buying}
+          icon={<ShoppingCart className="size-4" />}
           value={getDisplayValue('buying', buying.amount, buying.currency)}
           currency={buying.currency}
           quickAmountLabels={quickAmountLabels}
@@ -422,8 +427,11 @@ export function InputForm() {
           onBlur={handleBlur}
         />
 
+        <div className="border-t border-border/20" />
+
         <InputRow
           label={t.input.returning}
+          icon={<RotateCcw className="size-4" />}
           value={getDisplayValue('returning', returning.amount, returning.currency)}
           currency={returning.currency}
           quickAmountLabels={quickAmountLabels}
@@ -462,9 +470,10 @@ export function InputForm() {
             type="button"
             variant="outline"
             size="sm"
-            className="w-full border-brand-gold/20 text-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold"
+            className="w-full rounded-xl border-dashed border-brand-gold/20 text-brand-gold/50 transition-all hover:border-brand-gold/40 hover:bg-brand-gold/5 hover:text-brand-gold"
             onClick={addRolling}
           >
+            <Plus className="mr-1.5 size-3.5" />
             {t.input.addRolling}
           </Button>
         )}

@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { PieChart, BarChart3, TrendingUp } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/lib/currency';
 import type { Currency, SettlementResult } from '@/types';
@@ -28,7 +29,7 @@ function ChartTooltip({ data, x, y }: { data: TooltipData | null; x: number; y: 
 
   return createPortal(
     <div
-      className="pointer-events-none fixed z-50 rounded-lg border border-border/60 bg-popover px-3 py-2 text-popover-foreground shadow-xl"
+      className="pointer-events-none fixed z-50 rounded-lg border border-border/40 bg-popover/95 px-3 py-2 text-popover-foreground shadow-xl backdrop-blur-md"
       style={{ left: x + 14, top: y - 10 }}
     >
       <div className="text-xs font-semibold">{data.label}</div>
@@ -80,9 +81,9 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
       {cards.map((c) => (
         <div
           key={c.label}
-          className="flex flex-col items-center rounded-lg border border-border/40 bg-surface px-2 py-3 text-center"
+          className="flex flex-col items-center rounded-xl border border-border/30 bg-surface/50 px-2 py-3 text-center transition-all duration-200 hover:scale-[1.02] hover:border-border/50 hover:shadow-sm"
         >
-          <span className="text-xs text-muted-foreground">{c.label}</span>
+          <span className="text-xs text-muted-foreground/60">{c.label}</span>
           <span className={`mt-1 text-sm font-bold tabular-nums ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
@@ -228,16 +229,25 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
   return (
     <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-5">
-      <svg
-        viewBox="0 0 120 120"
-        className="mx-auto size-32 shrink-0 -rotate-90 cursor-pointer"
-        aria-hidden="true"
-        onMouseMove={handleSvgMove}
-        onMouseLeave={() => { setHoveredSync(null); hide(); }}
-      >
-        {renderRing(outerSegments, 50, 14)}
-        {innerSegments.length > 0 && renderRing(innerSegments, 34, 10)}
-      </svg>
+      <div className="relative mx-auto size-32 shrink-0">
+        <svg
+          viewBox="0 0 120 120"
+          className="size-full -rotate-90 cursor-pointer"
+          aria-hidden="true"
+          onMouseMove={handleSvgMove}
+          onMouseLeave={() => { setHoveredSync(null); hide(); }}
+        >
+          {renderRing(outerSegments, 50, 14)}
+          {innerSegments.length > 0 && renderRing(innerSegments, 34, 10)}
+        </svg>
+        {/* Center label */}
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-xs text-muted-foreground/40">{t.result.revenue}</span>
+          <span className="text-xs font-bold tabular-nums text-foreground">
+            {formatCurrency(result.totalRevenue, baseCurrency)}
+          </span>
+        </div>
+      </div>
 
       <div className="min-w-0 space-y-1.5 text-xs">
         {outerSegments.map((s) => (
@@ -245,7 +255,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
             key={s.label}
             role="img"
             aria-label={`${s.label}: ${s.pct}%`}
-            className="grid cursor-pointer grid-cols-[0.75rem_minmax(0,1fr)_auto] items-center gap-2 rounded px-1 transition-colors duration-200"
+            className="grid cursor-pointer grid-cols-[0.75rem_minmax(0,1fr)_auto] items-center gap-2 rounded-md px-1.5 py-0.5 transition-colors duration-200"
             style={{ backgroundColor: hovered === s.key ? 'var(--surface)' : 'transparent' }}
             onMouseEnter={(e) => onSegEnter(e, s)}
             onMouseMove={onSegMove}
@@ -256,13 +266,13 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
             <span className="font-bold tabular-nums text-foreground">{s.pct}%</span>
           </div>
         ))}
-        <div className="my-0.5 border-t border-border/30" />
+        <div className="my-0.5 border-t border-border/20" />
         {innerSegments.map((s) => (
           <div
             key={s.key}
             role="img"
             aria-label={`${s.label}: ${s.pct.toFixed(1)}%`}
-            className="grid cursor-pointer grid-cols-[0.625rem_minmax(0,1fr)_auto] items-center gap-2 rounded px-1 transition-colors duration-200"
+            className="grid cursor-pointer grid-cols-[0.625rem_minmax(0,1fr)_auto] items-center gap-2 rounded-md px-1.5 py-0.5 transition-colors duration-200"
             style={{ backgroundColor: hovered === s.key ? 'var(--surface)' : 'transparent' }}
             onMouseEnter={(e) => onSegEnter(e, s)}
             onMouseMove={onSegMove}
@@ -300,7 +310,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
   const maxAbs = Math.max(...items.map((i) => Math.abs(i.value)), 1);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2.5">
       {items.map((item, idx) => {
         const rawPct = Math.min((Math.abs(item.value) / maxAbs) * 100, 100);
         const widthPct = rawPct > 0 ? Math.max(rawPct, 3) : 0;
@@ -308,8 +318,8 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
           item.type === 'negative'
             ? 'bg-brand-red'
             : item.type === 'positive'
-              ? 'bg-brand-gold/80'
-              : 'bg-brand-gold/40';
+              ? 'bg-brand-gold/70'
+              : 'bg-brand-gold/30';
 
         const isActive = hoveredIdx === idx;
         const anyHovered = hoveredIdx !== null;
@@ -319,8 +329,8 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             key={item.label}
             role="img"
             aria-label={`${item.label}: ${formatCurrency(item.value, baseCurrency)}`}
-            className="flex cursor-pointer items-center gap-2 rounded-md px-1 transition-opacity duration-200"
-            style={{ opacity: anyHovered ? (isActive ? 1 : 0.4) : 1 }}
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-1 transition-opacity duration-200"
+            style={{ opacity: anyHovered ? (isActive ? 1 : 0.35) : 1 }}
             onMouseEnter={(e) => {
               setHoveredIdx(idx);
               show(e, {
@@ -332,17 +342,17 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             onMouseMove={move}
             onMouseLeave={() => { setHoveredIdx(null); hide(); }}
           >
-            <span className="w-16 shrink-0 text-right text-xs text-muted-foreground">{item.label}</span>
-            <div className="relative h-6 flex-1 overflow-hidden rounded bg-surface">
+            <span className="w-16 shrink-0 text-right text-xs text-muted-foreground/60">{item.label}</span>
+            <div className="relative h-6 flex-1 overflow-hidden rounded-md bg-surface/50">
               <div
-                className={`absolute inset-y-0 left-0 rounded transition-all duration-300 ${barColor}`}
+                className={`absolute inset-y-0 left-0 rounded-md transition-all duration-300 ${barColor}`}
                 style={{
                   width: `${widthPct}%`,
                   filter: isActive ? 'brightness(1.15)' : 'none',
                 }}
               />
             </div>
-            <span className={`w-24 shrink-0 text-right text-xs font-medium tabular-nums ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
+            <span className={`w-24 shrink-0 text-right text-xs font-medium tabular-nums ${item.value < 0 ? 'text-brand-red' : 'text-foreground/70'}`}>
               {formatCurrency(item.value, baseCurrency)}
             </span>
           </div>
@@ -365,15 +375,15 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
   return (
     <div className="space-y-3 overflow-hidden">
       <div>
-        <div className="mb-1 text-xs text-muted-foreground">{t.result.revenue}</div>
-        <div className="flex h-7 overflow-hidden rounded-md">
+        <div className="mb-1.5 text-xs text-muted-foreground/50">{t.result.revenue}</div>
+        <div className="flex h-7 overflow-hidden rounded-lg">
           <div
             role="img"
             aria-label={`${t.result.revenueA}: ${revenueAPercent}%`}
             className="flex cursor-pointer items-center justify-center bg-brand-red text-xs font-bold text-white transition-all duration-200"
             style={{
               width: `${revenueAPercent}%`,
-              opacity: hovered !== null ? (hovered === 'rev-a' ? 1 : 0.4) : 1,
+              opacity: hovered !== null ? (hovered === 'rev-a' ? 1 : 0.35) : 1,
               filter: hovered === 'rev-a' ? 'brightness(1.15)' : 'none',
             }}
             onMouseEnter={(e) => {
@@ -395,7 +405,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
             className="flex cursor-pointer items-center justify-center bg-brand-gold text-xs font-bold text-background transition-all duration-200"
             style={{
               width: `${revenueBPercent}%`,
-              opacity: hovered !== null ? (hovered === 'rev-b' ? 1 : 0.4) : 1,
+              opacity: hovered !== null ? (hovered === 'rev-b' ? 1 : 0.35) : 1,
               filter: hovered === 'rev-b' ? 'brightness(1.15)' : 'none',
             }}
             onMouseEnter={(e) => {
@@ -416,8 +426,8 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
       {result.distribution.length > 0 && totalPct > 0 && (
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">{t.result.distribution}</div>
-          <div className="flex h-7 overflow-hidden rounded-md">
+          <div className="mb-1.5 text-xs text-muted-foreground/50">{t.result.distribution}</div>
+          <div className="flex h-7 overflow-hidden rounded-lg">
             {result.distribution.map((d, i) => {
               const widthPct = (Math.abs(d.percentage) / totalPct) * 100;
               const hue = 15 + i * 25;
@@ -436,7 +446,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                   style={{
                     width: `${widthPct}%`,
                     backgroundColor: `hsl(${hue}, 70%, ${45 + i * 8}%)`,
-                    opacity: anyHovered ? (isActive ? 1 : 0.4) : 1,
+                    opacity: anyHovered ? (isActive ? 1 : 0.35) : 1,
                     filter: isActive ? 'brightness(1.15)' : 'none',
                   }}
                   onMouseEnter={(e) => {
@@ -469,28 +479,31 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
+      <div className="premium-card rounded-xl border border-border/40 bg-card p-4">
         <SummaryCards result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-gold/70">
+        <div className="premium-card overflow-hidden rounded-xl border border-border/40 bg-card p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+            <PieChart className="size-3.5" />
             {t.result.revenue}
           </h3>
           <DonutChart result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-gold/70">
+        <div className="premium-card overflow-hidden rounded-xl border border-border/40 bg-card p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+            <BarChart3 className="size-3.5" />
             {t.result.distribution}
           </h3>
           <StackedBar result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
         </div>
       </div>
 
-      <div className="rounded-xl border border-border/60 bg-card p-4 shadow-lg shadow-black/10">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-gold/70">
+      <div className="premium-card rounded-xl border border-border/40 bg-card p-4">
+        <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+          <TrendingUp className="size-3.5" />
           Cash Flow
         </h3>
         <WaterfallChart result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
