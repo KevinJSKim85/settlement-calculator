@@ -59,6 +59,11 @@ function HomePageContent() {
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
   const rollings = useSettlementStore((s) => s.rollings);
+  const splitMode = useSettlementStore((s) => s.splitMode);
+  const storeBuyingA = useSettlementStore((s) => s.buyingA);
+  const storeBuyingB = useSettlementStore((s) => s.buyingB);
+  const storeReturningA = useSettlementStore((s) => s.returningA);
+  const storeReturningB = useSettlementStore((s) => s.returningB);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
   const members = useSettlementStore((s) => s.members);
@@ -94,12 +99,18 @@ function HomePageContent() {
     const normalizedTarget = Math.round(revenueBPercent * 100) / 100;
     if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
 
+    const isManual = splitMode === 'manual';
     const input: SettlementInput = {
-      buying: buyingInBase,
+      buying: isManual ? storeBuyingA + storeBuyingB : buyingInBase,
       buyingCurrency: baseCurrency,
-      returning: returningInBase,
+      returning: isManual ? storeReturningA + storeReturningB : returningInBase,
       returningCurrency: baseCurrency,
       rollingEntries,
+      splitMode,
+      buyingA: isManual ? storeBuyingA : undefined,
+      buyingB: isManual ? storeBuyingB : undefined,
+      returningA: isManual ? storeReturningA : undefined,
+      returningB: isManual ? storeReturningB : undefined,
     };
 
     const config: SettlementConfig = {
@@ -117,6 +128,11 @@ function HomePageContent() {
     revenueAPercent,
     revenueBPercent,
     members,
+    splitMode,
+    storeBuyingA,
+    storeBuyingB,
+    storeReturningA,
+    storeReturningB,
   ]);
 
   const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);

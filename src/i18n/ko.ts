@@ -19,6 +19,7 @@ export const ko = {
     quickAdd100Man: '+100만',
     quickAdd1000Man: '+1000만',
     quickAdd1Eok: '+1억',
+    splitManual: 'A/B 직접 입력',
   },
   result: {
     revenue: '수익',

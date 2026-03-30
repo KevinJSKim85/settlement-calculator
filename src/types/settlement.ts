@@ -16,12 +16,19 @@ export interface RollingFeeResult {
   target: RollingTarget;
 }
 
+export type SplitMode = 'auto' | 'manual';
+
 export interface SettlementInput {
   buying: number;
   buyingCurrency: Currency;
   returning: number;
   returningCurrency: Currency;
   rollingEntries: RollingFeeEntry[];
+  splitMode?: SplitMode;
+  buyingA?: number;
+  buyingB?: number;
+  returningA?: number;
+  returningB?: number;
 }
 
 export interface SettlementConfig {

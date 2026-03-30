@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Currency, ExchangeRateData, ExchangeRates, DistributionMember, RollingTarget } from '@/types';
+import type { Currency, ExchangeRateData, ExchangeRates, DistributionMember, RollingTarget, SplitMode } from '@/types';
 import { DEFAULT_SETTINGS } from '@/types';
 import type { Language } from '@/types';
 
@@ -35,6 +35,11 @@ export interface SettlementStore {
   buying: InputField;
   returning: InputField;
   rollings: RollingEntry[];
+  splitMode: SplitMode;
+  buyingA: number;
+  buyingB: number;
+  returningA: number;
+  returningB: number;
 
   exchangeRateData: ExchangeRateData | null;
 
@@ -48,10 +53,15 @@ export interface SettlementStore {
   removeMember: (id: string) => void;
   updateMember: (id: string, updates: Partial<Pick<DistributionMember, 'name' | 'percentage'>>) => void;
 
+  setSplitMode: (mode: SplitMode) => void;
   setBuying: (amount: number) => void;
   setBuyingCurrency: (currency: Currency) => void;
   setReturning: (amount: number) => void;
   setReturningCurrency: (currency: Currency) => void;
+  setBuyingA: (amount: number) => void;
+  setBuyingB: (amount: number) => void;
+  setReturningA: (amount: number) => void;
+  setReturningB: (amount: number) => void;
 
   addRolling: () => void;
   removeRolling: (id: string) => void;
@@ -77,6 +87,11 @@ export const useSettlementStore = create<SettlementStore>()(
 
       buying: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
       returning: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
+      splitMode: 'auto' as SplitMode,
+      buyingA: 0,
+      buyingB: 0,
+      returningA: 0,
+      returningB: 0,
       rollings: DEFAULT_SETTINGS.rollingSettings.map((s) => ({
         ...s,
         amount: 0,
@@ -132,6 +147,9 @@ export const useSettlementStore = create<SettlementStore>()(
           ),
         })),
 
+      setSplitMode: (mode: SplitMode) =>
+        set({ splitMode: mode }),
+
       setBuying: (amount: number) =>
         set((state: SettlementStore) => ({ buying: { ...state.buying, amount } })),
 
@@ -143,6 +161,11 @@ export const useSettlementStore = create<SettlementStore>()(
 
       setReturningCurrency: (currency: Currency) =>
         set((state: SettlementStore) => ({ returning: { ...state.returning, currency } })),
+
+      setBuyingA: (amount: number) => set({ buyingA: amount }),
+      setBuyingB: (amount: number) => set({ buyingB: amount }),
+      setReturningA: (amount: number) => set({ returningA: amount }),
+      setReturningB: (amount: number) => set({ returningB: amount }),
 
       addRolling: () =>
         set((state: SettlementStore) => {
@@ -199,6 +222,10 @@ export const useSettlementStore = create<SettlementStore>()(
         set((state: SettlementStore) => ({
           buying: { amount: 0, currency: base },
           returning: { amount: 0, currency: base },
+          buyingA: 0,
+          buyingB: 0,
+          returningA: 0,
+          returningB: 0,
           rollings: state.rollings.map((r) => ({ ...r, amount: 0, currency: base })),
         }));
       },

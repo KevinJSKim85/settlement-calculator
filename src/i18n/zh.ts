@@ -19,6 +19,7 @@ export const zh = {
     quickAdd100Man: '+100万',
     quickAdd1000Man: '+1000万',
     quickAdd1Eok: '+1亿',
+    splitManual: 'A/B 手动输入',
   },
   result: {
     revenue: '收益',

@@ -19,6 +19,7 @@ export const en = {
     quickAdd100Man: '+1M',
     quickAdd1000Man: '+10M',
     quickAdd1Eok: '+100M',
+    splitManual: 'Manual A/B',
   },
   result: {
     revenue: 'Revenue',

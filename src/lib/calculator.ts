@@ -68,11 +68,23 @@ export function calcSettlement(
   config: SettlementConfig,
   baseCurrency: Currency
 ): SettlementResult {
-  const buyingA = Math.round((input.buying * config.revenueAPercent) / 100);
-  const buyingB = input.buying - buyingA;
-  const returningA = Math.round((input.returning * config.revenueAPercent) / 100);
-  const returningB = input.returning - returningA;
-  const balance = calcBalance(input.buying, input.returning);
+  const isManual = input.splitMode === 'manual';
+  const buyingA = isManual && input.buyingA !== undefined
+    ? input.buyingA
+    : Math.round((input.buying * config.revenueAPercent) / 100);
+  const buyingB = isManual && input.buyingB !== undefined
+    ? input.buyingB
+    : input.buying - buyingA;
+  const returningA = isManual && input.returningA !== undefined
+    ? input.returningA
+    : Math.round((input.returning * config.revenueAPercent) / 100);
+  const returningB = isManual && input.returningB !== undefined
+    ? input.returningB
+    : input.returning - returningA;
+  const balance = calcBalance(
+    isManual ? buyingA + buyingB : input.buying,
+    isManual ? returningA + returningB : input.returning
+  );
 
   const rollingFees = calcRollingFees(input.rollingEntries);
 
