@@ -6,6 +6,7 @@ import { Sun, Moon, Calculator, RotateCcw } from 'lucide-react';
 import { InputForm } from '@/components/InputForm';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
+import { RollingManager } from '@/components/RollingManager';
 import { RateTicker } from '@/components/RateTicker';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import { Infographics } from '@/components/Infographics';
@@ -193,7 +194,9 @@ function HomePageContent() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           {/* Left: Input */}
           <div className="space-y-5">
-            <InputForm middleContent={<MemberManager />} />
+            <InputForm />
+            <MemberManager />
+            <RollingManager />
             <AdBanner label="AD SPACE" />
           </div>
 
