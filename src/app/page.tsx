@@ -195,8 +195,8 @@ function HomePageContent() {
           {/* Left: Input */}
           <div className="space-y-5">
             <InputForm />
-            <MemberManager />
             <RollingManager />
+            <MemberManager />
             <AdBanner label="AD SPACE" />
           </div>
 
