@@ -592,7 +592,7 @@ export function InputForm() {
               </div>
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
-                  <div className="text-[10px] text-muted-foreground">{t.input.foreignAmount}</div>
+                  <div className="text-[10px] text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -639,7 +639,7 @@ export function InputForm() {
               </div>
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
-                  <div className="text-[10px] text-muted-foreground">{t.input.foreignAmount}</div>
+                  <div className="text-[10px] text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
                   <Input
                     type="text"
                     inputMode="decimal"
