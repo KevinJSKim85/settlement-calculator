@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 function getFilename(extension: string): string {
@@ -11,170 +11,96 @@ function getFilename(extension: string): string {
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-
   link.href = url;
   link.download = filename;
   link.rel = 'noopener';
-
   document.body.appendChild(link);
   link.click();
   link.remove();
-
-  window.setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 1000);
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function collectCSSVariables(): Map<string, string> {
-  const vars = new Map<string, string>();
-  const rootStyle = getComputedStyle(document.documentElement);
-
-  for (let i = 0; i < rootStyle.length; i++) {
-    const prop = rootStyle[i];
-    if (prop.startsWith('--')) {
-      vars.set(prop, rootStyle.getPropertyValue(prop).trim());
-    }
-  }
-
-  return vars;
+function downloadDataUrl(dataUrl: string, filename: string) {
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = filename;
+  link.rel = 'noopener';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
-function collectElementStyles(element: HTMLElement): Map<number, Record<string, string>> {
-  const styleMap = new Map<number, Record<string, string>>();
-  const elements = element.querySelectorAll('*');
-
-  elements.forEach((el, index) => {
-    if (!(el instanceof HTMLElement)) return;
-    const cs = getComputedStyle(el);
-    styleMap.set(index, {
-      color: cs.color,
-      backgroundColor: cs.backgroundColor,
-      borderColor: cs.borderColor,
-      borderTopColor: cs.borderTopColor,
-      borderBottomColor: cs.borderBottomColor,
-      borderLeftColor: cs.borderLeftColor,
-      borderRightColor: cs.borderRightColor,
-      boxShadow: cs.boxShadow,
-      outlineColor: cs.outlineColor,
-    });
-  });
-
-  return styleMap;
-}
-
-function applyStylesToClone(
-  clonedDoc: Document,
-  cssVars: Map<string, string>,
-  elementStyles: Map<number, Record<string, string>>
-) {
-  const clonedRoot = clonedDoc.documentElement;
-  clonedRoot.className = document.documentElement.className;
-
-  cssVars.forEach((value, prop) => {
-    clonedRoot.style.setProperty(prop, value);
-  });
-
-  const clonedElements = clonedDoc.querySelectorAll('*');
-  clonedElements.forEach((el, index) => {
-    if (!(el instanceof HTMLElement)) return;
-    const styles = elementStyles.get(index);
-    if (!styles) return;
-
-    Object.entries(styles).forEach(([key, value]) => {
-      el.style.setProperty(
-        key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
-        value
-      );
-    });
-  });
-}
-
-async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> {
+async function captureElement(element: HTMLElement): Promise<string> {
   const isDark = document.documentElement.classList.contains('dark');
 
-  const cssVars = collectCSSVariables();
-  const elementStyles = collectElementStyles(element);
-
-  return html2canvas(element, {
-    scale: 2,
+  return toPng(element, {
+    pixelRatio: 2,
     backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
-    useCORS: true,
-    logging: false,
-    width: element.scrollWidth,
-    height: element.scrollHeight,
-    windowWidth: element.scrollWidth,
-    windowHeight: element.scrollHeight,
-    scrollX: 0,
-    scrollY: 0,
-    onclone: (doc) => applyStylesToClone(doc, cssVars, elementStyles),
+    cacheBust: true,
+    style: {
+      margin: '0',
+    },
   });
 }
 
 export async function exportToImage(element: HTMLElement): Promise<void> {
-  const canvas = await captureElement(element);
-
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((b) => {
-      if (b) resolve(b);
-      else reject(new Error('Canvas blob creation failed'));
-    }, 'image/png');
-  });
-
-  downloadBlob(blob, getFilename('png'));
+  const dataUrl = await captureElement(element);
+  downloadDataUrl(dataUrl, getFilename('png'));
 }
 
 export async function exportToPDF(element: HTMLElement): Promise<void> {
-  const canvas = await captureElement(element);
-  const pdf = new jsPDF('p', 'mm', 'a4');
+  const dataUrl = await captureElement(element);
 
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+
+  const pdf = new jsPDF('p', 'mm', 'a4');
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = pdf.internal.pageSize.getHeight();
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
 
   const margin = 10;
   const availableWidth = pdfWidth - margin * 2;
   const availableHeight = pdfHeight - margin * 2;
-  const pxPerMm = imgWidth / availableWidth;
-  const pageHeightPx = Math.floor(availableHeight * pxPerMm);
 
-  let pageIndex = 0;
-  let renderedHeight = 0;
+  const imgAspect = img.width / img.height;
+  const fitWidth = availableWidth;
+  const fitHeight = fitWidth / imgAspect;
 
-  while (renderedHeight < imgHeight) {
-    const sliceHeight = Math.min(pageHeightPx, imgHeight - renderedHeight);
-    const pageCanvas = document.createElement('canvas');
-    pageCanvas.width = imgWidth;
-    pageCanvas.height = sliceHeight;
+  if (fitHeight <= availableHeight) {
+    pdf.addImage(dataUrl, 'PNG', margin, margin, fitWidth, fitHeight);
+  } else {
+    const pxPerMm = img.width / availableWidth;
+    const pageHeightPx = Math.floor(availableHeight * pxPerMm);
+    let renderedHeight = 0;
+    let pageIndex = 0;
 
-    const context = pageCanvas.getContext('2d');
-    if (!context) {
-      throw new Error('Canvas context creation failed');
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+
+    while (renderedHeight < img.height) {
+      const sliceHeight = Math.min(pageHeightPx, img.height - renderedHeight);
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = img.width;
+      pageCanvas.height = sliceHeight;
+      const pageCtx = pageCanvas.getContext('2d')!;
+      pageCtx.drawImage(canvas, 0, renderedHeight, img.width, sliceHeight, 0, 0, img.width, sliceHeight);
+
+      const sliceHeightMm = sliceHeight / pxPerMm;
+      const sliceData = pageCanvas.toDataURL('image/png');
+
+      if (pageIndex > 0) pdf.addPage();
+      pdf.addImage(sliceData, 'PNG', margin, margin, availableWidth, sliceHeightMm);
+
+      renderedHeight += sliceHeight;
+      pageIndex += 1;
     }
-
-    context.drawImage(
-      canvas,
-      0,
-      renderedHeight,
-      imgWidth,
-      sliceHeight,
-      0,
-      0,
-      imgWidth,
-      sliceHeight
-    );
-
-    const sliceHeightMm = sliceHeight / pxPerMm;
-    const imgData = pageCanvas.toDataURL('image/png');
-
-    if (pageIndex > 0) {
-      pdf.addPage();
-    }
-
-    pdf.addImage(imgData, 'PNG', margin, margin, availableWidth, sliceHeightMm);
-
-    renderedHeight += sliceHeight;
-    pageIndex += 1;
   }
 
   const pdfBlob = pdf.output('blob');

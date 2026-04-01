@@ -26,7 +26,8 @@ export function ExportButtons({ targetRef, disabled }: ExportButtonsProps) {
         await exportToImage(targetRef.current);
       }
       toast.success(t.export.exportSuccess);
-    } catch {
+    } catch (err) {
+      console.error('[Export Error]', err);
       toast.error(t.export.exportFail);
     } finally {
       setExporting(false);
