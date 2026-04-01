@@ -20,6 +20,9 @@ export const en = {
     quickAdd1000Man: '+10M',
     quickAdd1Eok: '+100M',
     splitManual: 'Manual A/B',
+    fxRate: 'Rate',
+    foreignAmount: 'Foreign Amount',
+    krwAmount: 'KRW Amount',
   },
   result: {
     revenue: 'Revenue',
@@ -39,7 +42,7 @@ export const en = {
   },
   settings: {
     title: 'Settings',
-    titleHint: '(Revenue%, Rates, etc.)',
+    titleHint: '(Revenue%, Manual Rates)',
     revenueAPercent: 'Revenue A %',
     revenueBPercent: 'Revenue B %',
     baseCurrency: 'Base Currency',
@@ -60,6 +63,7 @@ export const en = {
   },
   members: {
     title: 'Distribution Members',
+    autoFromRate: 'Link to Rate',
     addMember: 'Add Member',
     removeMember: 'Remove',
     memberName: 'Name',

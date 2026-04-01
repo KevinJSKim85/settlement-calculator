@@ -20,6 +20,9 @@ export const zh = {
     quickAdd1000Man: '+1000万',
     quickAdd1Eok: '+1亿',
     splitManual: 'A/B 手动输入',
+    fxRate: '汇率',
+    foreignAmount: '外币金额',
+    krwAmount: '韩元金额',
   },
   result: {
     revenue: '收益',
@@ -39,7 +42,7 @@ export const zh = {
   },
   settings: {
     title: '设置',
-    titleHint: '(收益%、汇率等)',
+    titleHint: '(收益%、手动汇率)',
     revenueAPercent: '收益 A %',
     revenueBPercent: '收益 B %',
     baseCurrency: '基准货币',
@@ -60,6 +63,7 @@ export const zh = {
   },
   members: {
     title: '收益分配成员',
+    autoFromRate: '按汇率联动',
     addMember: '添加成员',
     removeMember: '删除',
     memberName: '姓名',

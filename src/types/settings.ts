@@ -15,6 +15,7 @@ export interface AppSettings {
   baseCurrency: Currency;
   members: DistributionMember[];
   manualExchangeRates: ExchangeRates;
+  autoRevenueSplitFromRate: boolean;
   language: Language;
   rollingSettings: RollingSetting[];
 }
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   baseCurrency: 'KRW',
   members: [],
   manualExchangeRates: {},
+  autoRevenueSplitFromRate: false,
   language: 'ko',
   rollingSettings: [
     { id: DEFAULT_ROLLING_ID, feePercent: 1.6, target: 'A' },

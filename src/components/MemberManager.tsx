@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Users, Plus, X, UserCircle } from 'lucide-react';
+import { Users, Plus, X, UserCircle, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
+import { deriveRevenueAPercentFromRate } from '@/lib/calculator';
 import { Card, CardHeader, CardTitle, CardAction, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,13 +13,21 @@ import { toast } from 'sonner';
 export function MemberManager() {
   const { t } = useTranslation();
   const members = useSettlementStore((s) => s.members);
+  const buying = useSettlementStore((s) => s.buying);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
+  const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
+  const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
   const setRevenueAPercent = useSettlementStore((s) => s.setRevenueAPercent);
+  const setAutoRevenueSplitFromRate = useSettlementStore((s) => s.setAutoRevenueSplitFromRate);
   const addMember = useSettlementStore((s) => s.addMember);
   const removeMember = useSettlementStore((s) => s.removeMember);
   const updateMember = useSettlementStore((s) => s.updateMember);
 
-  const revenueBPercent = 100 - revenueAPercent;
+  const buyingRate = manualExchangeRates[buying.currency] ?? 0;
+  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0
+    ? deriveRevenueAPercentFromRate(buyingRate)
+    : revenueAPercent;
+  const revenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 100) / 100;
   const sum = members.reduce((acc, m) => acc + m.percentage, 0);
   const roundedSum = Math.round(sum * 100) / 100;
   const roundedTarget = Math.round(revenueBPercent * 100) / 100;
@@ -90,10 +99,11 @@ export function MemberManager() {
               inputMode="decimal"
               min={0}
               max={100}
-              value={revenueAPercent}
+              value={effectiveRevenueAPercent}
               onChange={(e) =>
                 setRevenueAPercent(parseFloat(e.target.value) || 0)
               }
+              disabled={autoRevenueSplitFromRate}
               className="h-8 w-16 border-brand-gold/20 bg-surface text-center tabular-nums text-foreground focus-glow"
             />
             <span className="text-sm text-muted-foreground">%</span>
@@ -101,6 +111,18 @@ export function MemberManager() {
             <span className="whitespace-nowrap text-sm text-muted-foreground">
               {t.result.revenueB}: {revenueBPercent}%
             </span>
+            <button
+              type="button"
+              onClick={() => setAutoRevenueSplitFromRate(!autoRevenueSplitFromRate)}
+              className="ml-auto flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
+            >
+              {autoRevenueSplitFromRate
+                ? <ToggleRight className="size-3.5 text-brand-gold" />
+                : <ToggleLeft className="size-3.5 text-muted-foreground" />}
+              <span className={autoRevenueSplitFromRate ? 'font-medium text-brand-gold' : 'text-muted-foreground'}>
+                {t.members.autoFromRate}
+              </span>
+            </button>
           </div>
           {/* Visual split bar */}
           <div className="flex h-2 overflow-hidden rounded-full">

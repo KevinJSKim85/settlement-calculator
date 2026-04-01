@@ -100,6 +100,12 @@ async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> 
     backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
     useCORS: true,
     logging: false,
+    width: element.scrollWidth,
+    height: element.scrollHeight,
+    windowWidth: element.scrollWidth,
+    windowHeight: element.scrollHeight,
+    scrollX: 0,
+    scrollY: 0,
     onclone: (doc) => applyStylesToClone(doc, cssVars, elementStyles),
   });
 }
@@ -119,8 +125,6 @@ export async function exportToImage(element: HTMLElement): Promise<void> {
 
 export async function exportToPDF(element: HTMLElement): Promise<void> {
   const canvas = await captureElement(element);
-
-  const imgData = canvas.toDataURL('image/png');
   const pdf = new jsPDF('p', 'mm', 'a4');
 
   const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -130,15 +134,48 @@ export async function exportToPDF(element: HTMLElement): Promise<void> {
 
   const margin = 10;
   const availableWidth = pdfWidth - margin * 2;
-  const ratio = availableWidth / imgWidth;
-  const scaledHeight = imgHeight * ratio;
+  const availableHeight = pdfHeight - margin * 2;
+  const pxPerMm = imgWidth / availableWidth;
+  const pageHeightPx = Math.floor(availableHeight * pxPerMm);
 
-  const yOffset =
-    scaledHeight < pdfHeight - margin * 2
-      ? (pdfHeight - scaledHeight) / 2
-      : margin;
+  let pageIndex = 0;
+  let renderedHeight = 0;
 
-  pdf.addImage(imgData, 'PNG', margin, yOffset, availableWidth, scaledHeight);
+  while (renderedHeight < imgHeight) {
+    const sliceHeight = Math.min(pageHeightPx, imgHeight - renderedHeight);
+    const pageCanvas = document.createElement('canvas');
+    pageCanvas.width = imgWidth;
+    pageCanvas.height = sliceHeight;
+
+    const context = pageCanvas.getContext('2d');
+    if (!context) {
+      throw new Error('Canvas context creation failed');
+    }
+
+    context.drawImage(
+      canvas,
+      0,
+      renderedHeight,
+      imgWidth,
+      sliceHeight,
+      0,
+      0,
+      imgWidth,
+      sliceHeight
+    );
+
+    const sliceHeightMm = sliceHeight / pxPerMm;
+    const imgData = pageCanvas.toDataURL('image/png');
+
+    if (pageIndex > 0) {
+      pdf.addPage();
+    }
+
+    pdf.addImage(imgData, 'PNG', margin, margin, availableWidth, sliceHeightMm);
+
+    renderedHeight += sliceHeight;
+    pageIndex += 1;
+  }
 
   const pdfBlob = pdf.output('blob');
   downloadBlob(pdfBlob, getFilename('pdf'));

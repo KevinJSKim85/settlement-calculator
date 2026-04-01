@@ -30,6 +30,7 @@ export interface SettlementStore {
   baseCurrency: Currency;
   members: DistributionMember[];
   manualExchangeRates: ExchangeRates;
+  autoRevenueSplitFromRate: boolean;
   language: Language;
 
   buying: InputField;
@@ -46,6 +47,7 @@ export interface SettlementStore {
   setRevenueAPercent: (percent: number) => void;
   setBaseCurrency: (currency: Currency) => void;
   setLanguage: (language: Language) => void;
+  setAutoRevenueSplitFromRate: (enabled: boolean) => void;
   setManualExchangeRate: (currency: Currency, rate: number) => void;
   clearManualExchangeRate: (currency: Currency) => void;
 
@@ -83,6 +85,7 @@ export const useSettlementStore = create<SettlementStore>()(
       baseCurrency: DEFAULT_SETTINGS.baseCurrency,
       members: DEFAULT_SETTINGS.members,
       manualExchangeRates: DEFAULT_SETTINGS.manualExchangeRates,
+      autoRevenueSplitFromRate: DEFAULT_SETTINGS.autoRevenueSplitFromRate,
       language: DEFAULT_SETTINGS.language,
 
       buying: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
@@ -108,6 +111,9 @@ export const useSettlementStore = create<SettlementStore>()(
 
       setLanguage: (language: Language) =>
         set({ language }),
+
+      setAutoRevenueSplitFromRate: (enabled: boolean) =>
+        set({ autoRevenueSplitFromRate: enabled }),
 
       setManualExchangeRate: (currency: Currency, rate: number) =>
         set((state: SettlementStore) => ({
@@ -251,6 +257,7 @@ export const useSettlementStore = create<SettlementStore>()(
         baseCurrency: state.baseCurrency,
         members: state.members,
         manualExchangeRates: state.manualExchangeRates,
+        autoRevenueSplitFromRate: state.autoRevenueSplitFromRate,
         language: state.language,
         rollings: state.rollings.map((r) => ({
           id: r.id,

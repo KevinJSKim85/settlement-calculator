@@ -5,6 +5,7 @@ import {
   calcDistribution,
   calcRollingFee,
   calcSettlement,
+  deriveRevenueAPercentFromRate,
 } from './calculator';
 
 describe('calcBalance', () => {
@@ -130,5 +131,40 @@ describe('calcSettlement', () => {
     expect(result.returningB).toBe(26);
     expect(result.revenueA).toBe(21);
     expect(result.revenueB).toBe(39);
+  });
+
+  it('uses manual A/B inputs when split mode is manual', () => {
+    const result = calcSettlement(
+      {
+        buying: 100,
+        buyingCurrency: 'KRW',
+        returning: 45,
+        returningCurrency: 'KRW',
+        rollingEntries: [],
+        splitMode: 'manual',
+        buyingA: 20,
+        buyingB: 80,
+        returningA: 5,
+        returningB: 40,
+      },
+      {
+        revenueAPercent: 35,
+        members: [{ id: 'm1', name: '멤버 1', percentage: 65 }],
+      },
+      'KRW'
+    );
+
+    expect(result.buyingA).toBe(20);
+    expect(result.buyingB).toBe(80);
+    expect(result.returningA).toBe(5);
+    expect(result.returningB).toBe(40);
+    expect(result.revenueA).toBe(15);
+    expect(result.revenueB).toBe(40);
+  });
+});
+
+describe('deriveRevenueAPercentFromRate', () => {
+  it('derives revenue A percent from exchange rate', () => {
+    expect(deriveRevenueAPercentFromRate(211)).toBe(47.39);
   });
 });

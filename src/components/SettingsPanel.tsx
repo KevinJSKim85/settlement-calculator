@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Settings, ChevronDown, ArrowRightLeft, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { Settings, ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
-import { fetchExchangeRates, isRateStale } from '@/lib/exchange-rate';
 import { CURRENCIES, CURRENCY_CONFIG } from '@/types/currency';
 import type { Currency } from '@/types/currency';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectTrigger,
@@ -18,111 +16,16 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
-
-const DEFAULT_SPREAD_PERCENT = 0.5;
-
-function formatDateTime(date: Date | null): string {
-  if (!date) return '-';
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  });
-}
 
 export function SettingsPanel() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoadingRates, setIsLoadingRates] = useState(false);
-  const [rateViewCurrency, setRateViewCurrency] = useState<Currency | null>(null);
-  const [showBidAsk, setShowBidAsk] = useState(false);
-  const [spreadPercent, setSpreadPercent] = useState(DEFAULT_SPREAD_PERCENT);
-
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
-  const exchangeRateData = useSettlementStore((s) => s.exchangeRateData);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const setBaseCurrency = useSettlementStore((s) => s.setBaseCurrency);
-  const setExchangeRateData = useSettlementStore((s) => s.setExchangeRateData);
   const setManualExchangeRate = useSettlementStore((s) => s.setManualExchangeRate);
-  const viewBase = rateViewCurrency || baseCurrency;
 
-  const prevBaseCurrencyRef = useRef(baseCurrency);
-  useEffect(() => {
-    if (prevBaseCurrencyRef.current !== baseCurrency) {
-      prevBaseCurrencyRef.current = baseCurrency;
-      setRateViewCurrency(null);
-      fetchExchangeRates(baseCurrency).then((data) => {
-        if (data) setExchangeRateData(data);
-      });
-    }
-  }, [baseCurrency, setExchangeRateData]);
-
-  const handleFetchRates = async () => {
-    setIsLoadingRates(true);
-    try {
-      const data = await fetchExchangeRates(baseCurrency);
-      if (data) {
-        setExchangeRateData(data);
-      } else {
-        toast.error(t.errors.apiError);
-      }
-    } catch {
-      toast.error(t.errors.apiError);
-    } finally {
-      setIsLoadingRates(false);
-    }
-  };
-
-  const stale = exchangeRateData
-    ? isRateStale(exchangeRateData.fetchedAt)
-    : false;
-
-  const nonViewCurrencies = CURRENCIES.filter((c) => c !== viewBase);
-
-  const getEffectiveRate = (currency: Currency): number | undefined => {
-    const manualRate = manualExchangeRates[currency];
-    const apiRate = exchangeRateData?.rates[currency];
-    return manualRate ?? apiRate;
-  };
-
-  const getRateForView = (targetCurrency: Currency): number | undefined => {
-    if (viewBase === baseCurrency) {
-      return getEffectiveRate(targetCurrency);
-    }
-    const viewBaseRate = getEffectiveRate(viewBase);
-    const targetRate = getEffectiveRate(targetCurrency);
-    if (!viewBaseRate || viewBaseRate === 0) return undefined;
-    if (targetCurrency === baseCurrency) return 1 / viewBaseRate;
-    if (!targetRate) return undefined;
-    return targetRate / viewBaseRate;
-  };
-
-  const getRateDisplay = (currency: Currency): string => {
-    const rate = getRateForView(currency);
-    if (rate === undefined) return '';
-    if (rate >= 100) return rate.toFixed(2);
-    if (rate >= 1) return rate.toFixed(4);
-    return rate.toFixed(6);
-  };
-
-  const getBidAsk = (currency: Currency): { bid: string; ask: string } | null => {
-    const rate = getRateForView(currency);
-    if (rate === undefined) return null;
-    const halfSpread = spreadPercent / 100 / 2;
-    const bid = rate * (1 - halfSpread);
-    const ask = rate * (1 + halfSpread);
-    const fmt = (v: number) => {
-      if (v >= 100) return v.toFixed(2);
-      if (v >= 1) return v.toFixed(4);
-      return v.toFixed(6);
-    };
-    return { bid: fmt(bid), ask: fmt(ask) };
-  };
+  const editableCurrencies = CURRENCIES.filter((currency) => currency !== baseCurrency);
 
   return (
     <Card className="premium-card border-border/40 bg-card">
@@ -139,9 +42,7 @@ export function SettingsPanel() {
             </div>
           </div>
           <ChevronDown
-            className={`size-4 text-muted-foreground transition-transform duration-300 ${
-              isOpen ? 'rotate-180' : ''
-            }`}
+            className={`size-4 text-muted-foreground transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
           />
         </div>
       </CardHeader>
@@ -158,9 +59,9 @@ export function SettingsPanel() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c} {CURRENCY_CONFIG[c].symbol}
+                {CURRENCIES.map((currency) => (
+                  <SelectItem key={currency} value={currency}>
+                    {currency} {CURRENCY_CONFIG[currency].symbol}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -168,135 +69,34 @@ export function SettingsPanel() {
           </div>
 
           <div className="space-y-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <Label className="text-foreground">{t.settings.exchangeRates}</Label>
-                {stale && (
-                  <div className="flex items-center gap-1 rounded-full bg-brand-red/10 px-2 py-0.5 text-xs text-brand-red">
-                    <AlertTriangle className="size-3" />
-                    {t.settings.rateStale}
-                  </div>
-                )}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isLoadingRates}
-                onClick={handleFetchRates}
-                className="w-full rounded-full border-brand-gold/20 text-brand-gold transition-all hover:border-brand-gold/40 hover:bg-brand-gold/5 sm:w-auto"
-              >
-                {isLoadingRates ? '...' : t.settings.fetchRates}
-              </Button>
-            </div>
-
-            {exchangeRateData && (
-              <div className="space-y-1 rounded-lg bg-surface/50 px-3 py-2 text-xs text-muted-foreground">
-                <div className="flex justify-between">
-                  <span>{t.settings.apiUpdateTime}</span>
-                  <span className="tabular-nums">{formatDateTime(exchangeRateData.apiUpdatedAt)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t.settings.fetchedTime}</span>
-                  <span className="tabular-nums">{formatDateTime(exchangeRateData.fetchedAt)}</span>
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <Label className="text-xs text-foreground">{t.settings.viewCurrency}</Label>
-                <Select
-                  value={viewBase}
-                  onValueChange={(val) => {
-                    if (val === baseCurrency) {
-                      setRateViewCurrency(null);
-                    } else {
-                      setRateViewCurrency(val as Currency);
-                    }
-                  }}
-                >
-                  <SelectTrigger size="sm" className="w-[110px] border-border/40 bg-surface text-secondary-foreground">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRENCIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c} {CURRENCY_CONFIG[c].symbol}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => setShowBidAsk(!showBidAsk)}
-                className="text-xs text-muted-foreground hover:text-brand-gold"
-              >
-                <ArrowRightLeft className="mr-1 size-3" />
-                {showBidAsk ? t.settings.hideBidAsk : t.settings.showBidAsk}
-              </Button>
-            </div>
-
-            {showBidAsk && (
-              <div className="flex items-center gap-2">
-                <Label className="shrink-0 text-xs text-foreground">{t.settings.spread}</Label>
-                <Input
-                  type="number"
-                  inputMode="decimal"
-                  step={0.1}
-                  min={0}
-                  max={10}
-                  value={spreadPercent}
-                  onChange={(e) => setSpreadPercent(parseFloat(e.target.value) || 0)}
-                  className="w-20 border-border/40 bg-surface text-foreground text-xs focus-glow"
-                />
-                <span className="text-xs text-muted-foreground">%</span>
-              </div>
-            )}
-
+            <Label className="text-foreground">{t.settings.exchangeRates}</Label>
             <div className="space-y-2">
-              {nonViewCurrencies.map((currency) => {
-                const bidAsk = showBidAsk ? getBidAsk(currency) : null;
-                return (
-                  <div key={currency} className="space-y-1 rounded-lg border border-border/20 bg-surface/30 px-3 py-2 transition-colors hover:border-border/40">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="w-24 shrink-0 text-sm text-muted-foreground">
-                        1 {viewBase} =
-                      </span>
-                      {viewBase === baseCurrency ? (
-                        <Input
-                          type="number"
-                          inputMode="decimal"
-                          step="any"
-                          min={0}
-                          value={getEffectiveRate(currency) !== undefined ? String(getEffectiveRate(currency)) : ''}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (!Number.isNaN(val) && val >= 0) {
-                              setManualExchangeRate(currency, val);
-                            }
-                          }}
-                          className="w-28 flex-1 border-border/40 bg-surface text-foreground focus-glow sm:flex-none"
-                        />
-                      ) : (
-                        <span className="w-28 flex-1 rounded-md bg-surface/50 px-3 py-1.5 text-sm tabular-nums text-foreground sm:flex-none">
-                          {getRateDisplay(currency) || '-'}
-                        </span>
-                      )}
-                      <span className="whitespace-nowrap text-sm text-muted-foreground">
-                        {currency} {CURRENCY_CONFIG[currency].symbol}
-                      </span>
-                    </div>
-                    {bidAsk && (
-                      <div className="ml-24 flex gap-3 pl-2 text-xs text-muted-foreground">
-                        <span>{t.settings.buyRate} <span className="tabular-nums text-brand-red">{bidAsk.ask}</span></span>
-                        <span>{t.settings.sellRate} <span className="tabular-nums text-brand-gold">{bidAsk.bid}</span></span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {editableCurrencies.map((currency) => (
+                <div
+                  key={currency}
+                  className="flex items-center gap-3 rounded-lg border border-border/20 bg-surface/30 px-3 py-2"
+                >
+                  <span className="w-24 shrink-0 text-sm text-muted-foreground">
+                    1 {currency}
+                  </span>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    min={0}
+                    value={manualExchangeRates[currency] ?? ''}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      setManualExchangeRate(currency, Number.isNaN(value) ? 0 : value);
+                    }}
+                    className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+                    placeholder="0"
+                  />
+                  <span className="shrink-0 text-sm text-muted-foreground">
+                    {baseCurrency} {CURRENCY_CONFIG[baseCurrency].symbol}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </CardContent>

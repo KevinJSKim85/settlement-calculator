@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { ShoppingCart, RotateCcw, Scale, Plus, X, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore, RollingEntry } from '@/lib/store';
+import { deriveRevenueAPercentFromRate } from '@/lib/calculator';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
 import { CURRENCIES, CURRENCY_CONFIG } from '@/types';
 import type { Currency } from '@/types';
@@ -79,6 +80,8 @@ function InputRow({
   onAddAmount,
   onFocus,
   onBlur,
+  topExtra,
+  footer,
 }: {
   label: string;
   icon: React.ReactNode;
@@ -90,12 +93,17 @@ function InputRow({
   onAddAmount: (amount: number) => void;
   onFocus: () => void;
   onBlur: () => void;
+  topExtra?: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">{icon}</span>
-        <span className="text-sm font-medium text-foreground">{label}</span>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">{icon}</span>
+          <span className="text-sm font-medium text-foreground">{label}</span>
+        </div>
+        {topExtra}
       </div>
       <div className="flex items-center gap-2">
         <CurrencySelect value={currency} onValueChange={onCurrencyChange} />
@@ -110,6 +118,7 @@ function InputRow({
           placeholder="0"
         />
       </div>
+      {footer}
       <QuickAmountButtons onAdd={onAddAmount} labels={quickAmountLabels} />
     </div>
   );
@@ -238,6 +247,8 @@ function RollingSection({
   entry,
   index,
   total,
+  revenueAPercent,
+  revenueBPercent,
   quickAmountLabels,
   focusedField,
   localValue,
@@ -249,6 +260,8 @@ function RollingSection({
   entry: RollingEntry;
   index: number;
   total: number;
+  revenueAPercent: number;
+  revenueBPercent: number;
   quickAmountLabels: string[];
   focusedField: string | null;
   localValue: string;
@@ -258,13 +271,10 @@ function RollingSection({
   onAddAmount: (id: string, currentAmount: number, addValue: number) => void;
 }) {
   const { t } = useTranslation();
-  const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const removeRolling = useSettlementStore((s) => s.removeRolling);
   const setRollingCurrency = useSettlementStore((s) => s.setRollingCurrency);
   const setRollingFeePercent = useSettlementStore((s) => s.setRollingFeePercent);
   const setRollingTarget = useSettlementStore((s) => s.setRollingTarget);
-
-  const revenueBPercent = 100 - revenueAPercent;
 
   const label = String.fromCharCode(65 + index);
   const rollingLabel = total > 1 ? `${t.input.rolling} ${label}` : t.input.rolling;
@@ -355,15 +365,19 @@ export function InputForm() {
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
   const rollings = useSettlementStore((s) => s.rollings);
+  const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const splitMode = useSettlementStore((s) => s.splitMode);
   const storeBuyingA = useSettlementStore((s) => s.buyingA);
   const storeBuyingB = useSettlementStore((s) => s.buyingB);
   const storeReturningA = useSettlementStore((s) => s.returningA);
   const storeReturningB = useSettlementStore((s) => s.returningB);
+  const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
+  const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
   const setBuying = useSettlementStore((s) => s.setBuying);
   const setBuyingCurrency = useSettlementStore((s) => s.setBuyingCurrency);
   const setReturning = useSettlementStore((s) => s.setReturning);
   const setReturningCurrency = useSettlementStore((s) => s.setReturningCurrency);
+  const setManualExchangeRate = useSettlementStore((s) => s.setManualExchangeRate);
   const setRollingAmount = useSettlementStore((s) => s.setRollingAmount);
   const addRolling = useSettlementStore((s) => s.addRolling);
   const setSplitMode = useSettlementStore((s) => s.setSplitMode);
@@ -375,6 +389,15 @@ export function InputForm() {
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [localValue, setLocalValue] = useState('');
+
+  const buyingRate = manualExchangeRates[buying.currency] ?? 0;
+  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0
+    ? deriveRevenueAPercentFromRate(buyingRate)
+    : revenueAPercent;
+  const effectiveRevenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 100) / 100;
+  const buyingKrwAmount = buying.currency === 'KRW'
+    ? buying.amount
+    : Math.round(buying.amount * buyingRate);
 
   const balance = isManual
     ? (storeBuyingA + storeBuyingB) - (storeReturningA + storeReturningB)
@@ -539,6 +562,29 @@ export function InputForm() {
               onAddAmount={(val) => handleAddAmount('buying', buying.amount, val)}
               onFocus={() => handleFocus('buying', buying.amount)}
               onBlur={handleBlur}
+              topExtra={buying.currency !== 'KRW' ? (
+                <div className="flex items-center gap-2 rounded-full border border-border/40 bg-surface px-2.5 py-1">
+                  <span className="text-[11px] text-muted-foreground">{t.input.fxRate}</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={buyingRate > 0 ? String(buyingRate) : ''}
+                    onChange={(e) => setManualExchangeRate(buying.currency, parseFormattedNumber(e.target.value))}
+                    className="h-6 w-20 border-0 bg-transparent px-0 text-right text-xs tabular-nums shadow-none focus-visible:ring-0"
+                    placeholder="0"
+                  />
+                </div>
+              ) : null}
+              footer={buying.currency !== 'KRW' ? (
+                <div className="rounded-xl border border-brand-gold/10 bg-brand-gold/5 px-3 py-2 text-xs">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-foreground">{t.input.krwAmount}</span>
+                    <span className="font-semibold tabular-nums text-brand-gold">
+                      KRW ₩{formatNumber(buyingKrwAmount, 0)}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
             />
 
             <div className="border-t border-border/20" />
@@ -571,6 +617,8 @@ export function InputForm() {
             entry={entry}
             index={index}
             total={rollings.length}
+            revenueAPercent={effectiveRevenueAPercent}
+            revenueBPercent={effectiveRevenueBPercent}
             quickAmountLabels={quickAmountLabels}
             focusedField={focusedField}
             localValue={localValue}

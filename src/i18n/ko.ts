@@ -20,6 +20,9 @@ export const ko = {
     quickAdd1000Man: '+1000만',
     quickAdd1Eok: '+1억',
     splitManual: 'A/B 직접 입력',
+    fxRate: '환율',
+    foreignAmount: '외화 금액',
+    krwAmount: '원화 금액',
   },
   result: {
     revenue: '수익',
@@ -39,7 +42,7 @@ export const ko = {
   },
   settings: {
     title: '설정',
-    titleHint: '(수익%, 환율 등)',
+    titleHint: '(수익%, 수동 환율)',
     revenueAPercent: '수익 A %',
     revenueBPercent: '수익 B %',
     baseCurrency: '기본 통화',
@@ -60,6 +63,7 @@ export const ko = {
   },
   members: {
     title: '수익분배 멤버',
+    autoFromRate: '환율 연동',
     addMember: '멤버 추가',
     removeMember: '삭제',
     memberName: '이름',

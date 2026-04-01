@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { I18nProvider, useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
-import { calcSettlement } from '@/lib/calculator';
+import { calcSettlement, deriveRevenueAPercentFromRate } from '@/lib/calculator';
 import { convertAmount } from '@/lib/currency';
 import type { RollingFeeEntry, SettlementConfig, SettlementInput } from '@/types';
 
@@ -22,6 +22,7 @@ function ThemeToggle() {
 
   return (
     <button
+      type="button"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-brand-gold"
     >
@@ -67,25 +68,46 @@ function HomePageContent() {
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
   const members = useSettlementStore((s) => s.members);
-  const exchangeRateData = useSettlementStore((s) => s.exchangeRateData);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
+  const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
   const resetInputs = useSettlementStore((s) => s.resetInputs);
 
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const effectiveRates = useMemo(() => {
-    const apiRates = exchangeRateData?.rates || {};
-    return { ...apiRates, ...manualExchangeRates };
-  }, [exchangeRateData, manualExchangeRates]);
+  const effectiveRates = useMemo(() => manualExchangeRates, [manualExchangeRates]);
 
-  const revenueBPercent = 100 - revenueAPercent;
+  const effectiveRevenueAPercent = useMemo(() => {
+    if (!autoRevenueSplitFromRate || buying.currency === 'KRW') return revenueAPercent;
+    const buyingRate = manualExchangeRates[buying.currency];
+    if (!buyingRate) return revenueAPercent;
+    return deriveRevenueAPercentFromRate(buyingRate);
+  }, [autoRevenueSplitFromRate, buying.currency, manualExchangeRates, revenueAPercent]);
+
+  const revenueBPercent = 100 - effectiveRevenueAPercent;
 
   const calculationResult = useMemo(() => {
+    const requiresRate = (currency: string) => currency !== baseCurrency && !effectiveRates[currency as keyof typeof effectiveRates];
+    if (requiresRate(buying.currency) || requiresRate(returning.currency) || rollings.some((rolling) => requiresRate(rolling.currency))) {
+      return null;
+    }
+
     const buyingInBase = convertAmount(
       buying.amount, buying.currency, baseCurrency, effectiveRates, baseCurrency
     );
     const returningInBase = convertAmount(
       returning.amount, returning.currency, baseCurrency, effectiveRates, baseCurrency
+    );
+    const buyingAInBase = convertAmount(
+      storeBuyingA, buying.currency, baseCurrency, effectiveRates, baseCurrency
+    );
+    const buyingBInBase = convertAmount(
+      storeBuyingB, buying.currency, baseCurrency, effectiveRates, baseCurrency
+    );
+    const returningAInBase = convertAmount(
+      storeReturningA, returning.currency, baseCurrency, effectiveRates, baseCurrency
+    );
+    const returningBInBase = convertAmount(
+      storeReturningB, returning.currency, baseCurrency, effectiveRates, baseCurrency
     );
 
     const rollingEntries: RollingFeeEntry[] = rollings.map((r) => ({
@@ -100,23 +122,23 @@ function HomePageContent() {
     if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
 
     const isManual = splitMode === 'manual';
-    const input: SettlementInput = {
-      buying: isManual ? storeBuyingA + storeBuyingB : buyingInBase,
+      const input: SettlementInput = {
+      buying: isManual ? buyingAInBase + buyingBInBase : buyingInBase,
       buyingCurrency: baseCurrency,
-      returning: isManual ? storeReturningA + storeReturningB : returningInBase,
+      returning: isManual ? returningAInBase + returningBInBase : returningInBase,
       returningCurrency: baseCurrency,
       rollingEntries,
       splitMode,
-      buyingA: isManual ? storeBuyingA : undefined,
-      buyingB: isManual ? storeBuyingB : undefined,
-      returningA: isManual ? storeReturningA : undefined,
-      returningB: isManual ? storeReturningB : undefined,
+      buyingA: isManual ? buyingAInBase : undefined,
+      buyingB: isManual ? buyingBInBase : undefined,
+      returningA: isManual ? returningAInBase : undefined,
+      returningB: isManual ? returningBInBase : undefined,
     };
 
-    const config: SettlementConfig = {
-      revenueAPercent,
-      members,
-    };
+      const config: SettlementConfig = {
+        revenueAPercent: effectiveRevenueAPercent,
+        members,
+      };
 
     return calcSettlement(input, config, baseCurrency);
   }, [
@@ -125,7 +147,7 @@ function HomePageContent() {
     rollings,
     baseCurrency,
     effectiveRates,
-    revenueAPercent,
+    effectiveRevenueAPercent,
     revenueBPercent,
     members,
     splitMode,
@@ -183,21 +205,21 @@ function HomePageContent() {
               </div>
             )}
 
-            <ResultsDisplay
-              ref={resultsRef}
-              result={calculationResult}
-              exchangeRates={effectiveRates}
-              baseCurrency={baseCurrency}
-              revenueAPercent={revenueAPercent}
-            />
+             <ResultsDisplay
+               ref={resultsRef}
+               result={calculationResult}
+               exchangeRates={effectiveRates}
+               baseCurrency={baseCurrency}
+               revenueAPercent={effectiveRevenueAPercent}
+             />
 
             {calculationResult && (
               <div className="fade-in">
-                <Infographics
-                  result={calculationResult}
-                  baseCurrency={baseCurrency}
-                  revenueAPercent={revenueAPercent}
-                />
+                 <Infographics
+                   result={calculationResult}
+                   baseCurrency={baseCurrency}
+                   revenueAPercent={effectiveRevenueAPercent}
+                 />
               </div>
             )}
 
