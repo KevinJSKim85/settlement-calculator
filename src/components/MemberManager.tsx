@@ -72,10 +72,24 @@ export function MemberManager() {
   return (
     <Card className="premium-card border-border/40 bg-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
-          <Users className="size-4 text-muted-foreground" />
-          {t.members.title}
-        </CardTitle>
+        <div className="flex flex-wrap items-center gap-3">
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <Users className="size-4 text-muted-foreground" />
+            {t.members.title}
+          </CardTitle>
+          <button
+            type="button"
+            onClick={() => setAutoRevenueSplitFromRate(!autoRevenueSplitFromRate)}
+            className="flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
+          >
+            {autoRevenueSplitFromRate
+              ? <ToggleRight className="size-3.5 text-brand-gold" />
+              : <ToggleLeft className="size-3.5 text-muted-foreground" />}
+            <span className={autoRevenueSplitFromRate ? 'font-medium text-brand-gold' : 'text-muted-foreground'}>
+              {t.members.autoFromRate}
+            </span>
+          </button>
+        </div>
         <CardAction>
           <Button
             size="sm"
@@ -111,19 +125,12 @@ export function MemberManager() {
             <span className="whitespace-nowrap text-sm text-muted-foreground">
               {t.result.revenueB}: {revenueBPercent}%
             </span>
-            <button
-              type="button"
-              onClick={() => setAutoRevenueSplitFromRate(!autoRevenueSplitFromRate)}
-              className="ml-auto flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
-            >
-              {autoRevenueSplitFromRate
-                ? <ToggleRight className="size-3.5 text-brand-gold" />
-                : <ToggleLeft className="size-3.5 text-muted-foreground" />}
-              <span className={autoRevenueSplitFromRate ? 'font-medium text-brand-gold' : 'text-muted-foreground'}>
-                {t.members.autoFromRate}
-              </span>
-            </button>
           </div>
+          {autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0 && (
+            <div className="text-xs text-muted-foreground">
+              100 - 100/{buyingRate} × 100 = {revenueBPercent}%
+            </div>
+          )}
           {/* Visual split bar */}
           <div className="flex h-2 overflow-hidden rounded-full">
             <div
