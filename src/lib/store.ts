@@ -153,10 +153,9 @@ export const useSettlementStore = create<SettlementStore>()(
         }),
 
       removeMember: (id: string) =>
-        set((state: SettlementStore) => {
-          if (state.members.length <= 1) return state;
-          return { members: state.members.filter((m) => m.id !== id) };
-        }),
+        set((state: SettlementStore) => ({
+          members: state.members.filter((m) => m.id !== id),
+        })),
 
       updateMember: (id: string, updates: Partial<Pick<DistributionMember, 'name' | 'percentage'>>) =>
         set((state: SettlementStore) => ({
@@ -204,10 +203,9 @@ export const useSettlementStore = create<SettlementStore>()(
         }),
 
       removeRolling: (id: string) =>
-        set((state: SettlementStore) => {
-          if (state.rollings.length <= 1) return state;
-          return { rollings: state.rollings.filter((r) => r.id !== id) };
-        }),
+        set((state: SettlementStore) => ({
+          rollings: state.rollings.filter((r) => r.id !== id),
+        })),
 
       setRollingAmount: (id: string, amount: number) =>
         set((state: SettlementStore) => ({

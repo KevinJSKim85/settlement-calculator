@@ -45,11 +45,13 @@ function CurrencySelect({
 function QuickAmountButtons({
   onAdd,
   labels,
+  amounts,
 }: {
   onAdd: (amount: number) => void;
   labels: string[];
+  amounts?: number[];
 }) {
-  const quickAmounts = [10000, 100000, 1000000, 10000000, 100000000];
+  const quickAmounts = amounts ?? [10000, 100000, 1000000, 10000000, 100000000];
 
   return (
     <div className="flex flex-wrap gap-1">
@@ -149,6 +151,7 @@ function RollingSection({
   revenueAPercent,
   revenueBPercent,
   quickAmountLabels,
+  quickAmounts,
   focusedField,
   localValue,
   onFocus,
@@ -162,6 +165,7 @@ function RollingSection({
   revenueAPercent: number;
   revenueBPercent: number;
   quickAmountLabels: string[];
+  quickAmounts: number[];
   focusedField: string | null;
   localValue: string;
   onFocus: (id: string, amount: number) => void;
@@ -214,17 +218,15 @@ function RollingSection({
             {t.input.targetB} {revenueBPercent}%
           </Button>
         </div>
-        {total > 1 && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="text-muted-foreground/60 hover:text-brand-red"
-            onClick={() => removeRolling(entry.id)}
-          >
-            <X className="size-3.5" />
-          </Button>
-        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground/60 hover:text-brand-red"
+          onClick={() => removeRolling(entry.id)}
+        >
+          <X className="size-3.5" />
+        </Button>
       </div>
 
       <div className="space-y-2">
@@ -241,7 +243,7 @@ function RollingSection({
             placeholder="0"
           />
         </div>
-        <QuickAmountButtons onAdd={(val) => onAddAmount(fieldId, entry.amount, val)} labels={quickAmountLabels} />
+        <QuickAmountButtons onAdd={(val) => onAddAmount(fieldId, entry.amount, val)} labels={quickAmountLabels} amounts={quickAmounts} />
       </div>
 
       <RollingFeeRow
@@ -258,13 +260,8 @@ function RollingSection({
 
 export function RollingManager() {
   const { t } = useTranslation();
-  const quickAmountLabels = [
-    t.input.quickAdd1Man,
-    t.input.quickAdd10Man,
-    t.input.quickAdd100Man,
-    t.input.quickAdd1000Man,
-    t.input.quickAdd1Eok,
-  ];
+  const quickAmounts = [1, 5, 10, 50, 100, 500, 1000];
+  const quickAmountLabels = ['+1', '+5', '+10', '+50', '+100', '+500', '+1000'];
   const rollings = useSettlementStore((s) => s.rollings);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
@@ -326,6 +323,7 @@ export function RollingManager() {
             revenueAPercent={effectiveRevenueAPercent}
             revenueBPercent={effectiveRevenueBPercent}
             quickAmountLabels={quickAmountLabels}
+            quickAmounts={quickAmounts}
             focusedField={focusedField}
             localValue={localValue}
             onFocus={handleFocus}

@@ -179,7 +179,7 @@ export function MemberManager() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    disabled={members.length <= 1}
+                    disabled={false}
                     onClick={() => removeMember(member.id)}
                     aria-label={t.members.removeMember}
                     className="text-muted-foreground/70 opacity-0 transition-all hover:text-brand-red group-hover:opacity-100"

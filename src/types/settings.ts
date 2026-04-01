@@ -29,7 +29,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   manualExchangeRates: {},
   autoRevenueSplitFromRate: false,
   language: 'ko',
-  rollingSettings: [
-    { id: DEFAULT_ROLLING_ID, feePercent: 1.6, target: 'A' },
-  ],
+  rollingSettings: [],
 };
