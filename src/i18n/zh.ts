@@ -42,7 +42,7 @@ export const zh = {
   },
   settings: {
     title: '设置',
-    titleHint: '(收益%、手动汇率)',
+    titleHint: '(货币设置)',
     revenueAPercent: '收益 A %',
     revenueBPercent: '收益 B %',
     baseCurrency: '基准货币',

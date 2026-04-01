@@ -42,7 +42,7 @@ export const ko = {
   },
   settings: {
     title: '설정',
-    titleHint: '(수익%, 수동 환율)',
+    titleHint: '(통화 설정)',
     revenueAPercent: '수익 A %',
     revenueBPercent: '수익 B %',
     baseCurrency: '기본 통화',

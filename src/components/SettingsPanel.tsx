@@ -7,7 +7,6 @@ import { useSettlementStore } from '@/lib/store';
 import { CURRENCIES, CURRENCY_CONFIG } from '@/types/currency';
 import type { Currency } from '@/types/currency';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -21,11 +20,7 @@ export function SettingsPanel() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const baseCurrency = useSettlementStore((s) => s.baseCurrency);
-  const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const setBaseCurrency = useSettlementStore((s) => s.setBaseCurrency);
-  const setManualExchangeRate = useSettlementStore((s) => s.setManualExchangeRate);
-
-  const editableCurrencies = CURRENCIES.filter((currency) => currency !== baseCurrency);
 
   return (
     <Card className="premium-card border-border/40 bg-card">
@@ -66,38 +61,6 @@ export function SettingsPanel() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-foreground">{t.settings.exchangeRates}</Label>
-            <div className="space-y-2">
-              {editableCurrencies.map((currency) => (
-                <div
-                  key={currency}
-                  className="flex items-center gap-3 rounded-lg border border-border/20 bg-surface/30 px-3 py-2"
-                >
-                  <span className="w-24 shrink-0 text-sm text-muted-foreground">
-                    1 {currency}
-                  </span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    step="any"
-                    min={0}
-                    value={manualExchangeRates[currency] ?? ''}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
-                      setManualExchangeRate(currency, Number.isNaN(value) ? 0 : value);
-                    }}
-                    className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    placeholder="0"
-                  />
-                  <span className="shrink-0 text-sm text-muted-foreground">
-                    {baseCurrency} {CURRENCY_CONFIG[baseCurrency].symbol}
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
         </CardContent>
       )}

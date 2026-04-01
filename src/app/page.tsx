@@ -6,6 +6,7 @@ import { Sun, Moon, Calculator, RotateCcw } from 'lucide-react';
 import { InputForm } from '@/components/InputForm';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
+import { RateTicker } from '@/components/RateTicker';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import { Infographics } from '@/components/Infographics';
 import { ExportButtons } from '@/components/ExportButtons';
@@ -165,6 +166,8 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Live rate ticker */}
+      <RateTicker />
       {/* Top gradient accent line */}
       <div className="gradient-line" />
 

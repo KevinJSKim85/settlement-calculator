@@ -42,7 +42,7 @@ export const en = {
   },
   settings: {
     title: 'Settings',
-    titleHint: '(Revenue%, Manual Rates)',
+    titleHint: '(Currency Settings)',
     revenueAPercent: 'Revenue A %',
     revenueBPercent: 'Revenue B %',
     baseCurrency: 'Base Currency',
