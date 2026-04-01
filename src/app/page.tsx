@@ -193,10 +193,8 @@ function HomePageContent() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           {/* Left: Input */}
           <div className="space-y-5">
-            <InputForm />
+            <InputForm middleContent={<MemberManager />} />
             <AdBanner label="AD SPACE" />
-            <MemberManager />
-            {/* SettingsPanel removed — currency/rate now in unified FX bar */}
           </div>
 
           {/* Right: Results */}

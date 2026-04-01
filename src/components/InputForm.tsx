@@ -45,11 +45,13 @@ function CurrencySelect({
 function QuickAmountButtons({
   onAdd,
   labels,
+  amounts,
 }: {
   onAdd: (amount: number) => void;
   labels: string[];
+  amounts?: number[];
 }) {
-  const quickAmounts = [10000, 100000, 1000000, 10000000, 100000000];
+  const quickAmounts = amounts ?? [10000, 100000, 1000000, 10000000, 100000000];
 
   return (
     <div className="flex flex-wrap gap-1">
@@ -353,7 +355,7 @@ function RollingSection({
   );
 }
 
-export function InputForm() {
+export function InputForm({ middleContent }: { middleContent?: React.ReactNode }) {
   const { t } = useTranslation();
   const quickAmountLabels = [
     t.input.quickAdd1Man,
@@ -362,6 +364,8 @@ export function InputForm() {
     t.input.quickAdd1000Man,
     t.input.quickAdd1Eok,
   ];
+  const foreignQuickAmounts = [10, 50, 100, 500, 1000];
+  const foreignQuickLabels = ['+10', '+50', '+100', '+500', '+1000'];
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
   const rollings = useSettlementStore((s) => s.rollings);
@@ -614,19 +618,27 @@ export function InputForm() {
                   />
                 </div>
                 <span className="text-muted-foreground/50">→</span>
-                <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
+                <div className="rounded-lg border border-border/40 bg-surface/60 px-2.5 py-1.5">
                   <div className="text-[10px] text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
-                    readOnly={inlineFxRate > 0 && inlineForeignAmount > 0}
-                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    readOnly
+                    tabIndex={-1}
+                    className="h-7 cursor-default border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                     value={buying.amount === 0 ? '' : formatNumber(buying.amount, 0)}
-                    onChange={(e) => setBuying(parseFormattedNumber(e.target.value))}
                     placeholder="0"
                   />
                 </div>
               </div>
-              <QuickAmountButtons onAdd={(val) => handleAddAmount('buying', buying.amount, val)} labels={quickAmountLabels} />
+              <QuickAmountButtons
+                onAdd={(val) => {
+                  const newAmt = inlineForeignAmount + val;
+                  setInlineForeignAmount(newAmt);
+                  if (inlineFxRate > 0) setBuying(Math.round(newAmt * inlineFxRate));
+                }}
+                labels={foreignQuickLabels}
+                amounts={foreignQuickAmounts}
+              />
             </div>
 
             <div className="border-t border-border/20" />
@@ -665,15 +677,22 @@ export function InputForm() {
                   <div className="text-[10px] text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
-                    readOnly={inlineFxRate > 0 && inlineRetForeignAmount > 0}
+                    readOnly
                     className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                     value={returning.amount === 0 ? '' : formatNumber(returning.amount, 0)}
-                    onChange={(e) => setReturning(parseFormattedNumber(e.target.value))}
                     placeholder="0"
                   />
                 </div>
               </div>
-              <QuickAmountButtons onAdd={(val) => handleAddAmount('returning', returning.amount, val)} labels={quickAmountLabels} />
+              <QuickAmountButtons
+                onAdd={(val) => {
+                  const newAmt = inlineRetForeignAmount + val;
+                  setInlineRetForeignAmount(newAmt);
+                  if (inlineFxRate > 0) setReturning(Math.round(newAmt * inlineFxRate));
+                }}
+                labels={foreignQuickLabels}
+                amounts={foreignQuickAmounts}
+              />
             </div>
           </>
         )}
@@ -684,6 +703,8 @@ export function InputForm() {
           currency={returning.currency}
           isNegative={balance < 0}
         />
+
+        {middleContent}
 
         {rollings.map((entry, index) => (
           <RollingSection
