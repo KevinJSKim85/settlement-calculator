@@ -196,7 +196,7 @@ function HomePageContent() {
             <InputForm />
             <AdBanner label="AD SPACE" />
             <MemberManager />
-            <SettingsPanel />
+            {/* SettingsPanel removed — currency/rate now in unified FX bar */}
           </div>
 
           {/* Right: Results */}

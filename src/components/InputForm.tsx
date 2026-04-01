@@ -590,7 +590,7 @@ export function InputForm() {
                 <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
                 <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
                   <div className="text-[10px] text-muted-foreground">{t.input.foreignAmount}</div>
                   <Input
@@ -609,17 +609,17 @@ export function InputForm() {
                     }}
                     onFocus={() => handleFocus('foreignAmt', inlineForeignAmount)}
                     onBlur={handleBlur}
-                    className="h-6 w-24 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                     placeholder="0"
                   />
                 </div>
                 <span className="text-muted-foreground/50">→</span>
-                <div className="flex flex-1 items-center gap-1.5">
-                  <span className="shrink-0 text-xs text-muted-foreground">KRW ₩</span>
+                <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
+                  <div className="text-[10px] text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
                     readOnly={inlineFxRate > 0 && inlineForeignAmount > 0}
-                    className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                     value={buying.amount === 0 ? '' : formatNumber(buying.amount, 0)}
                     onChange={(e) => setBuying(parseFormattedNumber(e.target.value))}
                     placeholder="0"
@@ -637,7 +637,7 @@ export function InputForm() {
                 <span className="text-muted-foreground"><RotateCcw className="size-4" /></span>
                 <span className="text-sm font-medium text-foreground">{t.input.returning}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
                   <div className="text-[10px] text-muted-foreground">{t.input.foreignAmount}</div>
                   <Input
@@ -656,17 +656,17 @@ export function InputForm() {
                     }}
                     onFocus={() => handleFocus('retForeignAmt', inlineRetForeignAmount)}
                     onBlur={handleBlur}
-                    className="h-6 w-24 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                     placeholder="0"
                   />
                 </div>
                 <span className="text-muted-foreground/50">→</span>
-                <div className="flex flex-1 items-center gap-1.5">
-                  <span className="shrink-0 text-xs text-muted-foreground">KRW ₩</span>
+                <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
+                  <div className="text-[10px] text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
                     readOnly={inlineFxRate > 0 && inlineRetForeignAmount > 0}
-                    className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                     value={returning.amount === 0 ? '' : formatNumber(returning.amount, 0)}
                     onChange={(e) => setReturning(parseFormattedNumber(e.target.value))}
                     placeholder="0"
