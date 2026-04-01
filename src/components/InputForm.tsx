@@ -373,11 +373,15 @@ export function InputForm() {
   const storeReturningB = useSettlementStore((s) => s.returningB);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
+  const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
+  const inlineForeignAmount = useSettlementStore((s) => s.inlineForeignAmount);
   const setBuying = useSettlementStore((s) => s.setBuying);
   const setBuyingCurrency = useSettlementStore((s) => s.setBuyingCurrency);
   const setReturning = useSettlementStore((s) => s.setReturning);
   const setReturningCurrency = useSettlementStore((s) => s.setReturningCurrency);
   const setManualExchangeRate = useSettlementStore((s) => s.setManualExchangeRate);
+  const setInlineFxRate = useSettlementStore((s) => s.setInlineFxRate);
+  const setInlineForeignAmount = useSettlementStore((s) => s.setInlineForeignAmount);
   const setRollingAmount = useSettlementStore((s) => s.setRollingAmount);
   const addRolling = useSettlementStore((s) => s.addRolling);
   const setSplitMode = useSettlementStore((s) => s.setSplitMode);
@@ -390,12 +394,13 @@ export function InputForm() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [localValue, setLocalValue] = useState('');
 
-  const buyingRate = manualExchangeRates[buying.currency] ?? 0;
-  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0
+  const isKrwBuying = buying.currency === 'KRW';
+  const buyingRate = isKrwBuying ? inlineFxRate : (manualExchangeRates[buying.currency] ?? 0);
+  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buyingRate > 0
     ? deriveRevenueAPercentFromRate(buyingRate)
     : revenueAPercent;
   const effectiveRevenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 100) / 100;
-  const buyingKrwAmount = buying.currency === 'KRW'
+  const buyingKrwAmount = isKrwBuying
     ? buying.amount
     : Math.round(buying.amount * buyingRate);
 
@@ -551,27 +556,59 @@ export function InputForm() {
           </>
         ) : (
           <>
-            {buying.currency !== 'KRW' ? (
-              <div className="space-y-2">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
-                    <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
+            <div className="space-y-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
+                  <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:w-[20rem]">
+                  <div className="rounded-xl border border-border/40 bg-surface px-3 py-2">
+                    <div className="mb-1 text-[11px] text-muted-foreground">{t.input.fxRate}</div>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      value={buyingRate > 0 ? String(buyingRate) : ''}
+                      onChange={(e) => {
+                        const rate = parseFormattedNumber(e.target.value);
+                        if (isKrwBuying) {
+                          setInlineFxRate(rate);
+                          if (inlineForeignAmount > 0 && rate > 0) {
+                            setBuying(Math.round(inlineForeignAmount * rate));
+                          } else if (rate === 0) {
+                            setBuying(0);
+                          }
+                        } else {
+                          setManualExchangeRate(buying.currency, rate);
+                        }
+                      }}
+                      className="h-6 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                      placeholder="0"
+                    />
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:w-[20rem]">
-                    <div className="rounded-xl border border-border/40 bg-surface px-3 py-2">
-                      <div className="mb-1 text-[11px] text-muted-foreground">{t.input.fxRate}</div>
+                  <div className="rounded-xl border border-border/40 bg-surface px-3 py-2">
+                    <div className="mb-1 text-[11px] text-muted-foreground">{t.input.foreignAmount}</div>
+                    {isKrwBuying ? (
                       <Input
                         type="text"
                         inputMode="decimal"
-                        value={buyingRate > 0 ? String(buyingRate) : ''}
-                        onChange={(e) => setManualExchangeRate(buying.currency, parseFormattedNumber(e.target.value))}
+                        value={getDisplayValue('foreignAmt', inlineForeignAmount, 'KRW')}
+                        onChange={(e) => {
+                          const amt = parseFormattedNumber(e.target.value);
+                          setInlineForeignAmount(amt);
+                          if (inlineFxRate > 0 && amt > 0) {
+                            setBuying(Math.round(amt * inlineFxRate));
+                          } else if (amt === 0) {
+                            setBuying(0);
+                          }
+                          setLocalValue(e.target.value);
+                        }}
+                        onFocus={() => handleFocus('foreignAmt', inlineForeignAmount)}
+                        onBlur={handleBlur}
                         className="h-6 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                         placeholder="0"
                       />
-                    </div>
-                    <div className="rounded-xl border border-border/40 bg-surface px-3 py-2">
-                      <div className="mb-1 text-[11px] text-muted-foreground">{t.input.foreignAmount}</div>
+                    ) : (
                       <Input
                         type="text"
                         inputMode="decimal"
@@ -582,12 +619,26 @@ export function InputForm() {
                         className="h-6 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
                         placeholder="0"
                       />
-                    </div>
+                    )}
                   </div>
                 </div>
+              </div>
 
-                <div className="flex items-center gap-2">
-                  <CurrencySelect value={buying.currency} onValueChange={setBuyingCurrency} />
+              <div className="flex items-center gap-2">
+                <CurrencySelect value={buying.currency} onValueChange={setBuyingCurrency} />
+                {isKrwBuying ? (
+                  <Input
+                    type="text"
+                    readOnly={inlineFxRate > 0 && inlineForeignAmount > 0}
+                    className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-visible:ring-0"
+                    value={buying.amount === 0 ? '' : formatNumber(buying.amount, 0)}
+                    onChange={(e) => {
+                      const parsed = parseFormattedNumber(e.target.value);
+                      setBuying(parsed);
+                    }}
+                    placeholder={t.input.krwAmount}
+                  />
+                ) : (
                   <Input
                     type="text"
                     readOnly
@@ -595,23 +646,10 @@ export function InputForm() {
                     value={buyingKrwAmount === 0 ? '' : formatNumber(buyingKrwAmount, 0)}
                     placeholder={t.input.krwAmount}
                   />
-                </div>
-                <QuickAmountButtons onAdd={(val) => handleAddAmount('buying', buying.amount, val)} labels={quickAmountLabels} />
+                )}
               </div>
-            ) : (
-              <InputRow
-                label={t.input.buying}
-                icon={<ShoppingCart className="size-4" />}
-                value={getDisplayValue('buying', buying.amount, buying.currency)}
-                currency={buying.currency}
-                quickAmountLabels={quickAmountLabels}
-                onValueChange={(v) => handleChange('buying', v)}
-                onCurrencyChange={setBuyingCurrency}
-                onAddAmount={(val) => handleAddAmount('buying', buying.amount, val)}
-                onFocus={() => handleFocus('buying', buying.amount)}
-                onBlur={handleBlur}
-              />
-            )}
+              <QuickAmountButtons onAdd={(val) => handleAddAmount('buying', buying.amount, val)} labels={quickAmountLabels} />
+            </div>
 
             <div className="border-t border-border/20" />
 

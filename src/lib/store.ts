@@ -41,6 +41,8 @@ export interface SettlementStore {
   buyingB: number;
   returningA: number;
   returningB: number;
+  inlineFxRate: number;
+  inlineForeignAmount: number;
 
   exchangeRateData: ExchangeRateData | null;
 
@@ -64,6 +66,8 @@ export interface SettlementStore {
   setBuyingB: (amount: number) => void;
   setReturningA: (amount: number) => void;
   setReturningB: (amount: number) => void;
+  setInlineFxRate: (rate: number) => void;
+  setInlineForeignAmount: (amount: number) => void;
 
   addRolling: () => void;
   removeRolling: (id: string) => void;
@@ -95,6 +99,8 @@ export const useSettlementStore = create<SettlementStore>()(
       buyingB: 0,
       returningA: 0,
       returningB: 0,
+      inlineFxRate: 0,
+      inlineForeignAmount: 0,
       rollings: DEFAULT_SETTINGS.rollingSettings.map((s) => ({
         ...s,
         amount: 0,
@@ -173,6 +179,9 @@ export const useSettlementStore = create<SettlementStore>()(
       setReturningA: (amount: number) => set({ returningA: amount }),
       setReturningB: (amount: number) => set({ returningB: amount }),
 
+      setInlineFxRate: (rate: number) => set({ inlineFxRate: rate }),
+      setInlineForeignAmount: (amount: number) => set({ inlineForeignAmount: amount }),
+
       addRolling: () =>
         set((state: SettlementStore) => {
           if (state.rollings.length >= MAX_ROLLINGS) return state;
@@ -232,6 +241,7 @@ export const useSettlementStore = create<SettlementStore>()(
           buyingB: 0,
           returningA: 0,
           returningB: 0,
+          inlineForeignAmount: 0,
           rollings: state.rollings.map((r) => ({ ...r, amount: 0, currency: base })),
         }));
       },
@@ -259,6 +269,7 @@ export const useSettlementStore = create<SettlementStore>()(
         manualExchangeRates: state.manualExchangeRates,
         autoRevenueSplitFromRate: state.autoRevenueSplitFromRate,
         language: state.language,
+        inlineFxRate: state.inlineFxRate,
         rollings: state.rollings.map((r) => ({
           id: r.id,
           amount: 0,

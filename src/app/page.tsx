@@ -70,6 +70,7 @@ function HomePageContent() {
   const members = useSettlementStore((s) => s.members);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
+  const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
   const resetInputs = useSettlementStore((s) => s.resetInputs);
 
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -77,11 +78,11 @@ function HomePageContent() {
   const effectiveRates = useMemo(() => manualExchangeRates, [manualExchangeRates]);
 
   const effectiveRevenueAPercent = useMemo(() => {
-    if (!autoRevenueSplitFromRate || buying.currency === 'KRW') return revenueAPercent;
-    const buyingRate = manualExchangeRates[buying.currency];
+    if (!autoRevenueSplitFromRate) return revenueAPercent;
+    const buyingRate = buying.currency === 'KRW' ? inlineFxRate : manualExchangeRates[buying.currency];
     if (!buyingRate) return revenueAPercent;
     return deriveRevenueAPercentFromRate(buyingRate);
-  }, [autoRevenueSplitFromRate, buying.currency, manualExchangeRates, revenueAPercent]);
+  }, [autoRevenueSplitFromRate, buying.currency, manualExchangeRates, inlineFxRate, revenueAPercent]);
 
   const revenueBPercent = 100 - effectiveRevenueAPercent;
 

@@ -17,14 +17,15 @@ export function MemberManager() {
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
+  const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
   const setRevenueAPercent = useSettlementStore((s) => s.setRevenueAPercent);
   const setAutoRevenueSplitFromRate = useSettlementStore((s) => s.setAutoRevenueSplitFromRate);
   const addMember = useSettlementStore((s) => s.addMember);
   const removeMember = useSettlementStore((s) => s.removeMember);
   const updateMember = useSettlementStore((s) => s.updateMember);
 
-  const buyingRate = manualExchangeRates[buying.currency] ?? 0;
-  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0
+  const buyingRate = buying.currency === 'KRW' ? inlineFxRate : (manualExchangeRates[buying.currency] ?? 0);
+  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buyingRate > 0
     ? deriveRevenueAPercentFromRate(buyingRate)
     : revenueAPercent;
   const revenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 100) / 100;
