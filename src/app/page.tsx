@@ -79,11 +79,9 @@ function HomePageContent() {
   const effectiveRates = useMemo(() => manualExchangeRates, [manualExchangeRates]);
 
   const effectiveRevenueAPercent = useMemo(() => {
-    if (!autoRevenueSplitFromRate) return revenueAPercent;
-    const buyingRate = buying.currency === 'KRW' ? inlineFxRate : manualExchangeRates[buying.currency];
-    if (!buyingRate) return revenueAPercent;
-    return deriveRevenueAPercentFromRate(buyingRate);
-  }, [autoRevenueSplitFromRate, buying.currency, manualExchangeRates, inlineFxRate, revenueAPercent]);
+    if (!autoRevenueSplitFromRate || !inlineFxRate) return revenueAPercent;
+    return deriveRevenueAPercentFromRate(inlineFxRate);
+  }, [autoRevenueSplitFromRate, inlineFxRate, revenueAPercent]);
 
   const revenueBPercent = 100 - effectiveRevenueAPercent;
 

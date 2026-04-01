@@ -13,9 +13,7 @@ import { toast } from 'sonner';
 export function MemberManager() {
   const { t } = useTranslation();
   const members = useSettlementStore((s) => s.members);
-  const buying = useSettlementStore((s) => s.buying);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
-  const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
   const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
   const setRevenueAPercent = useSettlementStore((s) => s.setRevenueAPercent);
@@ -24,9 +22,8 @@ export function MemberManager() {
   const removeMember = useSettlementStore((s) => s.removeMember);
   const updateMember = useSettlementStore((s) => s.updateMember);
 
-  const buyingRate = buying.currency === 'KRW' ? inlineFxRate : (manualExchangeRates[buying.currency] ?? 0);
-  const effectiveRevenueAPercent = autoRevenueSplitFromRate && buyingRate > 0
-    ? deriveRevenueAPercentFromRate(buyingRate)
+  const effectiveRevenueAPercent = autoRevenueSplitFromRate && inlineFxRate > 0
+    ? deriveRevenueAPercentFromRate(inlineFxRate)
     : revenueAPercent;
   const revenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 100) / 100;
   const sum = members.reduce((acc, m) => acc + m.percentage, 0);
@@ -127,9 +124,9 @@ export function MemberManager() {
               {t.result.revenueB}: {revenueBPercent}%
             </span>
           </div>
-          {autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0 && (
+          {autoRevenueSplitFromRate && inlineFxRate > 0 && (
             <div className="text-xs text-muted-foreground">
-              100 - 100/{buyingRate} × 100 = {revenueBPercent}%
+              100 - 100/{inlineFxRate} × 100 = {revenueBPercent}%
             </div>
           )}
           {/* Visual split bar */}

@@ -42,7 +42,9 @@ export interface SettlementStore {
   returningA: number;
   returningB: number;
   inlineFxRate: number;
+  inlineFxCurrency: Currency;
   inlineForeignAmount: number;
+  inlineRetForeignAmount: number;
 
   exchangeRateData: ExchangeRateData | null;
 
@@ -67,7 +69,9 @@ export interface SettlementStore {
   setReturningA: (amount: number) => void;
   setReturningB: (amount: number) => void;
   setInlineFxRate: (rate: number) => void;
+  setInlineFxCurrency: (currency: Currency) => void;
   setInlineForeignAmount: (amount: number) => void;
+  setInlineRetForeignAmount: (amount: number) => void;
 
   addRolling: () => void;
   removeRolling: (id: string) => void;
@@ -100,7 +104,9 @@ export const useSettlementStore = create<SettlementStore>()(
       returningA: 0,
       returningB: 0,
       inlineFxRate: 0,
+      inlineFxCurrency: 'CNY' as Currency,
       inlineForeignAmount: 0,
+      inlineRetForeignAmount: 0,
       rollings: DEFAULT_SETTINGS.rollingSettings.map((s) => ({
         ...s,
         amount: 0,
@@ -180,7 +186,9 @@ export const useSettlementStore = create<SettlementStore>()(
       setReturningB: (amount: number) => set({ returningB: amount }),
 
       setInlineFxRate: (rate: number) => set({ inlineFxRate: rate }),
+      setInlineFxCurrency: (currency: Currency) => set({ inlineFxCurrency: currency }),
       setInlineForeignAmount: (amount: number) => set({ inlineForeignAmount: amount }),
+      setInlineRetForeignAmount: (amount: number) => set({ inlineRetForeignAmount: amount }),
 
       addRolling: () =>
         set((state: SettlementStore) => {
@@ -242,6 +250,7 @@ export const useSettlementStore = create<SettlementStore>()(
           returningA: 0,
           returningB: 0,
           inlineForeignAmount: 0,
+          inlineRetForeignAmount: 0,
           rollings: state.rollings.map((r) => ({ ...r, amount: 0, currency: base })),
         }));
       },
@@ -270,6 +279,7 @@ export const useSettlementStore = create<SettlementStore>()(
         autoRevenueSplitFromRate: state.autoRevenueSplitFromRate,
         language: state.language,
         inlineFxRate: state.inlineFxRate,
+        inlineFxCurrency: state.inlineFxCurrency,
         rollings: state.rollings.map((r) => ({
           id: r.id,
           amount: 0,
