@@ -98,18 +98,12 @@ function HomePageContent() {
     const returningInBase = convertAmount(
       returning.amount, returning.currency, baseCurrency, effectiveRates, baseCurrency
     );
-    const buyingAInBase = convertAmount(
-      storeBuyingA, buying.currency, baseCurrency, effectiveRates, baseCurrency
-    );
-    const buyingBInBase = convertAmount(
-      storeBuyingB, buying.currency, baseCurrency, effectiveRates, baseCurrency
-    );
-    const returningAInBase = convertAmount(
-      storeReturningA, returning.currency, baseCurrency, effectiveRates, baseCurrency
-    );
-    const returningBInBase = convertAmount(
-      storeReturningB, returning.currency, baseCurrency, effectiveRates, baseCurrency
-    );
+    // In manual mode: A is KRW, B is foreign amount × inlineFxRate
+    const fxRate = inlineFxRate || 1;
+    const buyingAInBase = storeBuyingA;
+    const buyingBInBase = Math.round(storeBuyingB * fxRate);
+    const returningAInBase = storeReturningA;
+    const returningBInBase = Math.round(storeReturningB * fxRate);
 
     const rollingEntries: RollingFeeEntry[] = rollings.map((r) => ({
       amount: convertAmount(r.amount, r.currency, baseCurrency, effectiveRates, baseCurrency),

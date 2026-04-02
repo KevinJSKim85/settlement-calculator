@@ -207,8 +207,10 @@ export function InputForm() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [localValue, setLocalValue] = useState('');
 
+  const buyingBKrw = Math.round(storeBuyingB * (inlineFxRate || 1));
+  const returningBKrw = Math.round(storeReturningB * (inlineFxRate || 1));
   const balance = isManual
-    ? (storeBuyingA + storeBuyingB) - (storeReturningA + storeReturningB)
+    ? (storeBuyingA + buyingBKrw) - (storeReturningA + returningBKrw)
     : buying.amount - returning.amount;
 
   const handleFocus = useCallback((field: string, amount: number) => {
@@ -264,101 +266,8 @@ export function InputForm() {
         <CardTitle className="text-foreground">{t.app.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        <div className="flex items-center justify-end">
-          <button
-            type="button"
-            onClick={() => setSplitMode(isManual ? 'auto' : 'manual')}
-            className="flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
-          >
-            {isManual
-              ? <ToggleRight className="size-3.5 text-brand-gold" />
-              : <ToggleLeft className="size-3.5 text-muted-foreground" />}
-            <span className={isManual ? 'font-medium text-brand-gold' : 'text-muted-foreground'}>
-              {t.input.splitManual}
-            </span>
-          </button>
-        </div>
-
-        {isManual ? (
-          <>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
-                <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
-                <CurrencySelect value={buying.currency} onValueChange={setBuyingCurrency} />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-red">A</span>
-                  <Input
-                    type="text" inputMode="decimal"
-                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('buyingA', storeBuyingA, buying.currency)}
-                    onChange={(e) => handleChange('buyingA', e.target.value)}
-                    onFocus={() => handleFocus('buyingA', storeBuyingA)}
-                    onBlur={handleBlur}
-                    placeholder="0"
-                  />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingA', storeBuyingA, val)} labels={quickAmountLabels} />
-                </div>
-                <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-gold">B</span>
-                  <Input
-                    type="text" inputMode="decimal"
-                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('buyingB', storeBuyingB, buying.currency)}
-                    onChange={(e) => handleChange('buyingB', e.target.value)}
-                    onFocus={() => handleFocus('buyingB', storeBuyingB)}
-                    onBlur={handleBlur}
-                    placeholder="0"
-                  />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingB', storeBuyingB, val)} labels={quickAmountLabels} />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-border/20" />
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground"><RotateCcw className="size-4" /></span>
-                <span className="text-sm font-medium text-foreground">{t.input.returning}</span>
-                <CurrencySelect value={returning.currency} onValueChange={setReturningCurrency} />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-red">A</span>
-                  <Input
-                    type="text" inputMode="decimal"
-                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('returningA', storeReturningA, returning.currency)}
-                    onChange={(e) => handleChange('returningA', e.target.value)}
-                    onFocus={() => handleFocus('returningA', storeReturningA)}
-                    onBlur={handleBlur}
-                    placeholder="0"
-                  />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningA', storeReturningA, val)} labels={quickAmountLabels} />
-                </div>
-                <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-gold">B</span>
-                  <Input
-                    type="text" inputMode="decimal"
-                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('returningB', storeReturningB, returning.currency)}
-                    onChange={(e) => handleChange('returningB', e.target.value)}
-                    onFocus={() => handleFocus('returningB', storeReturningB)}
-                    onBlur={handleBlur}
-                    placeholder="0"
-                  />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningB', storeReturningB, val)} labels={quickAmountLabels} />
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Unified FX settings bar */}
-            <div className="flex items-center gap-2 rounded-xl border border-brand-gold/20 bg-brand-gold/5 px-3 py-2.5">
+        {/* Unified FX settings bar — always visible */}
+        <div className="flex items-center gap-2 rounded-xl border border-brand-gold/20 bg-brand-gold/5 px-3 py-2.5">
               <CurrencySelect value={inlineFxCurrency} onValueChange={setInlineFxCurrency} />
               <div className="flex flex-1 items-center gap-1.5">
                 <span className="shrink-0 text-xs text-muted-foreground">{t.input.fxRate}</span>
@@ -386,6 +295,109 @@ export function InputForm() {
               </div>
             </div>
 
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            onClick={() => setSplitMode(isManual ? 'auto' : 'manual')}
+            className="flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
+          >
+            {isManual
+              ? <ToggleRight className="size-3.5 text-brand-gold" />
+              : <ToggleLeft className="size-3.5 text-muted-foreground" />}
+            <span className={isManual ? 'font-medium text-brand-gold' : 'text-muted-foreground'}>
+              {t.input.splitManual}
+            </span>
+          </button>
+        </div>
+
+        {isManual ? (
+          <>
+            {/* Buying A/B */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
+                <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1.5">
+                  <span className="text-xs font-medium text-brand-red">A (KRW ₩)</span>
+                  <Input
+                    type="text" inputMode="decimal"
+                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+                    value={getDisplayValue('buyingA', storeBuyingA, 'KRW')}
+                    onChange={(e) => handleChange('buyingA', e.target.value)}
+                    onFocus={() => handleFocus('buyingA', storeBuyingA)}
+                    onBlur={handleBlur}
+                    placeholder="0"
+                  />
+                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingA', storeBuyingA, val)} labels={quickAmountLabels} />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs font-medium text-brand-gold">B ({inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol})</span>
+                  <Input
+                    type="text" inputMode="decimal"
+                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+                    value={getDisplayValue('buyingB', storeBuyingB, 'KRW')}
+                    onChange={(e) => handleChange('buyingB', e.target.value)}
+                    onFocus={() => handleFocus('buyingB', storeBuyingB)}
+                    onBlur={handleBlur}
+                    placeholder="0"
+                  />
+                  {inlineFxRate > 0 && storeBuyingB > 0 && (
+                    <div className="text-right text-xs tabular-nums text-muted-foreground">
+                      → KRW ₩ {formatNumber(Math.round(storeBuyingB * inlineFxRate), 0)}
+                    </div>
+                  )}
+                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingB', storeBuyingB, val)} labels={foreignQuickLabels} amounts={foreignQuickAmounts} />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border/20" />
+
+            {/* Returning A/B */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground"><RotateCcw className="size-4" /></span>
+                <span className="text-sm font-medium text-foreground">{t.input.returning}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1.5">
+                  <span className="text-xs font-medium text-brand-red">A (KRW ₩)</span>
+                  <Input
+                    type="text" inputMode="decimal"
+                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+                    value={getDisplayValue('returningA', storeReturningA, 'KRW')}
+                    onChange={(e) => handleChange('returningA', e.target.value)}
+                    onFocus={() => handleFocus('returningA', storeReturningA)}
+                    onBlur={handleBlur}
+                    placeholder="0"
+                  />
+                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningA', storeReturningA, val)} labels={quickAmountLabels} />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs font-medium text-brand-gold">B ({inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol})</span>
+                  <Input
+                    type="text" inputMode="decimal"
+                    className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+                    value={getDisplayValue('returningB', storeReturningB, 'KRW')}
+                    onChange={(e) => handleChange('returningB', e.target.value)}
+                    onFocus={() => handleFocus('returningB', storeReturningB)}
+                    onBlur={handleBlur}
+                    placeholder="0"
+                  />
+                  {inlineFxRate > 0 && storeReturningB > 0 && (
+                    <div className="text-right text-xs tabular-nums text-muted-foreground">
+                      → KRW ₩ {formatNumber(Math.round(storeReturningB * inlineFxRate), 0)}
+                    </div>
+                  )}
+                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningB', storeReturningB, val)} labels={foreignQuickLabels} amounts={foreignQuickAmounts} />
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
             {/* Buying */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
