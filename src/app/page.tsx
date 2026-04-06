@@ -85,7 +85,13 @@ function HomePageContent() {
     resultsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const effectiveRates = useMemo(() => manualExchangeRates, [manualExchangeRates]);
+  const inlineFxCurrency = useSettlementStore((s) => s.inlineFxCurrency);
+  const effectiveRates = useMemo(() => {
+    if (inlineFxRate > 0 && inlineFxCurrency !== baseCurrency) {
+      return { ...manualExchangeRates, [inlineFxCurrency]: inlineFxRate };
+    }
+    return manualExchangeRates;
+  }, [manualExchangeRates, inlineFxRate, inlineFxCurrency, baseCurrency]);
 
   const effectiveRevenueAPercent = useMemo(() => {
     if (!autoRevenueSplitFromRate || !inlineFxRate) return revenueAPercent;
