@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Calculator, RotateCcw } from 'lucide-react';
+import { Sun, Moon, Calculator, RotateCcw, FileText } from 'lucide-react';
 import { InputForm } from '@/components/InputForm';
+import { ExpensePanel } from '@/components/ExpensePanel';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
 import { RollingManager } from '@/components/RollingManager';
@@ -73,9 +74,16 @@ function HomePageContent() {
   const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
   const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
+  const expenses = useSettlementStore((s) => s.expenses);
+  const expensesEnabled = useSettlementStore((s) => s.expensesEnabled);
   const resetInputs = useSettlementStore((s) => s.resetInputs);
 
   const resultsRef = useRef<HTMLDivElement>(null);
+  const resultsSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToResults = useCallback(() => {
+    resultsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   const effectiveRates = useMemo(() => manualExchangeRates, [manualExchangeRates]);
 
@@ -128,6 +136,7 @@ function HomePageContent() {
       buyingB: isManual ? buyingBInBase : undefined,
       returningA: isManual ? returningAInBase : undefined,
       returningB: isManual ? returningBInBase : undefined,
+      expenses: expensesEnabled ? expenses : undefined,
     };
 
       const config: SettlementConfig = {
@@ -150,12 +159,13 @@ function HomePageContent() {
     storeBuyingB,
     storeReturningA,
     storeReturningB,
+    expenses,
+    expensesEnabled,
   ]);
 
-  const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
-  const normalizedMemberSum = Math.round(memberSum * 100) / 100;
-  const normalizedTarget2 = Math.round(revenueBPercent * 100) / 100;
-  const showDistributionWarning = normalizedMemberSum !== normalizedTarget2 && members.length > 0;
+  const memberPercentSum = Math.round(members.reduce((sum, m) => sum + m.percentage, 0) * 100) / 100;
+  const targetPercent = Math.round(revenueBPercent * 100) / 100;
+  const showDistributionWarning = memberPercentSum !== targetPercent && members.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -190,15 +200,15 @@ function HomePageContent() {
           <div className="space-y-5">
             <InputForm />
             <RollingManager />
+            <ExpensePanel />
             <MemberManager />
-            <AdBanner label="AD SPACE" />
           </div>
 
           {/* Right: Results */}
-          <div className="space-y-5">
+          <div ref={resultsSectionRef} className="space-y-5">
             {showDistributionWarning && !calculationResult && (
               <div className="fade-in rounded-xl border border-brand-red/20 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
-                {t.errors.distributionWarning} ({normalizedMemberSum}% / {normalizedTarget2}%)
+                {t.errors.distributionWarning} ({memberPercentSum}% / {targetPercent}%)
               </div>
             )}
 
@@ -243,6 +253,16 @@ function HomePageContent() {
         {/* Footer */}
         <PoweredBy />
       </div>
+
+      {/* Mobile floating button to scroll to results */}
+      <button
+        type="button"
+        onClick={scrollToResults}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-brand-red px-4 py-3 text-sm font-medium text-white shadow-lg transition-all active:scale-95 lg:hidden"
+      >
+        <FileText className="size-4" />
+        {t.app.viewResults}
+      </button>
     </div>
   );
 }

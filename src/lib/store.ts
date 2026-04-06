@@ -2,8 +2,8 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Currency, ExchangeRateData, ExchangeRates, DistributionMember, RollingTarget, SplitMode } from '@/types';
-import { DEFAULT_SETTINGS } from '@/types';
+import type { Currency, ExchangeRateData, ExchangeRates, DistributionMember, RollingTarget, SplitMode, Expenses } from '@/types';
+import { DEFAULT_SETTINGS, DEFAULT_EXPENSES } from '@/types';
 import type { Language } from '@/types';
 
 interface InputField {
@@ -25,6 +25,13 @@ function makeRollingId(): string {
   return `rolling-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 }
 
+export interface UserInfo {
+  code: string;
+  name: string;
+  date: string;
+  location: string;
+}
+
 export interface SettlementStore {
   revenueAPercent: number;
   baseCurrency: Currency;
@@ -33,6 +40,7 @@ export interface SettlementStore {
   autoRevenueSplitFromRate: boolean;
   language: Language;
 
+  userInfo: UserInfo;
   buying: InputField;
   returning: InputField;
   rollings: RollingEntry[];
@@ -46,8 +54,14 @@ export interface SettlementStore {
   inlineForeignAmount: number;
   inlineRetForeignAmount: number;
 
+  expenses: Expenses;
+  expensesEnabled: boolean;
+
   exchangeRateData: ExchangeRateData | null;
 
+  setUserInfo: (field: keyof UserInfo, value: string) => void;
+  setExpenseField: (field: keyof Expenses, value: number) => void;
+  setExpensesEnabled: (enabled: boolean) => void;
   setRevenueAPercent: (percent: number) => void;
   setBaseCurrency: (currency: Currency) => void;
   setLanguage: (language: Language) => void;
@@ -96,6 +110,7 @@ export const useSettlementStore = create<SettlementStore>()(
       autoRevenueSplitFromRate: DEFAULT_SETTINGS.autoRevenueSplitFromRate,
       language: DEFAULT_SETTINGS.language,
 
+      userInfo: { code: '', name: '', date: '', location: '' },
       buying: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
       returning: { amount: 0, currency: DEFAULT_SETTINGS.baseCurrency },
       splitMode: 'auto' as SplitMode,
@@ -113,7 +128,23 @@ export const useSettlementStore = create<SettlementStore>()(
         currency: DEFAULT_SETTINGS.baseCurrency,
       })),
 
+      expenses: { ...DEFAULT_EXPENSES },
+      expensesEnabled: false,
+
       exchangeRateData: null,
+
+      setUserInfo: (field: keyof UserInfo, value: string) =>
+        set((state: SettlementStore) => ({
+          userInfo: { ...state.userInfo, [field]: value },
+        })),
+
+      setExpenseField: (field: keyof Expenses, value: number) =>
+        set((state: SettlementStore) => ({
+          expenses: { ...state.expenses, [field]: value },
+        })),
+
+      setExpensesEnabled: (enabled: boolean) =>
+        set({ expensesEnabled: enabled }),
 
       setRevenueAPercent: (percent: number) =>
         set({ revenueAPercent: percent }),
@@ -250,6 +281,7 @@ export const useSettlementStore = create<SettlementStore>()(
           inlineForeignAmount: 0,
           inlineRetForeignAmount: 0,
           rollings: state.rollings.map((r) => ({ ...r, amount: 0, currency: base })),
+          expenses: { ...DEFAULT_EXPENSES },
         }));
       },
 
@@ -278,6 +310,7 @@ export const useSettlementStore = create<SettlementStore>()(
         language: state.language,
         inlineFxRate: state.inlineFxRate,
         inlineFxCurrency: state.inlineFxCurrency,
+        expensesEnabled: state.expensesEnabled,
         rollings: state.rollings.map((r) => ({
           id: r.id,
           amount: 0,

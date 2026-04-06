@@ -1,4 +1,5 @@
-import type { Currency, DistributionAmount, RollingFeeEntry, RollingFeeResult, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
+import type { Currency, DistributionAmount, Expenses, RollingFeeEntry, RollingFeeResult, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
+import { DEFAULT_EXPENSES } from '@/types';
 
 export function deriveRevenueAPercentFromRate(rate: number): number {
   if (!Number.isFinite(rate) || rate <= 0) return 0;
@@ -100,12 +101,16 @@ export function calcSettlement(
     .filter((r) => r.target === 'B')
     .reduce((sum, r) => sum + r.amount, 0);
 
+  const expenses = input.expenses ?? { ...DEFAULT_EXPENSES };
+  const expenseTotalA = expenses.costA + expenses.tipA + expenses.markA + expenses.taxA;
+  const expenseTotalB = expenses.costB + expenses.tipB + expenses.markB + expenses.taxB;
+
   const revenueAFromBalance = buyingA - returningA;
   const revenueBFromBalance = buyingB - returningB;
 
-  const revenueA = revenueAFromBalance - feeForA;
-  const revenueB = revenueBFromBalance - feeForB;
-  const totalRevenue = balance;
+  const revenueA = revenueAFromBalance - feeForA - expenseTotalA;
+  const revenueB = revenueBFromBalance - feeForB - expenseTotalB;
+  const totalRevenue = revenueA + revenueB;
 
   const revenueBPercent = 100 - config.revenueAPercent;
   const distributionBase = revenueB;
@@ -118,6 +123,9 @@ export function calcSettlement(
     returningA,
     returningB,
     rollingFees,
+    expenses,
+    expenseTotalA,
+    expenseTotalB,
     totalRevenue,
     revenueA,
     revenueB,

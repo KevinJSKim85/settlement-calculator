@@ -3,6 +3,13 @@ export const ko = {
     title: '정산서',
     subtitle: '정산 계산기',
     reset: '초기화',
+    viewResults: '정산표 보기',
+  },
+  header: {
+    code: '코드',
+    name: '성명',
+    date: '정산날짜',
+    location: '장소',
   },
   input: {
     buying: '바잉',
@@ -23,6 +30,18 @@ export const ko = {
     fxRate: '환율',
     foreignAmount: '외화 금액',
     krwAmount: '원화 금액',
+  },
+  expenses: {
+    title: '지출',
+    cost: '비용',
+    tip: '팁',
+    mark: 'Mark',
+    tax: '세금',
+    taxPercent: '세율',
+    taxDisabled: '손해 시 세금 미적용',
+    total: '지출 합계',
+    apply: '적용',
+    unapply: '미적용',
   },
   result: {
     revenue: '수익',

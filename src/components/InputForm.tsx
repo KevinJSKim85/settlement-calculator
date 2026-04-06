@@ -202,6 +202,8 @@ export function InputForm() {
   const setSBuyingB = useSettlementStore((s) => s.setBuyingB);
   const setSReturningA = useSettlementStore((s) => s.setReturningA);
   const setSReturningB = useSettlementStore((s) => s.setReturningB);
+  const userInfo = useSettlementStore((s) => s.userInfo);
+  const setUserInfo = useSettlementStore((s) => s.setUserInfo);
   const isManual = splitMode === 'manual';
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -266,6 +268,27 @@ export function InputForm() {
         <CardTitle className="text-foreground">{t.app.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
+        {/* User info header */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.code}</label>
+            <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.code} onChange={(e) => setUserInfo('code', e.target.value)} placeholder={t.header.code} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.name}</label>
+            <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.name} onChange={(e) => setUserInfo('name', e.target.value)} placeholder={t.header.name} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.date}</label>
+            <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.date} onChange={(e) => setUserInfo('date', e.target.value)} placeholder="YYYY-MM-DD" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.location}</label>
+            <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.location} onChange={(e) => setUserInfo('location', e.target.value)} placeholder={t.header.location} />
+          </div>
+        </div>
+        <div className="border-t border-border/20" />
+
         {/* Unified FX settings bar — always visible */}
         <div className="flex items-center gap-2 rounded-xl border border-brand-gold/20 bg-brand-gold/5 px-3 py-2.5">
               <CurrencySelect value={inlineFxCurrency} onValueChange={setInlineFxCurrency} />
