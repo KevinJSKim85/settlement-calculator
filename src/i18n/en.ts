@@ -3,6 +3,13 @@ export const en = {
     title: 'Settlement',
     subtitle: 'Settlement Calculator',
     reset: 'Reset',
+    viewResults: 'View Results',
+  },
+  header: {
+    code: 'Code',
+    name: 'Name',
+    date: 'Date',
+    location: 'Location',
   },
   input: {
     buying: 'Buying',
@@ -23,6 +30,18 @@ export const en = {
     fxRate: 'Rate',
     foreignAmount: 'Foreign Amount',
     krwAmount: 'KRW Amount',
+  },
+  expenses: {
+    title: 'Expenses',
+    cost: 'Cost',
+    tip: 'Tip',
+    mark: 'Mark',
+    tax: 'Tax',
+    taxPercent: 'Tax Rate',
+    taxDisabled: 'No tax on loss',
+    total: 'Total Expenses',
+    apply: 'Apply',
+    unapply: 'Not Applied',
   },
   result: {
     revenue: 'Revenue',

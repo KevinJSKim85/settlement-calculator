@@ -18,6 +18,28 @@ export interface RollingFeeResult {
 
 export type SplitMode = 'auto' | 'manual';
 
+export type ExpenseKey = 'cost' | 'tip' | 'mark' | 'tax';
+
+export interface Expenses {
+  costA: number;
+  costB: number;
+  tipA: number;
+  tipB: number;
+  markA: number;
+  markB: number;
+  taxA: number;
+  taxB: number;
+  taxPercent: number;
+}
+
+export const DEFAULT_EXPENSES: Expenses = {
+  costA: 0, costB: 0,
+  tipA: 0, tipB: 0,
+  markA: 0, markB: 0,
+  taxA: 0, taxB: 0,
+  taxPercent: 0,
+};
+
 export interface SettlementInput {
   buying: number;
   buyingCurrency: Currency;
@@ -29,6 +51,7 @@ export interface SettlementInput {
   buyingB?: number;
   returningA?: number;
   returningB?: number;
+  expenses?: Expenses;
 }
 
 export interface SettlementConfig {
@@ -43,6 +66,9 @@ export interface SettlementResult {
   returningA: number;
   returningB: number;
   rollingFees: RollingFeeResult[];
+  expenses: Expenses;
+  expenseTotalA: number;
+  expenseTotalB: number;
   totalRevenue: number;
   revenueA: number;
   revenueB: number;

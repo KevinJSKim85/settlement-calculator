@@ -3,6 +3,13 @@ export const zh = {
     title: '结账单',
     subtitle: '结算计算器',
     reset: '重置',
+    viewResults: '查看结算表',
+  },
+  header: {
+    code: '代码',
+    name: '姓名',
+    date: '结算日期',
+    location: '地点',
   },
   input: {
     buying: '出码',
@@ -23,6 +30,18 @@ export const zh = {
     fxRate: '汇率',
     foreignAmount: '外币金额',
     krwAmount: '韩元金额',
+  },
+  expenses: {
+    title: '支出',
+    cost: '费用',
+    tip: '小费',
+    mark: 'Mark',
+    tax: '税金',
+    taxPercent: '税率',
+    taxDisabled: '亏损时不征税',
+    total: '支出合计',
+    apply: '适用',
+    unapply: '不适用',
   },
   result: {
     revenue: '收益',

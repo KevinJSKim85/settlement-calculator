@@ -78,7 +78,6 @@ function AmountCell({
           .join(' ')}
       >
         {formatCurrency(safeAmount, baseCurrency)}
-        {isNegative && <span className="ml-1 text-xs text-brand-red">({t.result.loss})</span>}
       </div>
       <MultiCurrencyLine
         amount={safeAmount}
@@ -228,6 +227,77 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 <NoteCell>{rf.feePercent}%</NoteCell>
               </tr>
             ))}
+
+            {/* Expenses */}
+            {(result.expenseTotalA > 0 || result.expenseTotalB > 0) && (
+              <>
+                {result.expenses.costA + result.expenses.costB > 0 && (
+                  <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
+                    <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.expenses.cost}</td>
+                    <AmountCell
+                      amount={-(result.expenses.costA + result.expenses.costB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                    />
+                    <NoteCell>
+                      <div className="text-xs">A: {formatCurrency(-result.expenses.costA, baseCurrency)}</div>
+                      <div className="text-xs">B: {formatCurrency(-result.expenses.costB, baseCurrency)}</div>
+                    </NoteCell>
+                  </tr>
+                )}
+                {result.expenses.tipA + result.expenses.tipB > 0 && (
+                  <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
+                    <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.expenses.tip}</td>
+                    <AmountCell
+                      amount={-(result.expenses.tipA + result.expenses.tipB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                    />
+                    <NoteCell>
+                      <div className="text-xs">A: {formatCurrency(-result.expenses.tipA, baseCurrency)}</div>
+                      <div className="text-xs">B: {formatCurrency(-result.expenses.tipB, baseCurrency)}</div>
+                    </NoteCell>
+                  </tr>
+                )}
+                {result.expenses.markA + result.expenses.markB > 0 && (
+                  <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
+                    <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.expenses.mark}</td>
+                    <AmountCell
+                      amount={-(result.expenses.markA + result.expenses.markB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                    />
+                    <NoteCell>
+                      <div className="text-xs">A: {formatCurrency(-result.expenses.markA, baseCurrency)}</div>
+                      <div className="text-xs">B: {formatCurrency(-result.expenses.markB, baseCurrency)}</div>
+                    </NoteCell>
+                  </tr>
+                )}
+                {result.expenses.taxA + result.expenses.taxB > 0 && (
+                  <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
+                    <td className="whitespace-nowrap px-3 py-3 text-foreground">
+                      {t.expenses.tax}
+                      {result.expenses.taxPercent > 0 && (
+                        <span className="ml-1.5 text-xs text-muted-foreground/70">{result.expenses.taxPercent}%</span>
+                      )}
+                    </td>
+                    <AmountCell
+                      amount={-(result.expenses.taxA + result.expenses.taxB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                    />
+                    <NoteCell>
+                      <div className="text-xs">A: {formatCurrency(-result.expenses.taxA, baseCurrency)}</div>
+                      <div className="text-xs">B: {formatCurrency(-result.expenses.taxB, baseCurrency)}</div>
+                    </NoteCell>
+                  </tr>
+                )}
+              </>
+            )}
 
             {/* Revenue total - accent bar */}
             <tr className="accent-bar-red border-b border-border/40 bg-brand-red/8">

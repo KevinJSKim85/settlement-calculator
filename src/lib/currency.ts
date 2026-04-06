@@ -13,12 +13,12 @@ export function convertAmount(
 	const fromRate = from === baseCurrency ? 1 : rates[from];
 	const toRate = to === baseCurrency ? 1 : rates[to];
 
-	if (fromRate === undefined || toRate === undefined || fromRate === 0) {
+	if (fromRate === undefined || toRate === undefined || toRate === 0) {
 		return amount;
 	}
 
-	const amountInBase = amount / fromRate;
-	const converted = amountInBase * toRate;
+	const amountInBase = amount * fromRate;
+	const converted = amountInBase / toRate;
 
 	return roundToPrecision(converted, to);
 }

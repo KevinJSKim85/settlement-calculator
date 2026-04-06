@@ -42,42 +42,13 @@ function CurrencySelect({
   );
 }
 
-function QuickAmountButtons({
-  onAdd,
-  labels,
-}: {
-  onAdd: (amount: number) => void;
-  labels: string[];
-}) {
-  const quickAmounts = [10000, 100000, 1000000, 10000000, 100000000];
-
-  return (
-    <div className="flex flex-wrap gap-1">
-      {quickAmounts.map((value, index) => (
-        <Button
-          key={value}
-          type="button"
-          variant="outline"
-          size="xs"
-          className="rounded-full border-brand-gold/30 text-brand-gold/80 transition-all hover:border-brand-gold/50 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
-          onClick={() => onAdd(value)}
-        >
-          {labels[index]}
-        </Button>
-      ))}
-    </div>
-  );
-}
-
 function InputRow({
   label,
   icon,
   value,
   currency,
-  quickAmountLabels,
   onValueChange,
   onCurrencyChange,
-  onAddAmount,
   onFocus,
   onBlur,
   topExtra,
@@ -87,10 +58,8 @@ function InputRow({
   icon: React.ReactNode;
   value: string;
   currency: Currency;
-  quickAmountLabels: string[];
   onValueChange: (value: string) => void;
   onCurrencyChange: (currency: Currency) => void;
-  onAddAmount: (amount: number) => void;
   onFocus: () => void;
   onBlur: () => void;
   topExtra?: React.ReactNode;
@@ -119,7 +88,6 @@ function InputRow({
         />
       </div>
       {footer}
-      <QuickAmountButtons onAdd={onAddAmount} labels={quickAmountLabels} />
     </div>
   );
 }
@@ -142,8 +110,7 @@ function RollingFeeRow({
   const [editingAmount, setEditingAmount] = useState(false);
   const [localFeeAmount, setLocalFeeAmount] = useState('');
 
-  const decimals = CURRENCY_CONFIG[currency].decimals;
-  const displayAmount = feeAmount > 0 ? `-${formatNumber(feeAmount, decimals)}` : formatNumber(0, decimals);
+  const displayAmount = feeAmount > 0 ? `-${formatNumber(feeAmount, 0)}` : formatNumber(0, 0);
 
   const handleFeeAmountFocus = () => {
     setEditingAmount(true);
@@ -212,9 +179,7 @@ function ComputedRow({
   currency: Currency;
   isNegative?: boolean;
 }) {
-  const { t } = useTranslation();
-  const decimals = CURRENCY_CONFIG[currency].decimals;
-  const formatted = formatNumber(Math.abs(value), decimals);
+  const formatted = formatNumber(Math.abs(value), 0);
   const sign = value < 0 ? '-' : '';
   const displayValue = `${sign}${formatted}`;
 
@@ -223,9 +188,6 @@ function ComputedRow({
       <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Scale className="size-4 text-muted-foreground" />
         {label}
-        {isNegative && (
-          <span className="text-xs font-semibold text-brand-red">({t.result.loss})</span>
-        )}
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
         <span className="text-sm text-muted-foreground">
@@ -249,28 +211,25 @@ function RollingSection({
   total,
   revenueAPercent,
   revenueBPercent,
-  quickAmountLabels,
   focusedField,
   localValue,
   onFocus,
   onBlur,
   onChange,
-  onAddAmount,
 }: {
   entry: RollingEntry;
   index: number;
   total: number;
   revenueAPercent: number;
   revenueBPercent: number;
-  quickAmountLabels: string[];
   focusedField: string | null;
   localValue: string;
   onFocus: (id: string, amount: number) => void;
   onBlur: () => void;
   onChange: (id: string, value: string) => void;
-  onAddAmount: (id: string, currentAmount: number, addValue: number) => void;
 }) {
   const { t } = useTranslation();
+  const manualExchangeRates = useSettlementStore((s) => s.manualExchangeRates);
   const removeRolling = useSettlementStore((s) => s.removeRolling);
   const setRollingCurrency = useSettlementStore((s) => s.setRollingCurrency);
   const setRollingFeePercent = useSettlementStore((s) => s.setRollingFeePercent);
@@ -285,7 +244,7 @@ function RollingSection({
   const displayValue = (() => {
     if (focusedField === fieldId) return localValue;
     if (entry.amount === 0) return '';
-    return formatNumber(entry.amount, CURRENCY_CONFIG[entry.currency].decimals);
+    return formatNumber(entry.amount, 0);
   })();
 
   return (
@@ -333,12 +292,15 @@ function RollingSection({
         icon={<RotateCcw className="size-4" />}
         value={displayValue}
         currency={entry.currency}
-        quickAmountLabels={quickAmountLabels}
         onValueChange={(v) => onChange(fieldId, v)}
         onCurrencyChange={(c) => setRollingCurrency(entry.id, c)}
-        onAddAmount={(val) => onAddAmount(fieldId, entry.amount, val)}
         onFocus={() => onFocus(fieldId, entry.amount)}
         onBlur={onBlur}
+        footer={entry.currency !== 'KRW' && (manualExchangeRates[entry.currency] ?? 0) > 0 && entry.amount > 0 ? (
+          <div className="text-right text-xs text-muted-foreground">
+            → KRW ₩ {formatNumber(Math.round(entry.amount * (manualExchangeRates[entry.currency] ?? 0)), 0)}
+          </div>
+        ) : undefined}
       />
 
       <RollingFeeRow
@@ -355,13 +317,6 @@ function RollingSection({
 
 export function InputForm() {
   const { t } = useTranslation();
-  const quickAmountLabels = [
-    t.input.quickAdd1Man,
-    t.input.quickAdd10Man,
-    t.input.quickAdd100Man,
-    t.input.quickAdd1000Man,
-    t.input.quickAdd1Eok,
-  ];
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
   const rollings = useSettlementStore((s) => s.rollings);
@@ -385,6 +340,8 @@ export function InputForm() {
   const setSBuyingB = useSettlementStore((s) => s.setBuyingB);
   const setSReturningA = useSettlementStore((s) => s.setReturningA);
   const setSReturningB = useSettlementStore((s) => s.setReturningB);
+  const userInfo = useSettlementStore((s) => s.userInfo);
+  const setUserInfo = useSettlementStore((s) => s.setUserInfo);
   const isManual = splitMode === 'manual';
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -428,26 +385,11 @@ export function InputForm() {
     [setBuying, setReturning, setRollingAmount, setSBuyingA, setSBuyingB, setSReturningA, setSReturningB]
   );
 
-  const handleAddAmount = useCallback(
-    (field: string, currentAmount: number, addValue: number) => {
-      const newAmount = currentAmount + addValue;
-      if (field === 'buying') setBuying(newAmount);
-      else if (field === 'returning') setReturning(newAmount);
-      else if (field === 'buyingA') setSBuyingA(newAmount);
-      else if (field === 'buyingB') setSBuyingB(newAmount);
-      else if (field === 'returningA') setSReturningA(newAmount);
-      else if (field === 'returningB') setSReturningB(newAmount);
-      else setRollingAmount(field, newAmount);
-      if (focusedField === field) setLocalValue(newAmount.toString());
-    },
-    [focusedField, setBuying, setReturning, setRollingAmount, setSBuyingA, setSBuyingB, setSReturningA, setSReturningB]
-  );
-
   const getDisplayValue = useCallback(
-    (field: string, amount: number, currency: Currency) => {
+    (field: string, amount: number) => {
       if (focusedField === field) return localValue;
       if (amount === 0) return '';
-      return formatNumber(amount, CURRENCY_CONFIG[currency].decimals);
+      return formatNumber(amount, 0);
     },
     [focusedField, localValue]
   );
@@ -458,6 +400,52 @@ export function InputForm() {
         <CardTitle className="text-foreground">{t.app.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
+        {/* User info header */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.code}</label>
+            <Input
+              type="text"
+              className="h-8 border-border/40 bg-surface text-foreground focus-glow"
+              value={userInfo.code}
+              onChange={(e) => setUserInfo('code', e.target.value)}
+              placeholder={t.header.code}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.name}</label>
+            <Input
+              type="text"
+              className="h-8 border-border/40 bg-surface text-foreground focus-glow"
+              value={userInfo.name}
+              onChange={(e) => setUserInfo('name', e.target.value)}
+              placeholder={t.header.name}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.date}</label>
+            <Input
+              type="text"
+              className="h-8 border-border/40 bg-surface text-foreground focus-glow"
+              value={userInfo.date}
+              onChange={(e) => setUserInfo('date', e.target.value)}
+              placeholder="YYYY-MM-DD"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[11px] text-muted-foreground">{t.header.location}</label>
+            <Input
+              type="text"
+              className="h-8 border-border/40 bg-surface text-foreground focus-glow"
+              value={userInfo.location}
+              onChange={(e) => setUserInfo('location', e.target.value)}
+              placeholder={t.header.location}
+            />
+          </div>
+        </div>
+
+        <div className="border-t border-border/20" />
+
         <div className="flex items-center justify-end">
           <button
             type="button"
@@ -487,26 +475,24 @@ export function InputForm() {
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('buyingA', storeBuyingA, buying.currency)}
+                    value={getDisplayValue('buyingA', storeBuyingA)}
                     onChange={(e) => handleChange('buyingA', e.target.value)}
                     onFocus={() => handleFocus('buyingA', storeBuyingA)}
                     onBlur={handleBlur}
                     placeholder="0"
                   />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingA', storeBuyingA, val)} labels={quickAmountLabels} />
                 </div>
                 <div className="space-y-1.5">
                   <span className="text-xs font-medium text-brand-gold">B</span>
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('buyingB', storeBuyingB, buying.currency)}
+                    value={getDisplayValue('buyingB', storeBuyingB)}
                     onChange={(e) => handleChange('buyingB', e.target.value)}
                     onFocus={() => handleFocus('buyingB', storeBuyingB)}
                     onBlur={handleBlur}
                     placeholder="0"
                   />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingB', storeBuyingB, val)} labels={quickAmountLabels} />
                 </div>
               </div>
             </div>
@@ -525,26 +511,24 @@ export function InputForm() {
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('returningA', storeReturningA, returning.currency)}
+                    value={getDisplayValue('returningA', storeReturningA)}
                     onChange={(e) => handleChange('returningA', e.target.value)}
                     onFocus={() => handleFocus('returningA', storeReturningA)}
                     onBlur={handleBlur}
                     placeholder="0"
                   />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningA', storeReturningA, val)} labels={quickAmountLabels} />
                 </div>
                 <div className="space-y-1.5">
                   <span className="text-xs font-medium text-brand-gold">B</span>
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('returningB', storeReturningB, returning.currency)}
+                    value={getDisplayValue('returningB', storeReturningB)}
                     onChange={(e) => handleChange('returningB', e.target.value)}
                     onFocus={() => handleFocus('returningB', storeReturningB)}
                     onBlur={handleBlur}
                     placeholder="0"
                   />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningB', storeReturningB, val)} labels={quickAmountLabels} />
                 </div>
               </div>
             </div>
@@ -575,7 +559,7 @@ export function InputForm() {
                       <Input
                         type="text"
                         inputMode="decimal"
-                        value={getDisplayValue('buying', buying.amount, buying.currency)}
+                        value={getDisplayValue('buying', buying.amount)}
                         onChange={(e) => handleChange('buying', e.target.value)}
                         onFocus={() => handleFocus('buying', buying.amount)}
                         onBlur={handleBlur}
@@ -596,18 +580,15 @@ export function InputForm() {
                     placeholder={t.input.krwAmount}
                   />
                 </div>
-                <QuickAmountButtons onAdd={(val) => handleAddAmount('buying', buying.amount, val)} labels={quickAmountLabels} />
               </div>
             ) : (
               <InputRow
                 label={t.input.buying}
                 icon={<ShoppingCart className="size-4" />}
-                value={getDisplayValue('buying', buying.amount, buying.currency)}
+                value={getDisplayValue('buying', buying.amount)}
                 currency={buying.currency}
-                quickAmountLabels={quickAmountLabels}
                 onValueChange={(v) => handleChange('buying', v)}
                 onCurrencyChange={setBuyingCurrency}
-                onAddAmount={(val) => handleAddAmount('buying', buying.amount, val)}
                 onFocus={() => handleFocus('buying', buying.amount)}
                 onBlur={handleBlur}
               />
@@ -618,14 +599,17 @@ export function InputForm() {
             <InputRow
               label={t.input.returning}
               icon={<RotateCcw className="size-4" />}
-              value={getDisplayValue('returning', returning.amount, returning.currency)}
+              value={getDisplayValue('returning', returning.amount)}
               currency={returning.currency}
-              quickAmountLabels={quickAmountLabels}
               onValueChange={(v) => handleChange('returning', v)}
               onCurrencyChange={setReturningCurrency}
-              onAddAmount={(val) => handleAddAmount('returning', returning.amount, val)}
               onFocus={() => handleFocus('returning', returning.amount)}
               onBlur={handleBlur}
+              footer={returning.currency !== 'KRW' && (manualExchangeRates[returning.currency] ?? 0) > 0 && returning.amount > 0 ? (
+                <div className="text-right text-xs text-muted-foreground">
+                  → KRW ₩ {formatNumber(Math.round(returning.amount * (manualExchangeRates[returning.currency] ?? 0)), 0)}
+                </div>
+              ) : undefined}
             />
           </>
         )}
@@ -645,13 +629,11 @@ export function InputForm() {
             total={rollings.length}
             revenueAPercent={effectiveRevenueAPercent}
             revenueBPercent={effectiveRevenueBPercent}
-            quickAmountLabels={quickAmountLabels}
             focusedField={focusedField}
             localValue={localValue}
             onFocus={handleFocus}
             onBlur={handleBlur}
             onChange={handleChange}
-            onAddAmount={handleAddAmount}
           />
         ))}
 
