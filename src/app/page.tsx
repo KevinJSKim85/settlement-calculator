@@ -87,10 +87,12 @@ function HomePageContent() {
 
   const inlineFxCurrency = useSettlementStore((s) => s.inlineFxCurrency);
   const effectiveRates = useMemo(() => {
+    const rates = { ...manualExchangeRates };
+    // Always include inline FX rate so rolling/buying/returning in that currency can convert
     if (inlineFxRate > 0 && inlineFxCurrency !== baseCurrency) {
-      return { ...manualExchangeRates, [inlineFxCurrency]: inlineFxRate };
+      rates[inlineFxCurrency] = inlineFxRate;
     }
-    return manualExchangeRates;
+    return rates;
   }, [manualExchangeRates, inlineFxRate, inlineFxCurrency, baseCurrency]);
 
   const effectiveRevenueAPercent = useMemo(() => {
@@ -101,7 +103,13 @@ function HomePageContent() {
   const revenueBPercent = 100 - effectiveRevenueAPercent;
 
   const calculationResult = useMemo(() => {
-    const requiresRate = (currency: string) => currency !== baseCurrency && !effectiveRates[currency as keyof typeof effectiveRates];
+    const hasRate = (currency: string) => {
+      if (currency === baseCurrency) return true;
+      if (effectiveRates[currency as keyof typeof effectiveRates]) return true;
+      if (currency === inlineFxCurrency && inlineFxRate > 0) return true;
+      return false;
+    };
+    const requiresRate = (currency: string) => !hasRate(currency);
     if (requiresRate(buying.currency) || requiresRate(returning.currency) || rollings.some((rolling) => requiresRate(rolling.currency))) {
       return null;
     }
@@ -165,6 +173,7 @@ function HomePageContent() {
     storeBuyingB,
     storeReturningA,
     storeReturningB,
+    inlineFxRate,
     expenses,
     expensesEnabled,
   ]);
