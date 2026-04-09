@@ -41,44 +41,13 @@ function CurrencySelect({
   );
 }
 
-function QuickAmountButtons({
-  onAdd,
-  labels,
-  amounts,
-}: {
-  onAdd: (amount: number) => void;
-  labels: string[];
-  amounts?: number[];
-}) {
-  const quickAmounts = amounts ?? [10000, 100000, 1000000, 10000000, 100000000];
-
-  return (
-    <div className="flex flex-wrap gap-1">
-      {quickAmounts.map((value, index) => (
-        <Button
-          key={value}
-          type="button"
-          variant="outline"
-          size="xs"
-          className="rounded-full border-brand-gold/30 text-brand-gold/80 transition-all hover:border-brand-gold/50 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
-          onClick={() => onAdd(value)}
-        >
-          {labels[index]}
-        </Button>
-      ))}
-    </div>
-  );
-}
-
 function InputRow({
   label,
   icon,
   value,
   currency,
-  quickAmountLabels,
   onValueChange,
   onCurrencyChange,
-  onAddAmount,
   onFocus,
   onBlur,
   topExtra,
@@ -88,10 +57,8 @@ function InputRow({
   icon: React.ReactNode;
   value: string;
   currency: Currency;
-  quickAmountLabels: string[];
   onValueChange: (value: string) => void;
   onCurrencyChange: (currency: Currency) => void;
-  onAddAmount: (amount: number) => void;
   onFocus: () => void;
   onBlur: () => void;
   topExtra?: React.ReactNode;
@@ -120,7 +87,6 @@ function InputRow({
         />
       </div>
       {footer}
-      <QuickAmountButtons onAdd={onAddAmount} labels={quickAmountLabels} />
     </div>
   );
 }
@@ -169,15 +135,6 @@ function ComputedRow({
 
 export function InputForm() {
   const { t } = useTranslation();
-  const quickAmountLabels = [
-    t.input.quickAdd1Man,
-    t.input.quickAdd10Man,
-    t.input.quickAdd100Man,
-    t.input.quickAdd1000Man,
-    t.input.quickAdd1Eok,
-  ];
-  const foreignQuickAmounts = [1, 5, 10, 50, 100, 500, 1000];
-  const foreignQuickLabels = ['+1', '+5', '+10', '+50', '+100', '+500', '+1000'];
   const buying = useSettlementStore((s) => s.buying);
   const returning = useSettlementStore((s) => s.returning);
   const splitMode = useSettlementStore((s) => s.splitMode);
@@ -237,20 +194,6 @@ export function InputForm() {
       else if (field === 'returningB') setSReturningB(parsed);
     },
     [setBuying, setReturning, setSBuyingA, setSBuyingB, setSReturningA, setSReturningB]
-  );
-
-  const handleAddAmount = useCallback(
-    (field: string, currentAmount: number, addValue: number) => {
-      const newAmount = currentAmount + addValue;
-      if (field === 'buying') setBuying(newAmount);
-      else if (field === 'returning') setReturning(newAmount);
-      else if (field === 'buyingA') setSBuyingA(newAmount);
-      else if (field === 'buyingB') setSBuyingB(newAmount);
-      else if (field === 'returningA') setSReturningA(newAmount);
-      else if (field === 'returningB') setSReturningB(newAmount);
-      if (focusedField === field) setLocalValue(newAmount.toString());
-    },
-    [focusedField, setBuying, setReturning, setSBuyingA, setSBuyingB, setSReturningA, setSReturningB]
   );
 
   const getDisplayValue = useCallback(
@@ -353,7 +296,7 @@ export function InputForm() {
                     onBlur={handleBlur}
                     placeholder="0"
                   />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingA', storeBuyingA, val)} labels={quickAmountLabels} />
+
                 </div>
                 <div className="space-y-1.5">
                   <span className="text-xs font-medium text-brand-gold">B ({inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol})</span>
@@ -371,7 +314,7 @@ export function InputForm() {
                       → KRW ₩ {formatNumber(Math.round(storeBuyingB * inlineFxRate), 0)}
                     </div>
                   )}
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('buyingB', storeBuyingB, val)} labels={foreignQuickLabels} amounts={foreignQuickAmounts} />
+
                 </div>
               </div>
             </div>
@@ -396,7 +339,7 @@ export function InputForm() {
                     onBlur={handleBlur}
                     placeholder="0"
                   />
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningA', storeReturningA, val)} labels={quickAmountLabels} />
+
                 </div>
                 <div className="space-y-1.5">
                   <span className="text-xs font-medium text-brand-gold">B ({inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol})</span>
@@ -414,7 +357,7 @@ export function InputForm() {
                       → KRW ₩ {formatNumber(Math.round(storeReturningB * inlineFxRate), 0)}
                     </div>
                   )}
-                  <QuickAmountButtons onAdd={(val) => handleAddAmount('returningB', storeReturningB, val)} labels={foreignQuickLabels} amounts={foreignQuickAmounts} />
+
                 </div>
               </div>
             </div>
@@ -463,15 +406,6 @@ export function InputForm() {
                   />
                 </div>
               </div>
-              <QuickAmountButtons
-                onAdd={(val) => {
-                  const newAmt = inlineForeignAmount + val;
-                  setInlineForeignAmount(newAmt);
-                  if (inlineFxRate > 0) setBuying(Math.round(newAmt * inlineFxRate));
-                }}
-                labels={foreignQuickLabels}
-                amounts={foreignQuickAmounts}
-              />
             </div>
 
             <div className="border-t border-border/20" />
@@ -517,15 +451,6 @@ export function InputForm() {
                   />
                 </div>
               </div>
-              <QuickAmountButtons
-                onAdd={(val) => {
-                  const newAmt = inlineRetForeignAmount + val;
-                  setInlineRetForeignAmount(newAmt);
-                  if (inlineFxRate > 0) setReturning(Math.round(newAmt * inlineFxRate));
-                }}
-                labels={foreignQuickLabels}
-                amounts={foreignQuickAmounts}
-              />
             </div>
           </>
         )}

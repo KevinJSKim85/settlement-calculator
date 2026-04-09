@@ -42,35 +42,6 @@ function CurrencySelect({
   );
 }
 
-function QuickAmountButtons({
-  onAdd,
-  labels,
-  amounts,
-}: {
-  onAdd: (amount: number) => void;
-  labels: string[];
-  amounts?: number[];
-}) {
-  const quickAmounts = amounts ?? [10000, 100000, 1000000, 10000000, 100000000];
-
-  return (
-    <div className="flex flex-wrap gap-1">
-      {quickAmounts.map((value, index) => (
-        <Button
-          key={value}
-          type="button"
-          variant="outline"
-          size="xs"
-          className="rounded-full border-brand-gold/30 text-brand-gold/80 transition-all hover:border-brand-gold/50 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
-          onClick={() => onAdd(value)}
-        >
-          {labels[index]}
-        </Button>
-      ))}
-    </div>
-  );
-}
-
 function RollingFeeRow({
   label,
   feeAmount,
@@ -150,28 +121,22 @@ function RollingSection({
   total,
   revenueAPercent,
   revenueBPercent,
-  quickAmountLabels,
-  quickAmounts,
   focusedField,
   localValue,
   onFocus,
   onBlur,
   onChange,
-  onAddAmount,
 }: {
   entry: RollingEntry;
   index: number;
   total: number;
   revenueAPercent: number;
   revenueBPercent: number;
-  quickAmountLabels: string[];
-  quickAmounts: number[];
   focusedField: string | null;
   localValue: string;
   onFocus: (id: string, amount: number) => void;
   onBlur: () => void;
   onChange: (id: string, value: string) => void;
-  onAddAmount: (id: string, currentAmount: number, addValue: number) => void;
 }) {
   const { t } = useTranslation();
   const removeRolling = useSettlementStore((s) => s.removeRolling);
@@ -243,7 +208,6 @@ function RollingSection({
             placeholder="0"
           />
         </div>
-        <QuickAmountButtons onAdd={(val) => onAddAmount(fieldId, entry.amount, val)} labels={quickAmountLabels} amounts={quickAmounts} />
       </div>
 
       <RollingFeeRow
@@ -260,8 +224,6 @@ function RollingSection({
 
 export function RollingManager() {
   const { t } = useTranslation();
-  const quickAmounts = [1, 5, 10, 50, 100, 500, 1000];
-  const quickAmountLabels = ['+1', '+5', '+10', '+50', '+100', '+500', '+1000'];
   const rollings = useSettlementStore((s) => s.rollings);
   const revenueAPercent = useSettlementStore((s) => s.revenueAPercent);
   const autoRevenueSplitFromRate = useSettlementStore((s) => s.autoRevenueSplitFromRate);
@@ -296,15 +258,6 @@ export function RollingManager() {
     [setRollingAmount]
   );
 
-  const handleAddAmount = useCallback(
-    (field: string, currentAmount: number, addValue: number) => {
-      const newAmount = currentAmount + addValue;
-      setRollingAmount(field, newAmount);
-      if (focusedField === field) setLocalValue(newAmount.toString());
-    },
-    [focusedField, setRollingAmount]
-  );
-
   return (
     <Card className="premium-card border-border/40 bg-card">
       <CardHeader>
@@ -322,14 +275,11 @@ export function RollingManager() {
             total={rollings.length}
             revenueAPercent={effectiveRevenueAPercent}
             revenueBPercent={effectiveRevenueBPercent}
-            quickAmountLabels={quickAmountLabels}
-            quickAmounts={quickAmounts}
             focusedField={focusedField}
             localValue={localValue}
             onFocus={handleFocus}
             onBlur={handleBlur}
             onChange={handleChange}
-            onAddAmount={handleAddAmount}
           />
         ))}
 
