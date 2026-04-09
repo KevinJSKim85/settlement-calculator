@@ -18,6 +18,7 @@ import { I18nProvider, useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { calcSettlement, deriveRevenueAPercentFromRate } from '@/lib/calculator';
 import { convertAmount } from '@/lib/currency';
+import { hasUsableRate } from '@/lib/settlement-validation';
 import type { RollingFeeEntry, SettlementConfig, SettlementInput } from '@/types';
 
 function ThemeToggle() {
@@ -103,14 +104,19 @@ function HomePageContent() {
   const revenueBPercent = 100 - effectiveRevenueAPercent;
 
   const calculationResult = useMemo(() => {
-    const hasRate = (currency: string) => {
-      if (currency === baseCurrency) return true;
-      if (effectiveRates[currency as keyof typeof effectiveRates]) return true;
-      if (currency === inlineFxCurrency && inlineFxRate > 0) return true;
-      return false;
-    };
-    const requiresRate = (currency: string) => !hasRate(currency);
-    if (requiresRate(buying.currency) || requiresRate(returning.currency) || rollings.some((rolling) => requiresRate(rolling.currency))) {
+    const requiresRate = (amount: number, currency: typeof baseCurrency) => !hasUsableRate({
+      amount,
+      currency,
+      baseCurrency,
+      rates: effectiveRates,
+      inlineFxCurrency,
+      inlineFxRate,
+    });
+    if (
+      requiresRate(buying.amount, buying.currency) ||
+      requiresRate(returning.amount, returning.currency) ||
+      rollings.some((rolling) => requiresRate(rolling.amount, rolling.currency))
+    ) {
       return null;
     }
 

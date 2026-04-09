@@ -48,20 +48,16 @@ describe("convertAmount", () => {
 		expect(convertAmount(100, "USD", "USD", {}, "USD")).toBe(100);
 	});
 
-	it("converts USD to KRW", () => {
-		expect(convertAmount(100, "USD", "KRW", { USD: 1, KRW: 1300 }, "USD")).toBe(
-			130000,
-		);
+	it("converts USD to KRW using KRW-per-USD rates", () => {
+		expect(convertAmount(100, "USD", "KRW", { USD: 1300 }, "KRW")).toBe(130000);
 	});
 
-	it("converts KRW to USD", () => {
-		expect(
-			convertAmount(130000, "KRW", "USD", { USD: 1, KRW: 1300 }, "USD"),
-		).toBe(100);
+	it("converts KRW to USD using KRW-per-USD rates", () => {
+		expect(convertAmount(130000, "KRW", "USD", { USD: 1300 }, "KRW")).toBe(100);
 	});
 
 	it("returns original amount when rate is missing", () => {
-		expect(convertAmount(100, "USD", "KRW", { USD: 1 }, "USD")).toBe(100);
+		expect(convertAmount(100, "USD", "KRW", {}, "KRW")).toBe(100);
 	});
 });
 
