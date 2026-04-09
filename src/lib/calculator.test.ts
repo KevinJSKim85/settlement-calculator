@@ -82,6 +82,8 @@ describe('calcSettlement', () => {
     );
 
     expect(result.balance).toBe(135266);
+    expect(result.balanceA).toBe(135266);
+    expect(result.balanceB).toBe(0);
     expect(result.revenueA).toBe(122734);
     expect(result.revenueB).toBe(0);
     expect(result.distribution[0]?.amount).toBe(0);
@@ -104,6 +106,8 @@ describe('calcSettlement', () => {
     );
 
     expect(result.balance).toBe(135266);
+    expect(result.balanceA).toBe(0);
+    expect(result.balanceB).toBe(135266);
     expect(result.revenueA).toBe(0);
     expect(result.revenueB).toBe(122734);
     expect(result.distribution[0]?.amount).toBe(122734);
@@ -129,6 +133,8 @@ describe('calcSettlement', () => {
     expect(result.buyingB).toBe(65);
     expect(result.returningA).toBe(14);
     expect(result.returningB).toBe(26);
+    expect(result.balanceA).toBe(21);
+    expect(result.balanceB).toBe(39);
     expect(result.revenueA).toBe(21);
     expect(result.revenueB).toBe(39);
   });
@@ -158,8 +164,40 @@ describe('calcSettlement', () => {
     expect(result.buyingB).toBe(80);
     expect(result.returningA).toBe(5);
     expect(result.returningB).toBe(40);
+    expect(result.balanceA).toBe(15);
+    expect(result.balanceB).toBe(40);
     expect(result.revenueA).toBe(15);
     expect(result.revenueB).toBe(40);
+  });
+
+  it('derives revenue B from the B ratio when FX revenue sharing is enabled', () => {
+    const result = calcSettlement(
+      {
+        buying: 1000,
+        buyingCurrency: 'KRW',
+        returning: 0,
+        returningCurrency: 'KRW',
+        splitMode: 'manual',
+        buyingA: 200,
+        buyingB: 800,
+        returningA: 0,
+        returningB: 300,
+        rollingEntries: [{ amount: 100, feePercent: 10, target: 'B' }],
+      },
+      {
+        revenueAPercent: 40,
+        members: [{ id: 'm1', name: '멤버 1', percentage: 60 }],
+        applyFxRevenueBShare: true,
+      },
+      'KRW'
+    );
+
+    expect(result.revenueB).toBe(290);
+    expect(result.distribution[0]?.amount).toBe(290);
+    expect(result.totalRevenue).toBe(690);
+    expect(result.balanceA).toBe(200);
+    expect(result.balanceB).toBe(500);
+    expect(result.revenueA).toBe(400);
   });
 });
 

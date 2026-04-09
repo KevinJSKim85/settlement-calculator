@@ -91,6 +91,8 @@ export function calcSettlement(
     isManual ? buyingA + buyingB : input.buying,
     isManual ? returningA + returningB : input.returning
   );
+  const balanceA = buyingA - returningA;
+  const balanceB = buyingB - returningB;
 
   const rollingFees = calcRollingFees(input.rollingEntries);
 
@@ -107,17 +109,23 @@ export function calcSettlement(
 
   const revenueAFromBalance = buyingA - returningA;
   const revenueBFromBalance = buyingB - returningB;
-
-  const revenueA = revenueAFromBalance - feeForA - expenseTotalA;
-  const revenueB = revenueBFromBalance - feeForB - expenseTotalB;
-  const totalRevenue = revenueA + revenueB;
-
+  const totalRevenue = revenueAFromBalance + revenueBFromBalance - feeForA - feeForB - expenseTotalA - expenseTotalB;
   const revenueBPercent = 100 - config.revenueAPercent;
+
+  const revenueB = config.applyFxRevenueBShare
+    ? Math.round((revenueBFromBalance * revenueBPercent) / 100) - feeForB - expenseTotalB
+    : revenueBFromBalance - feeForB - expenseTotalB;
+  const revenueA = config.applyFxRevenueBShare
+    ? totalRevenue - revenueB
+    : revenueAFromBalance - feeForA - expenseTotalA;
+
   const distributionBase = revenueB;
   const distribution = calcDistribution(distributionBase, config.members, revenueBPercent);
 
   return {
     balance,
+    balanceA,
+    balanceB,
     buyingA,
     buyingB,
     returningA,

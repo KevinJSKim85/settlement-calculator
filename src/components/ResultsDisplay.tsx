@@ -169,6 +169,26 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.input.targetA} {t.input.balance}</td>
+              <AmountCell
+                amount={result.balanceA}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+              />
+              <NoteCell>{revenueAPercent}%</NoteCell>
+            </tr>
+
+            <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
+              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.input.targetB} {t.input.balance}</td>
+              <AmountCell
+                amount={result.balanceB}
+                baseCurrency={baseCurrency}
+                exchangeRates={exchangeRates}
+              />
+              <NoteCell>{revenueBPercent}%</NoteCell>
+            </tr>
+
+            <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
               <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingA}</td>
               <AmountCell
                 amount={result.buyingA}

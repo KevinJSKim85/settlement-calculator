@@ -70,6 +70,8 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
 
   const cards = [
     { label: t.input.balance, value: result.balance, color: 'text-foreground' },
+    { label: `${t.input.targetA} ${t.input.balance}`, value: result.balanceA, color: result.balanceA < 0 ? 'text-brand-red' : 'text-foreground' },
+    { label: `${t.input.targetB} ${t.input.balance}`, value: result.balanceB, color: result.balanceB < 0 ? 'text-brand-red' : 'text-foreground' },
     { label: t.input.rollingFee, value: -totalFees, color: 'text-brand-red' },
     { label: `${t.result.revenueA} (${revenueAPercent}%)`, value: result.revenueA, color: 'text-brand-gold' },
     { label: `${t.result.revenueB} (${revenueBPercent}%)`, value: result.revenueB, color: 'text-brand-gold' },
@@ -77,7 +79,7 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
       {cards.map((c) => (
         <div
           key={c.label}

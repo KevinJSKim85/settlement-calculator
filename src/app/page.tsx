@@ -162,6 +162,7 @@ function HomePageContent() {
       const config: SettlementConfig = {
         revenueAPercent: effectiveRevenueAPercent,
         members,
+        applyFxRevenueBShare: autoRevenueSplitFromRate && inlineFxRate > 0,
       };
 
     return calcSettlement(input, config, baseCurrency);

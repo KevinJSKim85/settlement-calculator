@@ -55,10 +55,13 @@ export interface SettlementInput {
 export interface SettlementConfig {
   revenueAPercent: number;
   members: DistributionMember[];
+  applyFxRevenueBShare?: boolean;
 }
 
 export interface SettlementResult {
   balance: number;
+  balanceA: number;
+  balanceB: number;
   buyingA: number;
   buyingB: number;
   returningA: number;
