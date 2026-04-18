@@ -215,31 +215,31 @@ export function InputForm() {
       </CardHeader>
       <CardContent className="space-y-5">
         {/* User info header */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
           <div className="space-y-1">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.code}</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.header.code}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.code} onChange={(e) => setUserInfo('code', e.target.value)} placeholder={t.header.code} />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.name}</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.header.name}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.name} onChange={(e) => setUserInfo('name', e.target.value)} placeholder={t.header.name} />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.date}</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.header.date}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.date} onChange={(e) => setUserInfo('date', e.target.value)} placeholder="YYYY-MM-DD" />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.location}</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.header.location}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.location} onChange={(e) => setUserInfo('location', e.target.value)} placeholder={t.header.location} />
           </div>
         </div>
         <div className="border-t border-border/20" />
 
         {/* Unified FX settings bar — always visible */}
-        <div className="flex items-center gap-2 rounded-xl border border-brand-gold/25 bg-brand-gold/5 px-3 py-2.5 shadow-sm shadow-brand-gold/5">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-brand-gold/25 bg-brand-gold/5 px-2.5 py-2 shadow-sm shadow-brand-gold/5 sm:flex-nowrap sm:px-3 sm:py-2.5">
               <CurrencySelect value={inlineFxCurrency} onValueChange={setInlineFxCurrency} />
-              <div className="flex flex-1 items-center gap-2">
-                <span className="shrink-0 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.input.fxRate}</span>
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">{t.input.fxRate}</span>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -258,7 +258,7 @@ export function InputForm() {
                       setReturning(0);
                     }
                   }}
-                  className="h-8 flex-1 border-brand-gold/25 bg-surface text-right text-sm font-medium tabular-nums text-foreground focus-glow"
+                  className="h-9 min-w-0 flex-1 border-brand-gold/25 bg-surface text-right text-sm font-medium tabular-nums text-foreground focus-glow sm:h-8"
                   placeholder="0"
                 />
               </div>
@@ -269,7 +269,7 @@ export function InputForm() {
             type="button"
             onClick={() => setSplitMode(isManual ? 'auto' : 'manual')}
             aria-pressed={isManual}
-            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98] ${
+            className={`flex min-h-[36px] items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98] sm:min-h-0 sm:py-1.5 ${
               isManual
                 ? 'border-brand-gold/50 bg-brand-gold/10 text-brand-gold shadow-sm shadow-brand-gold/10'
                 : 'border-border/50 bg-surface text-muted-foreground hover:border-brand-gold/40 hover:bg-brand-gold/5 hover:text-foreground'
@@ -290,9 +290,9 @@ export function InputForm() {
                 <span className="flex size-6 items-center justify-center rounded-md bg-brand-gold/10 text-brand-gold"><ShoppingCart className="size-3.5" /></span>
                 <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.buying}</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                 <div className="space-y-1.5">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-red">
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand-red sm:text-xs">
                     <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-red/10 text-[10px] font-bold">A</span>
                     <span className="text-muted-foreground">KRW ₩</span>
                   </span>
@@ -308,9 +308,9 @@ export function InputForm() {
 
                 </div>
                 <div className="space-y-1.5">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-gold">
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand-gold sm:text-xs">
                     <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-gold/10 text-[10px] font-bold">B</span>
-                    <span className="text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</span>
+                    <span className="truncate text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</span>
                   </span>
                   <Input
                     type="text" inputMode="decimal"
@@ -340,9 +340,9 @@ export function InputForm() {
                 <span className="flex size-6 items-center justify-center rounded-md bg-brand-red/10 text-brand-red"><RotateCcw className="size-3.5" /></span>
                 <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.returning}</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                 <div className="space-y-1.5">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-red">
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand-red sm:text-xs">
                     <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-red/10 text-[10px] font-bold">A</span>
                     <span className="text-muted-foreground">KRW ₩</span>
                   </span>
@@ -358,9 +358,9 @@ export function InputForm() {
 
                 </div>
                 <div className="space-y-1.5">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-gold">
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand-gold sm:text-xs">
                     <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-gold/10 text-[10px] font-bold">B</span>
-                    <span className="text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</span>
+                    <span className="truncate text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</span>
                   </span>
                   <Input
                     type="text" inputMode="decimal"
@@ -390,9 +390,9 @@ export function InputForm() {
                 <span className="flex size-6 items-center justify-center rounded-md bg-brand-gold/10 text-brand-gold"><ShoppingCart className="size-3.5" /></span>
                 <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.buying}</span>
               </div>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
-                <div className="rounded-lg border border-border/50 bg-surface px-3 py-2 transition-colors focus-within:border-brand-gold/50 focus-within:bg-brand-gold/5">
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 sm:gap-2.5">
+                <div className="rounded-lg border border-border/50 bg-surface px-2.5 py-2 transition-colors focus-within:border-brand-gold/50 focus-within:bg-brand-gold/5 sm:px-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -413,9 +413,9 @@ export function InputForm() {
                     placeholder="0"
                   />
                 </div>
-                <ArrowRight className="size-4 shrink-0 text-brand-gold/60" aria-hidden />
-                <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-3 py-2">
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">KRW ₩</div>
+                <ArrowRight className="size-3.5 shrink-0 text-brand-gold/60 sm:size-4" aria-hidden />
+                <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-2.5 py-2 sm:px-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">KRW ₩</div>
                   <Input
                     type="text"
                     readOnly
@@ -436,9 +436,9 @@ export function InputForm() {
                 <span className="flex size-6 items-center justify-center rounded-md bg-brand-red/10 text-brand-red"><RotateCcw className="size-3.5" /></span>
                 <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.returning}</span>
               </div>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
-                <div className="rounded-lg border border-border/50 bg-surface px-3 py-2 transition-colors focus-within:border-brand-gold/50 focus-within:bg-brand-gold/5">
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 sm:gap-2.5">
+                <div className="rounded-lg border border-border/50 bg-surface px-2.5 py-2 transition-colors focus-within:border-brand-gold/50 focus-within:bg-brand-gold/5 sm:px-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -459,8 +459,9 @@ export function InputForm() {
                     placeholder="0"
                   />
                 </div>
-                <ArrowRight className="size-4 shrink-0 text-brand-gold/60" aria-hidden />
-                <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-3 py-2">
+                <ArrowRight className="size-3.5 shrink-0 text-brand-gold/60 sm:size-4" aria-hidden />
+                <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-2.5 py-2 sm:px-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">KRW ₩</div>
                   <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"

@@ -55,10 +55,10 @@ function ExpenseRow({
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium text-foreground">{label}</span>
         {disabled && disabledHint && (
-          <span className="text-[11px] text-muted-foreground/70">{disabledHint}</span>
+          <span className="truncate text-[11px] text-muted-foreground/70">{disabledHint}</span>
         )}
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -67,7 +67,7 @@ function ExpenseRow({
           <Input
             type="text"
             inputMode="decimal"
-            className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+            className="min-w-0 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
             value={displayA}
             onChange={(e) => handleChange('A', e.target.value)}
             onFocus={() => handleFocus('A', valueA)}
@@ -81,7 +81,7 @@ function ExpenseRow({
           <Input
             type="text"
             inputMode="decimal"
-            className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+            className="min-w-0 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
             value={displayB}
             onChange={(e) => handleChange('B', e.target.value)}
             onFocus={() => handleFocus('B', valueB)}

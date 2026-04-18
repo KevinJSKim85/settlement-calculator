@@ -79,16 +79,16 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4 xl:grid-cols-7">
       {cards.map((c) => (
         <div
           key={c.label}
-          className="group flex flex-col items-start justify-between gap-2 rounded-xl border border-border/30 bg-surface/50 px-3 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/60 hover:bg-surface/70 hover:shadow-md"
+          className="group flex flex-col items-start justify-between gap-1.5 rounded-xl border border-border/30 bg-surface/50 px-2.5 py-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/60 hover:bg-surface/70 hover:shadow-md sm:gap-2 sm:px-3 sm:py-3"
         >
-          <span className="line-clamp-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+          <span className="line-clamp-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-[10px]">
             {c.label}
           </span>
-          <span className={`text-sm font-bold tabular-nums leading-tight ${c.color}`}>
+          <span className={`break-all text-[12px] font-bold tabular-nums leading-tight sm:text-sm ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
         </div>
@@ -232,8 +232,8 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   };
 
   return (
-    <div className="grid grid-cols-1 items-center gap-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
-      <div className="relative mx-auto size-40 shrink-0">
+    <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+      <div className="relative mx-auto size-32 shrink-0 sm:size-40">
         <svg
           viewBox="0 0 120 120"
           className="size-full -rotate-90 cursor-pointer"
@@ -245,11 +245,11 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
           {innerSegments.length > 0 && renderRing(innerSegments, 34, 10)}
         </svg>
         {/* Center label */}
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-2 text-center">
+          <span className="text-[8px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-[9px]">
             {t.result.revenue}
           </span>
-          <span className="text-base font-bold tabular-nums leading-tight text-foreground">
+          <span className="text-[13px] font-bold tabular-nums leading-tight text-foreground sm:text-base">
             {formatCurrency(result.totalRevenue, baseCurrency)}
           </span>
         </div>
@@ -362,7 +362,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             key={item.label}
             role="img"
             aria-label={`${item.label}: ${formatCurrency(item.value, baseCurrency)}`}
-            className="flex cursor-pointer items-center gap-3 rounded-lg px-1 transition-all duration-200"
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-1 transition-all duration-200 sm:gap-3"
             style={{ opacity: anyHovered ? (isActive ? 1 : 0.35) : 1 }}
             onMouseEnter={(e) => {
               setHoveredIdx(idx);
@@ -375,10 +375,10 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             onMouseMove={move}
             onMouseLeave={() => { setHoveredIdx(null); hide(); }}
           >
-            <span className="w-20 shrink-0 text-right text-[11px] font-medium text-muted-foreground">
+            <span className="w-14 shrink-0 truncate text-right text-[10px] font-medium text-muted-foreground sm:w-20 sm:text-[11px]">
               {item.label}
             </span>
-            <div className="relative h-7 flex-1 overflow-hidden rounded-md bg-surface/40 ring-1 ring-inset ring-border/20">
+            <div className="relative h-6 flex-1 overflow-hidden rounded-md bg-surface/40 ring-1 ring-inset ring-border/20 sm:h-7">
               <div
                 className={`absolute inset-y-0 left-0 rounded-md shadow-sm transition-all duration-500 ${barColor}`}
                 style={{
@@ -387,7 +387,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
                 }}
               />
             </div>
-            <span className={`w-24 shrink-0 text-right text-xs font-semibold tabular-nums ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
+            <span className={`w-[5.5rem] shrink-0 truncate text-right text-[10px] font-semibold tabular-nums sm:w-24 sm:text-xs ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
               {formatCurrency(item.value, baseCurrency)}
             </span>
           </div>
@@ -419,7 +419,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
           <div
             role="img"
             aria-label={`${t.result.revenueA}: ${revenueAPercent}%`}
-            className="flex cursor-pointer items-center justify-center bg-gradient-to-r from-brand-red to-brand-red/85 text-[11px] font-bold tracking-wide text-white transition-all duration-200"
+            className="flex cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-r from-brand-red to-brand-red/85 text-[10px] font-bold tracking-wide text-white transition-all duration-200 sm:text-[11px]"
             style={{
               width: `${revenueAPercent}%`,
               opacity: hovered !== null ? (hovered === 'rev-a' ? 1 : 0.35) : 1,
@@ -436,12 +436,14 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
             onMouseMove={move}
             onMouseLeave={() => { setHovered(null); hide(); }}
           >
-            {revenueAPercent > 15 && `A  ${revenueAPercent}%`}
+            {revenueAPercent > 15 && (
+              <span className={revenueAPercent > 22 ? '' : 'hidden sm:inline'}>A  {revenueAPercent}%</span>
+            )}
           </div>
           <div
             role="img"
             aria-label={`${t.result.revenueB}: ${revenueBPercent}%`}
-            className="flex cursor-pointer items-center justify-center bg-gradient-to-r from-brand-gold to-brand-gold/85 text-[11px] font-bold tracking-wide text-background transition-all duration-200"
+            className="flex cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-r from-brand-gold to-brand-gold/85 text-[10px] font-bold tracking-wide text-background transition-all duration-200 sm:text-[11px]"
             style={{
               width: `${revenueBPercent}%`,
               opacity: hovered !== null ? (hovered === 'rev-b' ? 1 : 0.35) : 1,
@@ -458,7 +460,9 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
             onMouseMove={move}
             onMouseLeave={() => { setHovered(null); hide(); }}
           >
-            {revenueBPercent > 15 && `B  ${revenueBPercent}%`}
+            {revenueBPercent > 15 && (
+              <span className={revenueBPercent > 22 ? '' : 'hidden sm:inline'}>B  {revenueBPercent}%</span>
+            )}
           </div>
         </div>
       </div>

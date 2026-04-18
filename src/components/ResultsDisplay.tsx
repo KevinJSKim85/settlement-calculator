@@ -68,10 +68,10 @@ function AmountCell({
   const isNegative = amount < 0 || forceNegativeStyle;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
-    <td className="whitespace-nowrap px-3 py-3 text-right align-top">
+    <td className="whitespace-nowrap px-2 py-3 text-right align-top sm:px-3">
       <div
         className={[
-          bold ? 'text-base font-bold' : 'font-medium',
+          bold ? 'text-sm font-bold sm:text-base' : 'text-[13px] font-medium sm:text-sm',
           isNegative ? 'text-brand-red' : '',
         ]
           .filter(Boolean)
@@ -99,7 +99,7 @@ function RatioBadge({
   return (
     <span
       className={[
-        'inline-flex min-w-[2.75rem] items-center justify-center rounded-full px-2 py-0.5 text-[11px] tabular-nums',
+        'inline-flex min-w-[2.25rem] items-center justify-center whitespace-nowrap rounded-full px-1.5 py-0.5 text-[10px] tabular-nums sm:min-w-[2.75rem] sm:px-2 sm:text-[11px]',
         bold
           ? 'bg-brand-gold/15 font-bold text-brand-gold ring-1 ring-inset ring-brand-gold/25'
           : 'bg-surface/70 font-medium text-muted-foreground ring-1 ring-inset ring-border/30',
@@ -125,7 +125,7 @@ function NoteCell({
   return (
     <td
       className={[
-        'px-3 py-3 text-right align-top text-sm tabular-nums',
+        'w-[4.5rem] px-2 py-3 text-right align-top text-sm tabular-nums sm:w-auto sm:px-3',
         bold ? 'font-bold text-brand-gold' : 'text-muted-foreground',
       ].join(' ')}
     >
@@ -174,23 +174,23 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
         className="fade-in premium-card overflow-hidden rounded-xl border border-border/40 bg-card"
       >
         <div className="overflow-x-auto">
-        <table className="w-full min-w-[400px] border-collapse text-sm">
+        <table className="w-full min-w-[340px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-border/40 bg-surface/70">
-              <th className="px-3 py-3.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              <th className="px-2 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
                 {t.result.item}
               </th>
-              <th className="px-3 py-3.5 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              <th className="px-2 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
                 {t.result.amount} ({baseCurrency})
               </th>
-              <th className="w-24 px-3 py-3.5 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              <th className="w-[4.5rem] px-2 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:w-24 sm:px-3 sm:py-3.5">
                 {t.result.ratio}
               </th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.input.balance}</td>
+              <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.input.balance}</td>
               <AmountCell
                 amount={result.balance}
                 baseCurrency={baseCurrency}
@@ -200,7 +200,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.input.targetA} {t.input.balance}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.input.targetA} {t.input.balance}</td>
               <AmountCell
                 amount={result.balanceA}
                 baseCurrency={baseCurrency}
@@ -210,7 +210,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.input.targetB} {t.input.balance}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.input.targetB} {t.input.balance}</td>
               <AmountCell
                 amount={result.balanceB}
                 baseCurrency={baseCurrency}
@@ -220,7 +220,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingA}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.result.buyingA}</td>
               <AmountCell
                 amount={result.buyingA}
                 baseCurrency={baseCurrency}
@@ -230,7 +230,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.buyingB}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.result.buyingB}</td>
               <AmountCell
                 amount={result.buyingB}
                 baseCurrency={baseCurrency}
@@ -240,7 +240,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.returningA}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.result.returningA}</td>
               <AmountCell
                 amount={result.returningA > 0 ? -result.returningA : result.returningA}
                 baseCurrency={baseCurrency}
@@ -251,7 +251,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.returningB}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.result.returningB}</td>
               <AmountCell
                 amount={result.returningB > 0 ? -result.returningB : result.returningB}
                 baseCurrency={baseCurrency}
@@ -263,9 +263,9 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
 
             {result.rollingFees.map((rf) => (
               <tr key={rf.label} className="border-b border-border/20 transition-colors hover:bg-surface/30">
-                <td className="whitespace-nowrap px-3 py-3 text-foreground">
-                  {rollingFeeLabel(rf.label)}
-                  <span className="ml-1.5 text-xs text-muted-foreground/70">
+                <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">
+                  <span className="break-words">{rollingFeeLabel(rf.label)}</span>
+                  <span className="ml-1.5 text-[11px] text-muted-foreground/70 sm:text-xs">
                     {rf.target}
                   </span>
                 </td>
@@ -284,7 +284,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
               <>
                 {result.expenses.costA + result.expenses.costB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-                    <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.expenses.cost}</td>
+                    <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.expenses.cost}</td>
                     <AmountCell amount={-(result.expenses.costA + result.expenses.costB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
@@ -296,7 +296,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 )}
                 {result.expenses.tipA + result.expenses.tipB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-                    <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.expenses.tip}</td>
+                    <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.expenses.tip}</td>
                     <AmountCell amount={-(result.expenses.tipA + result.expenses.tipB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
@@ -308,7 +308,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 )}
                 {result.expenses.markA + result.expenses.markB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-                    <td className="whitespace-nowrap px-3 py-3 text-foreground">{t.expenses.mark}</td>
+                    <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.expenses.mark}</td>
                     <AmountCell amount={-(result.expenses.markA + result.expenses.markB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
@@ -320,7 +320,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 )}
                 {result.expenses.taxA + result.expenses.taxB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-                    <td className="whitespace-nowrap px-3 py-3 text-foreground">
+                    <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">
                       {t.expenses.tax}
                       {result.expenses.taxPercent > 0 && <span className="ml-1.5 text-[11px] text-muted-foreground/70">{result.expenses.taxPercent}%</span>}
                     </td>
@@ -338,7 +338,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
 
             {/* Revenue total - accent bar */}
             <tr className="accent-bar-red border-b border-border/40 bg-brand-red/8">
-              <td className="whitespace-nowrap px-3 py-4 text-base font-bold text-foreground">
+              <td className="px-2 py-4 text-sm font-bold text-foreground sm:px-3 sm:text-base">
                 {t.result.revenue}
               </td>
               <AmountCell
@@ -351,7 +351,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueA}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.result.revenueA}</td>
               <AmountCell
                 amount={result.revenueA}
                 baseCurrency={baseCurrency}
@@ -361,7 +361,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
-              <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{t.result.revenueB}</td>
+              <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.result.revenueB}</td>
               <AmountCell
                 amount={result.revenueB}
                 baseCurrency={baseCurrency}
@@ -372,7 +372,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
 
             {/* Distribution total - accent bar */}
             <tr className="accent-bar-gold border-b border-border/40 bg-brand-gold/8">
-              <td className="whitespace-nowrap px-3 py-4 text-base font-bold text-foreground">
+              <td className="px-2 py-4 text-sm font-bold text-foreground sm:px-3 sm:text-base">
                 {t.result.distribution}
               </td>
               <AmountCell
@@ -393,7 +393,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                     : ''
                 }`}
               >
-                <td className="whitespace-nowrap py-3 pl-6 pr-3 text-foreground/80">{dist.memberName}</td>
+                <td className="break-words py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{dist.memberName}</td>
                 <AmountCell
                   amount={dist.amount}
                   baseCurrency={baseCurrency}
@@ -403,7 +403,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                   <div className="flex flex-col items-end gap-1">
                     <RatioBadge>{dist.percentage.toFixed(1)}%</RatioBadge>
                     {dist.overallPercent > 0 && (
-                      <span className="text-[10px] leading-none text-muted-foreground/70">
+                      <span className="whitespace-nowrap text-[9px] leading-none text-muted-foreground/70 sm:text-[10px]">
                         {dist.overallPercent.toFixed(1)}% {t.result.withinB}
                       </span>
                     )}

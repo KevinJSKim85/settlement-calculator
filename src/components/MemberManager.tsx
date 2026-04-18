@@ -114,7 +114,7 @@ export function MemberManager() {
           <button
             type="button"
             onClick={() => setAutoRevenueSplitFromRate(!autoRevenueSplitFromRate)}
-            className="flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
+            className="flex min-h-[32px] items-center gap-1.5 rounded-full border border-border/40 px-3 py-1.5 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5 sm:min-h-0 sm:px-2.5 sm:py-1"
           >
             {autoRevenueSplitFromRate
               ? <ToggleRight className="size-3.5 text-brand-gold" />
@@ -154,7 +154,7 @@ export function MemberManager() {
                 onFocus={handleRevenueAFocus}
                 onBlur={handleRevenueABlur}
                 disabled={autoRevenueSplitFromRate}
-                className="h-7 w-14 border-0 bg-transparent px-0 text-center text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow disabled:cursor-not-allowed disabled:opacity-70"
+                className="h-9 w-14 border-0 bg-transparent px-0 text-center text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow disabled:cursor-not-allowed disabled:opacity-70 sm:h-7"
               />
               <span className="text-xs font-medium text-muted-foreground">%</span>
             </div>
@@ -197,20 +197,20 @@ export function MemberManager() {
 
           return (
             <div key={member.id} className="slide-in group space-y-1.5 rounded-xl border border-border/30 bg-surface/30 p-3 transition-all hover:border-brand-gold/25 hover:bg-surface/50">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
                 <UserCircle className="size-5 shrink-0 text-muted-foreground/70 transition-colors group-hover:text-brand-gold/70" />
                 <Input
-                  className="h-9 min-w-[120px] flex-1 border-border/40 bg-surface text-sm font-medium text-foreground focus-glow"
+                  className="h-11 min-w-0 flex-1 border-border/40 bg-surface text-sm font-medium text-foreground focus-glow sm:h-9 sm:min-w-[120px]"
                   placeholder={t.members.memberName}
                   value={member.name}
                   onChange={(e) =>
                     updateMember(member.id, { name: e.target.value })
                   }
                 />
-                <div className="flex items-center gap-1.5">
+                <div className="flex shrink-0 items-center gap-1">
                   <div className="flex items-center gap-0.5 rounded-md border border-border/40 bg-surface pl-1.5 pr-1 has-[input:focus-visible]:border-brand-gold/50 has-[input:focus-visible]:ring-1 has-[input:focus-visible]:ring-brand-gold/20 transition-colors">
                     <Input
-                      className="h-8 w-16 border-0 bg-transparent px-0 text-right text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow"
+                      className="h-10 w-14 border-0 bg-transparent px-0 text-right text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow sm:h-8 sm:w-16"
                       type="number"
                       inputMode="decimal"
                       min={0}
@@ -240,14 +240,14 @@ export function MemberManager() {
                     disabled={false}
                     onClick={() => removeMember(member.id)}
                     aria-label={t.members.removeMember}
-                    className="size-7 rounded-full text-muted-foreground/60 opacity-0 transition-all duration-200 hover:bg-brand-red/10 hover:text-brand-red focus-visible:opacity-100 group-hover:opacity-100 active:scale-90"
+                    className="size-9 rounded-full text-muted-foreground/60 opacity-100 transition-all duration-200 hover:bg-brand-red/10 hover:text-brand-red focus-visible:opacity-100 active:scale-90 sm:size-7 sm:opacity-0 sm:group-hover:opacity-100"
                   >
-                    <X className="size-3.5" />
+                    <X className="size-4 sm:size-3.5" />
                   </Button>
                 </div>
               </div>
               {member.percentage > 0 && revenueBPercent > 0 && (
-                <div className="ml-7 flex items-center gap-1.5 text-xs">
+                <div className="ml-7 flex flex-wrap items-center gap-1.5 text-xs">
                   <span className="rounded-sm bg-brand-gold/10 px-1.5 py-0.5 font-semibold tabular-nums text-brand-gold">
                     {t.result.revenueB} {withinBPercent}%
                   </span>
@@ -261,7 +261,7 @@ export function MemberManager() {
         })}
 
         {/* Progress bar + summary */}
-        <div className="mt-1 space-y-2.5 border-t border-border/20 pt-3">
+        <div className="mt-1 space-y-3 border-t border-border/20 pt-3 sm:space-y-2.5">
           <div className="h-2 overflow-hidden rounded-full bg-surface ring-1 ring-inset ring-border/20">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
@@ -272,7 +272,7 @@ export function MemberManager() {
               style={{ width: `${progressPct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-muted-foreground">{t.members.sumLabel}</span>
               {remaining > 0 && members.length > 0 && (
@@ -280,7 +280,7 @@ export function MemberManager() {
                   type="button"
                   variant="outline"
                   size="xs"
-                  className="h-6 rounded-full border-brand-gold/30 bg-brand-gold/5 text-xs font-semibold tabular-nums text-brand-gold/90 transition-all hover:border-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
+                  className="h-7 rounded-full border-brand-gold/30 bg-brand-gold/5 px-2.5 text-xs font-semibold tabular-nums text-brand-gold/90 transition-all hover:border-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95 sm:h-6 sm:px-2"
                   onClick={handleFillRemaining}
                 >
                   +{remaining}%

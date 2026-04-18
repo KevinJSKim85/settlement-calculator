@@ -26,8 +26,9 @@ function ThemeToggle() {
   return (
     <button
       type="button"
+      aria-label="Toggle theme"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-brand-gold"
+      className="tap-reset flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-brand-gold sm:size-8"
     >
       {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </button>
@@ -36,23 +37,46 @@ function ThemeToggle() {
 
 function PoweredBy() {
   return (
-    <div className="flex items-center justify-center gap-1.5 py-6 text-xs text-muted-foreground/70">
-      <span>Powered by</span>
+    <div className="flex flex-col items-center gap-3 py-10 sm:py-12">
+      {/* Decorative brand divider */}
+      <div className="flex items-center gap-3" aria-hidden="true">
+        <span className="h-px w-12 bg-gradient-to-r from-transparent to-brand-gold/40" />
+        <span className="size-1.5 rotate-45 bg-brand-gold/70" />
+        <span className="h-px w-12 bg-gradient-to-l from-transparent to-brand-gold/40" />
+      </div>
+
+      {/* Powered by logo */}
       <a
         href="https://beat.gg"
         target="_blank"
         rel="noopener noreferrer"
-        className="font-semibold tracking-wide text-brand-gold/80 transition-colors hover:text-brand-gold"
+        className="group relative inline-flex items-center gap-2.5"
       >
-        BEAT.GG
+        <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/70 transition-colors group-hover:text-muted-foreground">
+          Powered by
+        </span>
+        <span className="relative inline-flex items-baseline">
+          <span className="beat-brand text-xl font-black tracking-tight sm:text-2xl">
+            BEAT
+          </span>
+          <span className="beat-dot mx-0.5 inline-block size-1.5 translate-y-[-2px] rounded-full bg-brand-red" />
+          <span className="beat-brand text-xl font-black tracking-tight sm:text-2xl">
+            GG
+          </span>
+        </span>
       </a>
+
+      {/* Tagline */}
+      <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-muted-foreground/50">
+        Premium Settlement Infrastructure
+      </p>
     </div>
   );
 }
 
 function AdBanner({ label }: { label: string }) {
   return (
-    <div className="ad-slot flex items-center justify-center px-4 py-4 text-center">
+    <div className="ad-slot flex items-center justify-center px-4 py-3 text-center sm:py-4">
       <span className="inline-flex items-center gap-2">
         <span className="h-px w-6 bg-current opacity-40" aria-hidden="true" />
         {label}
@@ -201,21 +225,21 @@ function HomePageContent() {
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Header */}
-        <header className="mb-10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="logo-badge flex size-11 items-center justify-center rounded-xl text-brand-red">
-              <Calculator className="size-[1.3rem]" strokeWidth={2.25} />
+        <header className="mb-8 flex items-center justify-between gap-3 sm:mb-10">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <div className="logo-badge flex size-10 shrink-0 items-center justify-center rounded-xl text-brand-red sm:size-11">
+              <Calculator className="size-[1.2rem] sm:size-[1.3rem]" strokeWidth={2.25} />
             </div>
-            <div className="leading-tight">
-              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-[1.4rem]">
+            <div className="min-w-0 leading-tight">
+              <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-[1.4rem]">
                 {t.app.title}
               </h1>
-              <p className="mt-0.5 text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground/80">
+              <p className="mt-0.5 truncate text-[0.65rem] uppercase tracking-[0.18em] text-muted-foreground/80 sm:text-[0.7rem]">
                 {t.app.subtitle}
               </p>
             </div>
           </div>
-          <div className="pill-group">
+          <div className="pill-group shrink-0">
             <ThemeToggle />
             <LanguageToggle />
           </div>
@@ -258,13 +282,13 @@ function HomePageContent() {
             )}
 
             {/* Action bar — sticky on mobile for always-reachable export/reset */}
-            <div className="action-bar sticky bottom-3 z-40 flex flex-col gap-2 rounded-xl p-3 backdrop-blur-md sm:static sm:flex-row sm:items-center sm:gap-3">
+            <div className="action-bar action-bar--sticky sticky bottom-3 z-40 flex flex-col gap-2 rounded-xl p-3 backdrop-blur-md sm:static sm:flex-row sm:items-center sm:gap-3">
               <div className="flex-1">
                 <ExportButtons targetRef={resultsRef} disabled={!calculationResult} />
               </div>
               <button
                 type="button"
-                className="reset-pill self-center sm:self-auto"
+                className="reset-pill tap-reset self-center sm:self-auto"
                 onClick={resetInputs}
               >
                 <RotateCcw className="size-3.5" />
@@ -284,7 +308,9 @@ function HomePageContent() {
       <button
         type="button"
         onClick={scrollToResults}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-brand-red px-4 py-3 text-sm font-medium text-white shadow-lg transition-all active:scale-95 lg:hidden"
+        aria-label={t.app.viewResults}
+        className="tap-reset fixed right-5 z-50 flex items-center gap-2 rounded-full bg-brand-red px-4 py-3 text-sm font-medium text-white shadow-lg transition-all active:scale-95 lg:hidden"
+        style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}
       >
         <FileText className="size-4" />
         {t.app.viewResults}
