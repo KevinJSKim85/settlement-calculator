@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <rect width="180" height="180" rx="40" fill="#C0301E"/>
+  <rect x="34" y="28" width="112" height="124" rx="14" fill="#F6DA9D"/>
+  <rect x="45" y="42" width="90" height="28" rx="5" fill="#1A1A1A"/>
+  <text x="128" y="64" text-anchor="end" fill="#F6DA9D" font-family="ui-monospace, monospace" font-size="22" font-weight="700">정산서</text>
+  <circle cx="59" cy="92" r="8" fill="#1A1A1A"/>
+  <circle cx="90" cy="92" r="8" fill="#1A1A1A"/>
+  <circle cx="121" cy="92" r="8" fill="#1A1A1A"/>
+  <circle cx="59" cy="118" r="8" fill="#1A1A1A"/>
+  <circle cx="90" cy="118" r="8" fill="#1A1A1A"/>
+  <circle cx="121" cy="118" r="8" fill="#C0301E"/>
+  <rect x="51" y="134" width="78" height="12" rx="3" fill="#1A1A1A"/>
+</svg>
