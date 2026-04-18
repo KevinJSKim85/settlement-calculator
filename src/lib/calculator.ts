@@ -109,15 +109,16 @@ export function calcSettlement(
 
   const revenueAFromBalance = buyingA - returningA;
   const revenueBFromBalance = buyingB - returningB;
-  const totalRevenue = revenueAFromBalance + revenueBFromBalance - feeForA - feeForB - expenseTotalA - expenseTotalB;
   const revenueBPercent = 100 - config.revenueAPercent;
 
+  // Revenue A is always direct: (buyingA - returningA) - feeForA - expenseTotalA
+  // (independent of FX / revenueA%)
+  const revenueA = revenueAFromBalance - feeForA - expenseTotalA;
+  // Revenue B applies the FX-derived B% share when enabled
   const revenueB = config.applyFxRevenueBShare
     ? Math.round((revenueBFromBalance * revenueBPercent) / 100) - feeForB - expenseTotalB
     : revenueBFromBalance - feeForB - expenseTotalB;
-  const revenueA = config.applyFxRevenueBShare
-    ? totalRevenue - revenueB
-    : revenueAFromBalance - feeForA - expenseTotalA;
+  const totalRevenue = revenueA + revenueB;
 
   const distributionBase = revenueB;
   const distribution = calcDistribution(distributionBase, config.members, revenueBPercent);

@@ -168,8 +168,10 @@ export function InputForm() {
 
   const buyingBKrw = Math.round(storeBuyingB * (inlineFxRate || 1));
   const returningBKrw = Math.round(storeReturningB * (inlineFxRate || 1));
+  const balanceA = storeBuyingA - storeReturningA;
+  const balanceB = buyingBKrw - returningBKrw;
   const balance = isManual
-    ? (storeBuyingA + buyingBKrw) - (storeReturningA + returningBKrw)
+    ? balanceA + balanceB
     : buying.amount - returning.amount;
 
   const handleFocus = useCallback((field: string, amount: number) => {
@@ -455,10 +457,27 @@ export function InputForm() {
           </>
         )}
 
+        {isManual && (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <ComputedRow
+              label={`${t.input.balance} A`}
+              value={balanceA}
+              currency="KRW"
+              isNegative={balanceA < 0}
+            />
+            <ComputedRow
+              label={`${t.input.balance} B`}
+              value={balanceB}
+              currency="KRW"
+              isNegative={balanceB < 0}
+            />
+          </div>
+        )}
+
         <ComputedRow
           label={t.input.balance}
           value={balance}
-          currency={returning.currency}
+          currency={isManual ? 'KRW' : returning.currency}
           isNegative={balance < 0}
         />
 
