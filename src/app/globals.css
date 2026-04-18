@@ -183,14 +183,6 @@ body {
     height: 2px;
     background: linear-gradient(90deg, #C0301E 0%, #D4A04A 50%, #F6DA9D 100%);
     opacity: 0.65;
-    position: relative;
-  }
-  .gradient-line::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-    animation: gradientShimmer 6s ease-in-out infinite;
   }
 
   .pill-group {
@@ -399,39 +391,35 @@ body {
   to { transform: translateX(-33.333%); }
 }
 
-@keyframes gradientShimmer {
-  0%, 100% { opacity: 0; transform: translateX(-20%); }
-  50% { opacity: 0.5; transform: translateX(20%); }
-}
-
-@keyframes beatPulse {
-  0%, 100% { transform: translateY(-2px) scale(1); box-shadow: 0 0 0 0 rgba(192, 48, 30, 0.6); }
-  50% { transform: translateY(-2px) scale(1.5); box-shadow: 0 0 10px 2px rgba(192, 48, 30, 0.35); }
-}
-
-@keyframes brandGradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+@keyframes goldShimmer {
+  0% { background-position: -150% 50%; }
+  60% { background-position: 150% 50%; }
+  100% { background-position: 150% 50%; }
 }
 
 @layer components {
   .beat-brand {
-    background: linear-gradient(135deg, #C0301E 0%, #E8B94A 40%, #F6DA9D 55%, #E8B94A 70%, #C0301E 100%);
-    background-size: 200% 200%;
+    font-family: var(--font-archivo-black), system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    /* Base gold with a bright highlight band that sweeps across */
+    background-image: linear-gradient(
+      110deg,
+      #8A5A12 0%,
+      #B88A2E 25%,
+      #E8B94A 42%,
+      #FFF3C0 50%,
+      #E8B94A 58%,
+      #B88A2E 75%,
+      #8A5A12 100%
+    );
+    background-size: 250% 100%;
+    background-position: -150% 50%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: brandGradientShift 7s ease-in-out infinite;
-    transition: filter 0.3s ease, transform 0.3s ease;
-    letter-spacing: -0.02em;
-  }
-  .group:hover .beat-brand {
-    filter: drop-shadow(0 2px 12px rgba(246, 218, 157, 0.4)) drop-shadow(0 0 24px rgba(192, 48, 30, 0.3));
-    transform: translateY(-1px);
-  }
-  .beat-dot {
-    animation: beatPulse 1.6s ease-in-out infinite;
+    animation: goldShimmer 3.5s ease-in-out infinite;
   }
 }
 

@@ -55,14 +55,8 @@ function PoweredBy() {
         <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/70 transition-colors group-hover:text-muted-foreground">
           Powered by
         </span>
-        <span className="relative inline-flex items-baseline">
-          <span className="beat-brand text-xl font-black tracking-tight sm:text-2xl">
-            BEAT
-          </span>
-          <span className="beat-dot mx-0.5 inline-block size-1.5 translate-y-[-2px] rounded-full bg-brand-red" />
-          <span className="beat-brand text-xl font-black tracking-tight sm:text-2xl">
-            GG
-          </span>
+        <span className="beat-brand text-xl italic sm:text-2xl">
+          BEAT.GG
         </span>
       </a>
 
