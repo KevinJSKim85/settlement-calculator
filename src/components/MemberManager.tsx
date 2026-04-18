@@ -137,44 +137,55 @@ export function MemberManager() {
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {/* Revenue A/B split with visual bar */}
-        <div className="space-y-2 rounded-xl border border-brand-gold/10 bg-surface/50 px-3 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="shrink-0 text-sm text-muted-foreground">
-              {t.result.revenueA}:
+        <div className="space-y-3 rounded-xl border border-brand-gold/10 bg-surface/50 px-3.5 py-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+              <span className="inline-block size-2 rounded-full bg-brand-red/70" aria-hidden />
+              {t.result.revenueA}
             </span>
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              max={100}
-              value={revenueAFocused ? revenueALocal : effectiveRevenueAPercent}
-              onChange={handleRevenueAChange}
-              onFocus={handleRevenueAFocus}
-              onBlur={handleRevenueABlur}
-              disabled={autoRevenueSplitFromRate}
-              className="h-8 w-16 border-brand-gold/20 bg-surface text-center tabular-nums text-foreground focus-glow"
-            />
-            <span className="text-sm text-muted-foreground">%</span>
-            <span className="text-sm text-muted-foreground/70">|</span>
-            <span className="whitespace-nowrap text-sm text-muted-foreground">
-              {t.result.revenueB}: {revenueBPercent}%
+            <div className="flex items-center gap-1 rounded-md border border-brand-gold/20 bg-surface pl-1.5 pr-1 py-0.5">
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                max={100}
+                value={revenueAFocused ? revenueALocal : effectiveRevenueAPercent}
+                onChange={handleRevenueAChange}
+                onFocus={handleRevenueAFocus}
+                onBlur={handleRevenueABlur}
+                disabled={autoRevenueSplitFromRate}
+                className="h-7 w-14 border-0 bg-transparent px-0 text-center text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow disabled:cursor-not-allowed disabled:opacity-70"
+              />
+              <span className="text-xs font-medium text-muted-foreground">%</span>
+            </div>
+            <span className="text-muted-foreground/40" aria-hidden>·</span>
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-muted-foreground">
+              <span className="inline-block size-2 rounded-full bg-brand-gold/60" aria-hidden />
+              {t.result.revenueB}
+              <span className="tabular-nums font-semibold text-foreground">{revenueBPercent}%</span>
             </span>
           </div>
           {autoRevenueSplitFromRate && inlineFxRate > 0 && (
-            <div className="text-xs text-muted-foreground">
-              100 - 100/{inlineFxRate} × 100 = {revenueBPercent}%
+            <div className="inline-flex items-center rounded-md border border-brand-gold/15 bg-brand-gold/5 px-2 py-1 font-mono text-[11px] leading-none tabular-nums text-muted-foreground">
+              <span>100 − 100 ÷ {inlineFxRate} × 100</span>
+              <span className="mx-1.5 text-muted-foreground/40">=</span>
+              <span className="font-semibold text-brand-gold">{revenueBPercent}%</span>
             </div>
           )}
           {/* Visual split bar */}
-          <div className="flex h-2 overflow-hidden rounded-full">
-            <div
-              className="bg-brand-red/70 transition-all duration-300"
-              style={{ width: `${effectiveRevenueAPercent}%` }}
-            />
-            <div
-              className="bg-brand-gold/50 transition-all duration-300"
-              style={{ width: `${revenueBPercent}%` }}
-            />
+          <div className="flex items-center gap-2">
+            <span className="w-7 shrink-0 text-[10px] font-bold uppercase tracking-wider text-brand-red/80">A</span>
+            <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-surface ring-1 ring-inset ring-border/30">
+              <div
+                className="bg-gradient-to-r from-brand-red/80 to-brand-red/60 transition-all duration-500"
+                style={{ width: `${effectiveRevenueAPercent}%` }}
+              />
+              <div
+                className="bg-gradient-to-r from-brand-gold/60 to-brand-gold/40 transition-all duration-500"
+                style={{ width: `${revenueBPercent}%` }}
+              />
+            </div>
+            <span className="w-7 shrink-0 text-right text-[10px] font-bold uppercase tracking-wider text-brand-gold/80">B</span>
           </div>
         </div>
 
@@ -185,49 +196,51 @@ export function MemberManager() {
             : 0;
 
           return (
-            <div key={member.id} className="slide-in group space-y-1 rounded-xl border border-border/30 bg-surface/30 p-3 transition-colors hover:border-border/50">
+            <div key={member.id} className="slide-in group space-y-1.5 rounded-xl border border-border/30 bg-surface/30 p-3 transition-all hover:border-brand-gold/25 hover:bg-surface/50">
               <div className="flex flex-wrap items-center gap-2">
-                <UserCircle className="size-5 shrink-0 text-muted-foreground/70" />
+                <UserCircle className="size-5 shrink-0 text-muted-foreground/70 transition-colors group-hover:text-brand-gold/70" />
                 <Input
-                  className="min-w-[120px] flex-1 border-border/40 bg-surface text-foreground focus-glow"
+                  className="h-9 min-w-[120px] flex-1 border-border/40 bg-surface text-sm font-medium text-foreground focus-glow"
                   placeholder={t.members.memberName}
                   value={member.name}
                   onChange={(e) =>
                     updateMember(member.id, { name: e.target.value })
                   }
                 />
-                <div className="flex items-center gap-2">
-                  <Input
-                    className="w-20 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    max={100}
-                    step={0.01}
-                    value={focusedMemberId === member.id ? memberPercentLocal : member.percentage}
-                    onFocus={() => {
-                      setFocusedMemberId(member.id);
-                      setMemberPercentLocal(member.percentage === 0 ? '' : String(member.percentage));
-                    }}
-                    onBlur={() => {
-                      setFocusedMemberId(null);
-                      setMemberPercentLocal('');
-                    }}
-                    onChange={(e) => {
-                      setMemberPercentLocal(e.target.value);
-                      updateMember(member.id, {
-                        percentage: parseFloat(e.target.value) || 0,
-                      });
-                    }}
-                  />
-                  <span className="text-sm text-muted-foreground">%</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-0.5 rounded-md border border-border/40 bg-surface pl-1.5 pr-1 has-[input:focus-visible]:border-brand-gold/50 has-[input:focus-visible]:ring-1 has-[input:focus-visible]:ring-brand-gold/20 transition-colors">
+                    <Input
+                      className="h-8 w-16 border-0 bg-transparent px-0 text-right text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow"
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={100}
+                      step={0.01}
+                      value={focusedMemberId === member.id ? memberPercentLocal : member.percentage}
+                      onFocus={() => {
+                        setFocusedMemberId(member.id);
+                        setMemberPercentLocal(member.percentage === 0 ? '' : String(member.percentage));
+                      }}
+                      onBlur={() => {
+                        setFocusedMemberId(null);
+                        setMemberPercentLocal('');
+                      }}
+                      onChange={(e) => {
+                        setMemberPercentLocal(e.target.value);
+                        updateMember(member.id, {
+                          percentage: parseFloat(e.target.value) || 0,
+                        });
+                      }}
+                    />
+                    <span className="text-xs font-medium text-muted-foreground">%</span>
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     disabled={false}
                     onClick={() => removeMember(member.id)}
                     aria-label={t.members.removeMember}
-                    className="text-muted-foreground/70 opacity-0 transition-all hover:text-brand-red group-hover:opacity-100"
+                    className="size-7 rounded-full text-muted-foreground/60 opacity-0 transition-all duration-200 hover:bg-brand-red/10 hover:text-brand-red focus-visible:opacity-100 group-hover:opacity-100 active:scale-90"
                   >
                     <X className="size-3.5" />
                   </Button>
@@ -235,10 +248,10 @@ export function MemberManager() {
               </div>
               {member.percentage > 0 && revenueBPercent > 0 && (
                 <div className="ml-7 flex items-center gap-1.5 text-xs">
-                  <span className="font-medium tabular-nums text-brand-gold/80">
+                  <span className="rounded-sm bg-brand-gold/10 px-1.5 py-0.5 font-semibold tabular-nums text-brand-gold">
                     {t.result.revenueB} {withinBPercent}%
                   </span>
-                  <span className="tabular-nums text-muted-foreground">
+                  <span className="tabular-nums text-muted-foreground/80">
                     ({member.percentage}/{revenueBPercent})
                   </span>
                 </div>
@@ -248,24 +261,26 @@ export function MemberManager() {
         })}
 
         {/* Progress bar + summary */}
-        <div className="mt-1 space-y-2 border-t border-border/20 pt-3">
-          <div className="h-1.5 overflow-hidden rounded-full bg-surface">
+        <div className="mt-1 space-y-2.5 border-t border-border/20 pt-3">
+          <div className="h-2 overflow-hidden rounded-full bg-surface ring-1 ring-inset ring-border/20">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
-                roundedSum === roundedTarget ? 'bg-brand-gold' : 'bg-brand-red/60'
+                roundedSum === roundedTarget
+                  ? 'bg-gradient-to-r from-brand-gold/80 to-brand-gold'
+                  : 'bg-gradient-to-r from-brand-red/50 to-brand-red/70'
               }`}
               style={{ width: `${progressPct}%` }}
             />
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{t.members.sumLabel}</span>
+              <span className="text-sm font-medium text-muted-foreground">{t.members.sumLabel}</span>
               {remaining > 0 && members.length > 0 && (
                 <Button
                   type="button"
                   variant="outline"
                   size="xs"
-                  className="rounded-full border-brand-gold/30 text-brand-gold/80 text-xs transition-all hover:border-brand-gold/50 hover:bg-brand-gold/5 hover:text-brand-gold"
+                  className="h-6 rounded-full border-brand-gold/30 bg-brand-gold/5 text-xs font-semibold tabular-nums text-brand-gold/90 transition-all hover:border-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold active:scale-95"
                   onClick={handleFillRemaining}
                 >
                   +{remaining}%
@@ -275,16 +290,29 @@ export function MemberManager() {
             <span
               className={
                 roundedSum === roundedTarget
-                  ? 'font-bold tabular-nums text-brand-gold'
-                  : 'font-bold tabular-nums text-brand-red'
+                  ? 'text-base font-bold tabular-nums text-brand-gold'
+                  : 'text-base font-bold tabular-nums text-brand-red'
               }
             >
-              {roundedSum}% / {roundedTarget}%
+              {roundedSum}% <span className="text-muted-foreground/50">/</span> {roundedTarget}%
             </span>
           </div>
 
           {roundedSum !== roundedTarget && (
-            <p className="text-sm text-brand-red">{t.members.sumError}</p>
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-lg border border-brand-red/25 bg-brand-red/5 px-3 py-2"
+            >
+              <span
+                aria-hidden
+                className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-brand-red/15 text-[11px] font-bold leading-none text-brand-red"
+              >
+                !
+              </span>
+              <p className="text-xs font-medium leading-relaxed text-brand-red">
+                {t.members.sumError}
+              </p>
+            </div>
           )}
         </div>
       </CardContent>

@@ -39,7 +39,7 @@ export function ExportButtons({ targetRef, disabled }: ExportButtonsProps) {
       <Button
         onClick={() => handleExport('pdf')}
         disabled={exporting || disabled}
-        className="flex-1 rounded-lg bg-brand-red text-white shadow-sm transition-all hover:bg-brand-red/80 active:scale-[0.98] disabled:opacity-30"
+        className="flex-1 rounded-lg bg-brand-red text-white font-medium tracking-wide shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_4px_14px_-6px_rgba(192,48,30,0.55)] transition-all hover:bg-brand-red/90 hover:shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_6px_18px_-6px_rgba(192,48,30,0.7)] active:scale-[0.98] disabled:opacity-30 disabled:shadow-none"
       >
         <Download className="mr-1.5 size-3.5" />
         {t.export.pdf}
@@ -48,7 +48,7 @@ export function ExportButtons({ targetRef, disabled }: ExportButtonsProps) {
         onClick={() => handleExport('image')}
         disabled={exporting || disabled}
         variant="outline"
-        className="flex-1 rounded-lg border-brand-gold/20 text-brand-gold transition-all hover:border-brand-gold/40 hover:bg-brand-gold/5 active:scale-[0.98] disabled:opacity-30"
+        className="flex-1 rounded-lg border-brand-gold/30 bg-brand-gold/10 text-brand-gold font-medium tracking-wide shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] transition-all hover:border-brand-gold/50 hover:bg-brand-gold/15 active:scale-[0.98] disabled:opacity-30"
       >
         <Image className="mr-1.5 size-3.5" />
         {t.export.image}

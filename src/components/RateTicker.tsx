@@ -16,15 +16,16 @@ function formatRate(rate: number): string {
 
 function TickerContent({ rates }: { rates: ExchangeRates }) {
   return (
-    <span className="inline-flex items-center gap-6 px-4">
+    <span className="inline-flex items-center gap-3 px-3">
       {TICKER_CURRENCIES.map((currency) => {
         const rate = rates[currency];
         if (!rate) return null;
         return (
-          <span key={currency} className="inline-flex items-center gap-1.5 whitespace-nowrap">
-            <span className="font-medium text-brand-gold/90">{currency}</span>
-            <span className="text-muted-foreground">{CURRENCY_CONFIG[currency].symbol}</span>
-            <span className="tabular-nums text-foreground/80">{formatRate(rate)}</span>
+          <span key={currency} className="ticker-chip">
+            <span className="ticker-code">{currency}</span>
+            <span className="ticker-sep" aria-hidden="true" />
+            <span className="text-muted-foreground/80 text-[0.7rem]">{CURRENCY_CONFIG[currency].symbol}</span>
+            <span className="ticker-value">{formatRate(rate)}</span>
           </span>
         );
       })}
@@ -64,7 +65,16 @@ export function RateTicker() {
   if (!rates) return null;
 
   return (
-    <div className="relative overflow-hidden border-b border-border/30 bg-surface/60 backdrop-blur-sm">
+    <div className="relative overflow-hidden border-b border-border/30 bg-surface/70 backdrop-blur-sm">
+      {/* Soft edge fade so chips don't hard-cut at the margins */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background/80 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background/80 to-transparent"
+      />
       <div className="ticker-scroll flex">
         <TickerContent rates={rates} />
         <TickerContent rates={rates} />

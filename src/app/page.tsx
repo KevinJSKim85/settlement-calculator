@@ -12,7 +12,6 @@ import { RateTicker } from '@/components/RateTicker';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import { Infographics } from '@/components/Infographics';
 import { ExportButtons } from '@/components/ExportButtons';
-import { Button } from '@/components/ui/button';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { I18nProvider, useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
@@ -53,8 +52,12 @@ function PoweredBy() {
 
 function AdBanner({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center rounded-xl border border-dashed border-border/40 bg-surface/50 px-4 py-3 text-center text-xs text-muted-foreground/50">
-      {label}
+    <div className="ad-slot flex items-center justify-center px-4 py-4 text-center">
+      <span className="inline-flex items-center gap-2">
+        <span className="h-px w-6 bg-current opacity-40" aria-hidden="true" />
+        {label}
+        <span className="h-px w-6 bg-current opacity-40" aria-hidden="true" />
+      </span>
     </div>
   );
 }
@@ -198,16 +201,18 @@ function HomePageContent() {
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
+        <header className="mb-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-brand-red/10 text-brand-red">
-              <Calculator className="size-5" />
+            <div className="logo-badge flex size-11 items-center justify-center rounded-xl text-brand-red">
+              <Calculator className="size-[1.3rem]" strokeWidth={2.25} />
             </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+            <div className="leading-tight">
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-[1.4rem]">
                 {t.app.title}
               </h1>
-              <p className="text-xs text-muted-foreground">{t.app.subtitle}</p>
+              <p className="mt-0.5 text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground/80">
+                {t.app.subtitle}
+              </p>
             </div>
           </div>
           <div className="pill-group">
@@ -217,7 +222,7 @@ function HomePageContent() {
         </header>
 
         {/* Main grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-7">
           {/* Left: Input */}
           <div className="space-y-5">
             <InputForm />
@@ -252,20 +257,19 @@ function HomePageContent() {
               </div>
             )}
 
-            {/* Action bar */}
-            <div className="flex flex-col gap-2 rounded-xl border border-border/40 bg-card/50 p-3 backdrop-blur-sm sm:flex-row sm:items-center">
+            {/* Action bar — sticky on mobile for always-reachable export/reset */}
+            <div className="action-bar sticky bottom-3 z-40 flex flex-col gap-2 rounded-xl p-3 backdrop-blur-md sm:static sm:flex-row sm:items-center sm:gap-3">
               <div className="flex-1">
                 <ExportButtons targetRef={resultsRef} disabled={!calculationResult} />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground transition-colors hover:text-brand-red"
+              <button
+                type="button"
+                className="reset-pill self-center sm:self-auto"
                 onClick={resetInputs}
               >
-                <RotateCcw className="mr-1.5 size-3.5" />
+                <RotateCcw className="size-3.5" />
                 {t.app.reset}
-              </Button>
+              </button>
             </div>
 
             <AdBanner label="AD SPACE" />

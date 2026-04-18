@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { ShoppingCart, RotateCcw, Scale, ToggleLeft, ToggleRight } from 'lucide-react';
+import { ShoppingCart, RotateCcw, Scale, ToggleLeft, ToggleRight, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
@@ -109,20 +109,20 @@ function ComputedRow({
   const displayValue = `${sign}${formatted}`;
 
   return (
-    <div className={`flex flex-col gap-1 rounded-xl px-4 py-3 sm:grid sm:items-center sm:gap-3 ${isNegative ? 'bg-brand-red/5 border border-brand-red/10' : 'bg-brand-gold/5 border border-brand-gold/10'}`} style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+    <div className={`flex flex-col gap-2 rounded-xl px-4 py-3 sm:grid sm:items-center sm:gap-3 ${isNegative ? 'bg-brand-red/5 border border-brand-red/15' : 'bg-brand-gold/5 border border-brand-gold/15'}`} style={{ gridTemplateColumns: '1fr auto auto' }}>
       <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-        <Scale className="size-4 text-muted-foreground" />
+        <Scale className={`size-4 ${isNegative ? 'text-brand-red/70' : 'text-brand-gold/70'}`} />
         {label}
         {isNegative && (
-          <span className="text-xs font-semibold text-brand-red">({t.result.loss})</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-red">({t.result.loss})</span>
         )}
       </span>
-      <div className="flex items-center justify-between gap-2 sm:contents">
-        <span className="text-sm text-muted-foreground">
+      <div className="flex items-baseline justify-between gap-3 sm:contents">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground sm:text-right">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <span
-          className={`text-right text-base tabular-nums font-bold ${
+          className={`text-right text-lg tabular-nums font-bold tracking-tight ${
             isNegative ? 'text-brand-red' : 'text-brand-gold'
           }`}
         >
@@ -217,29 +217,29 @@ export function InputForm() {
         {/* User info header */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label className="text-[11px] text-muted-foreground">{t.header.code}</label>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.code}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.code} onChange={(e) => setUserInfo('code', e.target.value)} placeholder={t.header.code} />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] text-muted-foreground">{t.header.name}</label>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.name}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.name} onChange={(e) => setUserInfo('name', e.target.value)} placeholder={t.header.name} />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] text-muted-foreground">{t.header.date}</label>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.date}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.date} onChange={(e) => setUserInfo('date', e.target.value)} placeholder="YYYY-MM-DD" />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] text-muted-foreground">{t.header.location}</label>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.header.location}</label>
             <Input type="text" className="h-8 border-border/40 bg-surface text-foreground focus-glow" value={userInfo.location} onChange={(e) => setUserInfo('location', e.target.value)} placeholder={t.header.location} />
           </div>
         </div>
         <div className="border-t border-border/20" />
 
         {/* Unified FX settings bar — always visible */}
-        <div className="flex items-center gap-2 rounded-xl border border-brand-gold/20 bg-brand-gold/5 px-3 py-2.5">
+        <div className="flex items-center gap-2 rounded-xl border border-brand-gold/25 bg-brand-gold/5 px-3 py-2.5 shadow-sm shadow-brand-gold/5">
               <CurrencySelect value={inlineFxCurrency} onValueChange={setInlineFxCurrency} />
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="shrink-0 text-xs text-muted-foreground">{t.input.fxRate}</span>
+              <div className="flex flex-1 items-center gap-2">
+                <span className="shrink-0 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t.input.fxRate}</span>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -258,7 +258,7 @@ export function InputForm() {
                       setReturning(0);
                     }
                   }}
-                  className="h-7 flex-1 border-brand-gold/20 bg-surface text-right text-sm tabular-nums text-foreground focus-glow"
+                  className="h-8 flex-1 border-brand-gold/25 bg-surface text-right text-sm font-medium tabular-nums text-foreground focus-glow"
                   placeholder="0"
                 />
               </div>
@@ -268,14 +268,17 @@ export function InputForm() {
           <button
             type="button"
             onClick={() => setSplitMode(isManual ? 'auto' : 'manual')}
-            className="flex items-center gap-1.5 rounded-full border border-border/40 px-2.5 py-1 text-xs transition-colors hover:border-brand-gold/40 hover:bg-brand-gold/5"
+            aria-pressed={isManual}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98] ${
+              isManual
+                ? 'border-brand-gold/50 bg-brand-gold/10 text-brand-gold shadow-sm shadow-brand-gold/10'
+                : 'border-border/50 bg-surface text-muted-foreground hover:border-brand-gold/40 hover:bg-brand-gold/5 hover:text-foreground'
+            }`}
           >
             {isManual
-              ? <ToggleRight className="size-3.5 text-brand-gold" />
-              : <ToggleLeft className="size-3.5 text-muted-foreground" />}
-            <span className={isManual ? 'font-medium text-brand-gold' : 'text-muted-foreground'}>
-              {t.input.splitManual}
-            </span>
+              ? <ToggleRight className="size-4" />
+              : <ToggleLeft className="size-4" />}
+            <span>{t.input.splitManual}</span>
           </button>
         </div>
 
@@ -284,12 +287,15 @@ export function InputForm() {
             {/* Buying A/B */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
-                <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
+                <span className="flex size-6 items-center justify-center rounded-md bg-brand-gold/10 text-brand-gold"><ShoppingCart className="size-3.5" /></span>
+                <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.buying}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-red">A (KRW ₩)</span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-red">
+                    <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-red/10 text-[10px] font-bold">A</span>
+                    <span className="text-muted-foreground">KRW ₩</span>
+                  </span>
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
@@ -302,7 +308,10 @@ export function InputForm() {
 
                 </div>
                 <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-gold">B ({inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol})</span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-gold">
+                    <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-gold/10 text-[10px] font-bold">B</span>
+                    <span className="text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</span>
+                  </span>
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
@@ -313,8 +322,9 @@ export function InputForm() {
                     placeholder="0"
                   />
                   {inlineFxRate > 0 && storeBuyingB > 0 && (
-                    <div className="text-right text-xs tabular-nums text-muted-foreground">
-                      → KRW ₩ {formatNumber(Math.round(storeBuyingB * inlineFxRate), 0)}
+                    <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+                      <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
+                      <span className="font-medium">KRW ₩ {formatNumber(Math.round(storeBuyingB * inlineFxRate), 0)}</span>
                     </div>
                   )}
 
@@ -327,12 +337,15 @@ export function InputForm() {
             {/* Returning A/B */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground"><RotateCcw className="size-4" /></span>
-                <span className="text-sm font-medium text-foreground">{t.input.returning}</span>
+                <span className="flex size-6 items-center justify-center rounded-md bg-brand-red/10 text-brand-red"><RotateCcw className="size-3.5" /></span>
+                <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.returning}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-red">A (KRW ₩)</span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-red">
+                    <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-red/10 text-[10px] font-bold">A</span>
+                    <span className="text-muted-foreground">KRW ₩</span>
+                  </span>
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
@@ -345,7 +358,10 @@ export function InputForm() {
 
                 </div>
                 <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-brand-gold">B ({inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol})</span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-gold">
+                    <span className="inline-flex size-4 items-center justify-center rounded-full bg-brand-gold/10 text-[10px] font-bold">B</span>
+                    <span className="text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</span>
+                  </span>
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
@@ -356,8 +372,9 @@ export function InputForm() {
                     placeholder="0"
                   />
                   {inlineFxRate > 0 && storeReturningB > 0 && (
-                    <div className="text-right text-xs tabular-nums text-muted-foreground">
-                      → KRW ₩ {formatNumber(Math.round(storeReturningB * inlineFxRate), 0)}
+                    <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+                      <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
+                      <span className="font-medium">KRW ₩ {formatNumber(Math.round(storeReturningB * inlineFxRate), 0)}</span>
                     </div>
                   )}
 
@@ -370,12 +387,12 @@ export function InputForm() {
             {/* Buying */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground"><ShoppingCart className="size-4" /></span>
-                <span className="text-sm font-medium text-foreground">{t.input.buying}</span>
+                <span className="flex size-6 items-center justify-center rounded-md bg-brand-gold/10 text-brand-gold"><ShoppingCart className="size-3.5" /></span>
+                <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.buying}</span>
               </div>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-                <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
-                  <div className="text-[10px] text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+                <div className="rounded-lg border border-border/50 bg-surface px-3 py-2 transition-colors focus-within:border-brand-gold/50 focus-within:bg-brand-gold/5">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -392,18 +409,18 @@ export function InputForm() {
                     }}
                     onFocus={() => handleFocus('foreignAmt', inlineForeignAmount)}
                     onBlur={handleBlur}
-                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm font-medium tabular-nums shadow-none focus-visible:ring-0"
                     placeholder="0"
                   />
                 </div>
-                <span className="text-muted-foreground/50">→</span>
-                <div className="rounded-lg border border-border/40 bg-surface/60 px-2.5 py-1.5">
-                  <div className="text-[10px] text-muted-foreground">KRW ₩</div>
+                <ArrowRight className="size-4 shrink-0 text-brand-gold/60" aria-hidden />
+                <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-3 py-2">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
                     readOnly
                     tabIndex={-1}
-                    className="h-7 cursor-default border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    className="h-7 cursor-default border-0 bg-transparent px-0 text-right text-sm font-medium tabular-nums text-foreground/90 shadow-none focus-visible:ring-0"
                     value={buying.amount === 0 ? '' : formatNumber(buying.amount, 0)}
                     placeholder="0"
                   />
@@ -416,12 +433,12 @@ export function InputForm() {
             {/* Returning */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground"><RotateCcw className="size-4" /></span>
-                <span className="text-sm font-medium text-foreground">{t.input.returning}</span>
+                <span className="flex size-6 items-center justify-center rounded-md bg-brand-red/10 text-brand-red"><RotateCcw className="size-3.5" /></span>
+                <span className="text-sm font-semibold tracking-tight text-foreground">{t.input.returning}</span>
               </div>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-                <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
-                  <div className="text-[10px] text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+                <div className="rounded-lg border border-border/50 bg-surface px-3 py-2 transition-colors focus-within:border-brand-gold/50 focus-within:bg-brand-gold/5">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{inlineFxCurrency} {CURRENCY_CONFIG[inlineFxCurrency].symbol}</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -438,17 +455,17 @@ export function InputForm() {
                     }}
                     onFocus={() => handleFocus('retForeignAmt', inlineRetForeignAmount)}
                     onBlur={handleBlur}
-                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm font-medium tabular-nums shadow-none focus-visible:ring-0"
                     placeholder="0"
                   />
                 </div>
-                <span className="text-muted-foreground/50">→</span>
-                <div className="rounded-lg border border-border/40 bg-surface px-2.5 py-1.5">
-                  <div className="text-[10px] text-muted-foreground">KRW ₩</div>
+                <ArrowRight className="size-4 shrink-0 text-brand-gold/60" aria-hidden />
+                <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-3 py-2">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
                     readOnly
-                    className="h-7 border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0"
+                    className="h-7 border-0 bg-transparent px-0 text-right text-sm font-medium tabular-nums text-foreground/90 shadow-none focus-visible:ring-0"
                     value={returning.amount === 0 ? '' : formatNumber(returning.amount, 0)}
                     placeholder="0"
                   />

@@ -80,10 +80,10 @@ function RollingFeeRow({
   };
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg bg-surface/60 px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '120px 100px 1fr' }}>
+    <div className="flex flex-col gap-1.5 rounded-lg bg-surface/60 px-3 py-2.5 sm:grid sm:items-center sm:gap-3" style={{ gridTemplateColumns: '140px 110px 1fr' }}>
       <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        {label}
-        <span className="flex items-center gap-1">
+        <span className="truncate">{label}</span>
+        <span className="flex items-center gap-1 rounded-md border border-brand-gold/25 bg-brand-gold/5 pl-1.5 pr-1 py-0.5">
           <Input
             type="number"
             inputMode="decimal"
@@ -91,19 +91,19 @@ function RollingFeeRow({
             min={0}
             value={feePercent}
             onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
-            className="h-6 w-16 border-brand-gold/20 bg-surface px-1.5 text-center text-xs tabular-nums text-brand-gold focus-glow"
+            className="h-7 w-14 border-0 bg-transparent px-0 text-center text-sm font-semibold tabular-nums text-brand-gold shadow-none focus-glow"
           />
-          <span className="text-xs text-muted-foreground">%</span>
+          <span className="text-xs font-medium text-brand-gold/70">%</span>
         </span>
       </span>
       <div className="flex items-center justify-between gap-2 sm:contents">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs uppercase tracking-wide text-muted-foreground/80">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <Input
           type="text"
           inputMode="decimal"
-          className="h-7 w-32 border-border/30 bg-transparent text-right text-sm tabular-nums font-medium text-brand-red focus-glow sm:ml-auto"
+          className="h-8 w-32 border-border/30 bg-transparent text-right text-sm tabular-nums font-semibold text-brand-red focus-glow sm:ml-auto"
           value={editingAmount ? localFeeAmount : displayAmount}
           onFocus={handleFeeAmountFocus}
           onBlur={handleFeeAmountBlur}
@@ -157,37 +157,44 @@ function RollingSection({
   })();
 
   return (
-    <div className="slide-in space-y-2 rounded-xl border border-brand-gold/15 bg-surface/30 p-3">
+    <div className="slide-in space-y-2.5 rounded-xl border border-brand-gold/15 bg-surface/30 p-3.5 transition-colors hover:border-brand-gold/25">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
+        <div
+          role="group"
+          aria-label="Target"
+          className="inline-flex items-center gap-0.5 rounded-full border border-border/40 bg-surface/70 p-0.5 shadow-inner"
+        >
           <Button
             type="button"
-            variant={entry.target === 'A' ? 'default' : 'outline'}
+            variant={entry.target === 'A' ? 'default' : 'ghost'}
             size="xs"
+            aria-pressed={entry.target === 'A'}
             className={entry.target === 'A'
-              ? 'rounded-full bg-brand-red text-white hover:bg-brand-red/80 text-xs h-6 px-2.5'
-              : 'rounded-full border-border/40 text-muted-foreground text-xs h-6 px-2.5 hover:text-foreground'}
+              ? 'rounded-full bg-brand-red text-white shadow-sm hover:bg-brand-red/85 text-xs h-6 px-3 font-semibold tracking-wide'
+              : 'rounded-full border-0 text-muted-foreground text-xs h-6 px-3 font-medium tracking-wide hover:bg-transparent hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'A')}
           >
-            {t.input.targetA} {revenueAPercent}%
+            {t.input.targetA} <span className="ml-1 tabular-nums opacity-80">{revenueAPercent}%</span>
           </Button>
           <Button
             type="button"
-            variant={entry.target === 'B' ? 'default' : 'outline'}
+            variant={entry.target === 'B' ? 'default' : 'ghost'}
             size="xs"
+            aria-pressed={entry.target === 'B'}
             className={entry.target === 'B'
-              ? 'rounded-full bg-brand-red text-white hover:bg-brand-red/80 text-xs h-6 px-2.5'
-              : 'rounded-full border-border/40 text-muted-foreground text-xs h-6 px-2.5 hover:text-foreground'}
+              ? 'rounded-full bg-brand-red text-white shadow-sm hover:bg-brand-red/85 text-xs h-6 px-3 font-semibold tracking-wide'
+              : 'rounded-full border-0 text-muted-foreground text-xs h-6 px-3 font-medium tracking-wide hover:bg-transparent hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'B')}
           >
-            {t.input.targetB} {revenueBPercent}%
+            {t.input.targetB} <span className="ml-1 tabular-nums opacity-80">{revenueBPercent}%</span>
           </Button>
         </div>
         <Button
           type="button"
           variant="ghost"
           size="icon-sm"
-          className="text-muted-foreground/60 hover:text-brand-red"
+          aria-label="Remove rolling"
+          className="size-7 rounded-full text-muted-foreground/50 transition-all hover:bg-brand-red/10 hover:text-brand-red active:scale-90"
           onClick={() => removeRolling(entry.id)}
         >
           <X className="size-3.5" />
@@ -200,7 +207,7 @@ function RollingSection({
           <Input
             type="text"
             inputMode="decimal"
-            className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
+            className="h-9 flex-1 border-border/40 bg-surface text-right tabular-nums text-base font-medium text-foreground focus-glow"
             value={displayValue}
             onChange={(e) => onChange(fieldId, e.target.value)}
             onFocus={() => onFocus(fieldId, entry.amount)}
@@ -288,7 +295,7 @@ export function RollingManager() {
             type="button"
             variant="outline"
             size="sm"
-            className="w-full rounded-xl border-dashed border-brand-gold/30 text-brand-gold/80 transition-all hover:border-brand-gold/50 hover:bg-brand-gold/5 hover:text-brand-gold"
+            className="h-9 w-full rounded-xl border-dashed border-brand-gold/30 text-sm font-medium text-brand-gold/80 transition-all hover:border-brand-gold/60 hover:bg-brand-gold/5 hover:text-brand-gold active:scale-[0.99]"
             onClick={addRolling}
           >
             <Plus className="mr-1.5 size-3.5" />
