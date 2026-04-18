@@ -166,8 +166,9 @@ export function InputForm() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [localValue, setLocalValue] = useState('');
 
-  const buyingBKrw = Math.round(storeBuyingB * (inlineFxRate || 1));
-  const returningBKrw = Math.round(storeReturningB * (inlineFxRate || 1));
+  // When rate is 0, B values are treated as 0 KRW (can't convert without a rate)
+  const buyingBKrw = inlineFxRate > 0 ? Math.round(storeBuyingB * inlineFxRate) : 0;
+  const returningBKrw = inlineFxRate > 0 ? Math.round(storeReturningB * inlineFxRate) : 0;
   const balanceA = storeBuyingA - storeReturningA;
   const balanceB = buyingBKrw - returningBKrw;
   const balance = isManual
@@ -305,7 +306,7 @@ export function InputForm() {
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('buyingB', storeBuyingB, 'KRW')}
+                    value={getDisplayValue('buyingB', storeBuyingB, inlineFxCurrency)}
                     onChange={(e) => handleChange('buyingB', e.target.value)}
                     onFocus={() => handleFocus('buyingB', storeBuyingB)}
                     onBlur={handleBlur}
@@ -348,7 +349,7 @@ export function InputForm() {
                   <Input
                     type="text" inputMode="decimal"
                     className="border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-                    value={getDisplayValue('returningB', storeReturningB, 'KRW')}
+                    value={getDisplayValue('returningB', storeReturningB, inlineFxCurrency)}
                     onChange={(e) => handleChange('returningB', e.target.value)}
                     onFocus={() => handleFocus('returningB', storeReturningB)}
                     onBlur={handleBlur}
@@ -378,7 +379,7 @@ export function InputForm() {
                   <Input
                     type="text"
                     inputMode="decimal"
-                    value={getDisplayValue('foreignAmt', inlineForeignAmount, 'KRW')}
+                    value={getDisplayValue('foreignAmt', inlineForeignAmount, inlineFxCurrency)}
                     onChange={(e) => {
                       const amt = parseFormattedNumber(e.target.value);
                       setInlineForeignAmount(amt);
@@ -424,7 +425,7 @@ export function InputForm() {
                   <Input
                     type="text"
                     inputMode="decimal"
-                    value={getDisplayValue('retForeignAmt', inlineRetForeignAmount, 'KRW')}
+                    value={getDisplayValue('retForeignAmt', inlineRetForeignAmount, inlineFxCurrency)}
                     onChange={(e) => {
                       const amt = parseFormattedNumber(e.target.value);
                       setInlineRetForeignAmount(amt);

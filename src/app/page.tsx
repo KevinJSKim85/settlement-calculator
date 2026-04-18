@@ -126,8 +126,8 @@ function HomePageContent() {
     const returningInBase = convertAmount(
       returning.amount, returning.currency, baseCurrency, effectiveRates, baseCurrency
     );
-    // In manual mode: A is KRW, B is foreign amount × inlineFxRate
-    const fxRate = inlineFxRate || 1;
+    // In manual mode: A is KRW, B is foreign amount × inlineFxRate (0 if rate not set)
+    const fxRate = inlineFxRate > 0 ? inlineFxRate : 0;
     const buyingAInBase = storeBuyingA;
     const buyingBInBase = Math.round(storeBuyingB * fxRate);
     const returningAInBase = storeReturningA;
