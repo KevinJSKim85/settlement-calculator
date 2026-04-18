@@ -31,14 +31,26 @@ function downloadDataUrl(dataUrl: string, filename: string) {
 }
 
 async function captureElement(element: HTMLElement): Promise<string> {
-  const isDark = document.documentElement.classList.contains('dark');
+  // Export document is designed as a light-themed print doc — always capture on white
+  // regardless of the app's current theme. The offscreen host sits at left:-10000, so
+  // we pass explicit width/height to keep toPng from inheriting a 0×0 bounding rect.
+  const width = element.scrollWidth || element.offsetWidth;
+  const height = element.scrollHeight || element.offsetHeight;
 
   return toPng(element, {
     pixelRatio: 2,
-    backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
+    backgroundColor: '#FFFFFF',
     cacheBust: true,
+    width,
+    height,
+    canvasWidth: width,
+    canvasHeight: height,
     style: {
       margin: '0',
+      transform: 'none',
+      left: '0',
+      top: '0',
+      position: 'static',
     },
   });
 }

@@ -11,6 +11,7 @@ import { RollingManager } from '@/components/RollingManager';
 import { RateTicker } from '@/components/RateTicker';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import { Infographics } from '@/components/Infographics';
+import { ExportDocument } from '@/components/ExportDocument';
 import { ExportButtons } from '@/components/ExportButtons';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { I18nProvider, useTranslation } from '@/i18n';
@@ -98,6 +99,7 @@ function HomePageContent() {
   const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
   const expenses = useSettlementStore((s) => s.expenses);
   const expensesEnabled = useSettlementStore((s) => s.expensesEnabled);
+  const userInfo = useSettlementStore((s) => s.userInfo);
   const resetInputs = useSettlementStore((s) => s.resetInputs);
 
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -258,7 +260,6 @@ function HomePageContent() {
             )}
 
              <ResultsDisplay
-               ref={resultsRef}
                result={calculationResult}
                exchangeRates={effectiveRates}
                baseCurrency={baseCurrency}
@@ -274,6 +275,29 @@ function HomePageContent() {
                  />
               </div>
             )}
+
+            {/* Offscreen export document — rendered in DOM so html-to-image can capture it */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: -10000,
+                top: 0,
+                width: 794,
+                pointerEvents: 'none',
+              }}
+            >
+              <ExportDocument
+                ref={resultsRef}
+                result={calculationResult}
+                baseCurrency={baseCurrency}
+                revenueAPercent={effectiveRevenueAPercent}
+                exchangeRates={effectiveRates}
+                userInfo={userInfo}
+                inlineFxRate={inlineFxRate}
+                inlineFxCurrency={inlineFxCurrency}
+              />
+            </div>
 
             {/* Action bar — sticky on mobile for always-reachable export/reset */}
             <div className="action-bar action-bar--sticky sticky bottom-3 z-40 flex flex-col gap-2 rounded-xl p-3 backdrop-blur-md sm:static sm:flex-row sm:items-center sm:gap-3">
