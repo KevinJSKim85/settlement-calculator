@@ -232,8 +232,8 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   };
 
   return (
-    <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
-      <div className="relative mx-auto size-32 shrink-0 sm:size-40">
+    <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-[8rem_minmax(0,1fr)] md:gap-4 lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-6">
+      <div className="relative mx-auto size-32 shrink-0 md:size-32 lg:size-36">
         <svg
           viewBox="0 0 120 120"
           className="size-full -rotate-90 cursor-pointer"
