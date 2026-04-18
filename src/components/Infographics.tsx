@@ -487,7 +487,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                   key={d.memberId}
                   role="img"
                   aria-label={`${d.memberName}: ${d.percentage.toFixed(1)}%`}
-                  className="flex cursor-pointer items-center justify-center gap-1 px-1 text-[11px] font-semibold tracking-tight text-white transition-all duration-200"
+                  className="flex cursor-pointer items-center justify-center gap-1 overflow-hidden px-1 text-[10px] font-semibold tracking-tight text-white transition-all duration-200 sm:text-[11px]"
                   style={{
                     width: `${widthPct}%`,
                     backgroundColor: `hsl(${hue}, 70%, ${45 + i * 8}%)`,
@@ -506,7 +506,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                   onMouseLeave={() => { setHovered(null); hide(); }}
                 >
                   {widthPct > 15 && (
-                    <span className="truncate">{d.memberName}</span>
+                    <span className={`truncate ${widthPct > 22 ? '' : 'hidden sm:inline'}`}>{d.memberName}</span>
                   )}
                 </div>
               );
