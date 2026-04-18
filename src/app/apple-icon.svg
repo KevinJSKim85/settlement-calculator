@@ -1,13 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
-  <rect width="180" height="180" rx="40" fill="#C0301E"/>
-  <rect x="34" y="28" width="112" height="124" rx="14" fill="#F6DA9D"/>
-  <rect x="45" y="42" width="90" height="28" rx="5" fill="#1A1A1A"/>
-  <text x="128" y="64" text-anchor="end" fill="#F6DA9D" font-family="ui-monospace, monospace" font-size="22" font-weight="700">정산서</text>
-  <circle cx="59" cy="92" r="8" fill="#1A1A1A"/>
-  <circle cx="90" cy="92" r="8" fill="#1A1A1A"/>
-  <circle cx="121" cy="92" r="8" fill="#1A1A1A"/>
-  <circle cx="59" cy="118" r="8" fill="#1A1A1A"/>
-  <circle cx="90" cy="118" r="8" fill="#1A1A1A"/>
-  <circle cx="121" cy="118" r="8" fill="#C0301E"/>
-  <rect x="51" y="134" width="78" height="12" rx="3" fill="#1A1A1A"/>
+  <defs>
+    <radialGradient id="goldBodyL" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFE89A"/>
+      <stop offset="55%" stop-color="#E8B94A"/>
+      <stop offset="100%" stop-color="#8A5A12"/>
+    </radialGradient>
+    <radialGradient id="goldInnerL" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#FFF3C0"/>
+      <stop offset="65%" stop-color="#F6DA9D"/>
+      <stop offset="100%" stop-color="#B07F2A"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background padding so icon has safe margin for iOS masking -->
+  <rect width="180" height="180" fill="#1A1A1A"/>
+
+  <!-- Outer rim -->
+  <circle cx="90" cy="90" r="82" fill="url(#goldBodyL)" stroke="#5A3A0A" stroke-width="3"/>
+
+  <!-- Edge accent segments -->
+  <g fill="#4A2E08">
+    <rect x="84" y="3" width="12" height="20" rx="2"/>
+    <rect x="84" y="157" width="12" height="20" rx="2"/>
+    <rect x="3" y="84" width="20" height="12" rx="2"/>
+    <rect x="157" y="84" width="20" height="12" rx="2"/>
+    <rect x="84" y="3" width="12" height="20" rx="2" transform="rotate(45 90 90)"/>
+    <rect x="84" y="3" width="12" height="20" rx="2" transform="rotate(-45 90 90)"/>
+    <rect x="84" y="157" width="12" height="20" rx="2" transform="rotate(45 90 90)"/>
+    <rect x="84" y="157" width="12" height="20" rx="2" transform="rotate(-45 90 90)"/>
+  </g>
+
+  <!-- Inner ring -->
+  <circle cx="90" cy="90" r="58" fill="url(#goldInnerL)" stroke="#7A5214" stroke-width="2.5"/>
+
+  <!-- Center emblem -->
+  <text x="90" y="118" text-anchor="middle" fill="#5A3A0A" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="900">₩</text>
 </svg>
