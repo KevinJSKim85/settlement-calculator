@@ -402,6 +402,9 @@ body {
     font-family: var(--font-archivo-black), system-ui, sans-serif;
     font-weight: 400;
     letter-spacing: -0.02em;
+    /* Italic skew pushes the last char right — reserve extra space so it isn't clipped */
+    display: inline-block;
+    padding-right: 0.25em;
     /* Base gold with a bright highlight band that sweeps across */
     background-image: linear-gradient(
       110deg,
