@@ -145,14 +145,14 @@
   "hotPaths": [
     {
       "path": "src/components/ExpensePanel.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1776760271563,
+      "accessCount": 13,
+      "lastAccessed": 1776762546075,
       "type": "file"
     },
     {
       "path": "src/app/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1776760259936,
+      "accessCount": 4,
+      "lastAccessed": 1776762577994,
       "type": "file"
     },
     {
@@ -213,6 +213,12 @@
       "path": "src/lib/calculator.ts",
       "accessCount": 1,
       "lastAccessed": 1776760266020,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/calculator.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760435419,
       "type": "file"
     }
   ],

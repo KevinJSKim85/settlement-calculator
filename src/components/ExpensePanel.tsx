@@ -40,7 +40,8 @@ function ExpenseRow({
   const [focusedField, setFocusedField] = useState<'A' | 'B' | null>(null);
   const [localValue, setLocalValue] = useState('');
 
-  const bDecimals = foreignMode && foreignCurrency
+  // In foreign mode, BOTH A and B accept foreign currency amounts
+  const decimals = foreignMode && foreignCurrency
     ? CURRENCY_CONFIG[foreignCurrency].decimals
     : 0;
 
@@ -61,14 +62,17 @@ function ExpenseRow({
     else onChangeB(parsed);
   }, [onChangeA, onChangeB]);
 
-  const displayA = focusedField === 'A' ? localValue : (valueA === 0 ? '' : formatNumber(valueA, 0));
-  const displayB = focusedField === 'B' ? localValue : (valueB === 0 ? '' : formatNumber(valueB, bDecimals));
+  const displayA = focusedField === 'A' ? localValue : (valueA === 0 ? '' : formatNumber(valueA, decimals));
+  const displayB = focusedField === 'B' ? localValue : (valueB === 0 ? '' : formatNumber(valueB, decimals));
 
-  const bLabel = foreignMode && foreignCurrency
-    ? `B (${foreignCurrency} ${CURRENCY_CONFIG[foreignCurrency].symbol})`
-    : 'B';
-  const showKrwHint = foreignMode && foreignRate !== undefined && foreignRate > 0 && valueB > 0;
-  const krwEquivalent = showKrwHint ? Math.round(valueB * (foreignRate ?? 0)) : 0;
+  const currencySuffix = foreignMode && foreignCurrency
+    ? ` (${foreignCurrency} ${CURRENCY_CONFIG[foreignCurrency].symbol})`
+    : '';
+  const rate = foreignRate ?? 0;
+  const showKrwA = foreignMode && rate > 0 && valueA !== 0;
+  const showKrwB = foreignMode && rate > 0 && valueB !== 0;
+  const krwA = showKrwA ? Math.round(valueA * rate) : 0;
+  const krwB = showKrwB ? Math.round(valueB * rate) : 0;
 
   return (
     <div className="space-y-1.5">
@@ -80,7 +84,7 @@ function ExpenseRow({
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div className="space-y-1">
-          <span className="text-xs font-medium text-brand-red">A</span>
+          <span className="truncate text-xs font-medium text-brand-red">{`A${currencySuffix}`}</span>
           <Input
             type="text"
             inputMode="decimal"
@@ -92,9 +96,15 @@ function ExpenseRow({
             placeholder="0"
             disabled={disabled}
           />
+          {showKrwA && (
+            <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+              <ArrowRight className="size-3 text-brand-red/60" aria-hidden />
+              <span className="font-medium">KRW ₩ {formatNumber(krwA, 0)}</span>
+            </div>
+          )}
         </div>
         <div className="space-y-1">
-          <span className="truncate text-xs font-medium text-brand-gold">{bLabel}</span>
+          <span className="truncate text-xs font-medium text-brand-gold">{`B${currencySuffix}`}</span>
           <Input
             type="text"
             inputMode="decimal"
@@ -106,10 +116,10 @@ function ExpenseRow({
             placeholder="0"
             disabled={disabled}
           />
-          {showKrwHint && (
+          {showKrwB && (
             <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
               <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
-              <span className="font-medium">KRW ₩ {formatNumber(krwEquivalent, 0)}</span>
+              <span className="font-medium">KRW ₩ {formatNumber(krwB, 0)}</span>
             </div>
           )}
         </div>
@@ -174,15 +184,17 @@ export function ExpensePanel() {
   const revenueABeforeTax = buyingABase - returningABase;
   const revenueBBeforeTax = buyingBBase - returningBBase;
 
-  // Handle tax percent change → auto compute tax amounts
-  // taxA is always KRW; taxB is foreign when foreignMode, else KRW.
+  // Handle tax percent change → auto compute tax amounts (in foreign when foreignMode)
   const handleTaxPercentChange = useCallback((raw: string) => {
     setTaxPercentLocal(raw);
     const percent = parseFloat(raw) || 0;
     setExpenseField('taxPercent', percent);
     if (!isLoss && percent > 0) {
-      const taxA = Math.round(revenueABeforeTax * percent / 100);
+      const taxAKrw = revenueABeforeTax * percent / 100;
       const taxBKrw = revenueBBeforeTax * percent / 100;
+      const taxA = foreignMode && inlineFxRate > 0
+        ? Math.round(taxAKrw / inlineFxRate)
+        : Math.round(taxAKrw);
       const taxB = foreignMode && inlineFxRate > 0
         ? Math.round(taxBKrw / inlineFxRate)
         : Math.round(taxBKrw);
@@ -191,13 +203,15 @@ export function ExpensePanel() {
     }
   }, [isLoss, revenueABeforeTax, revenueBBeforeTax, setExpenseField, foreignMode, inlineFxRate]);
 
-  // Handle tax amount A change → recalc percent (A is KRW)
+  // Handle tax amount A change → recalc percent
+  // When foreignMode, `value` is foreign; convert to KRW for percent calc.
   const handleTaxAChange = useCallback((value: number) => {
     setExpenseField('taxA', value);
     if (revenueABeforeTax > 0) {
-      const newPercent = Math.round((value / revenueABeforeTax) * 10000) / 100;
+      const valueKrw = foreignMode && inlineFxRate > 0 ? value * inlineFxRate : value;
+      const newPercent = Math.round((valueKrw / revenueABeforeTax) * 10000) / 100;
       setExpenseField('taxPercent', newPercent);
-      // Also update B based on new percent (foreign if foreignMode, else KRW)
+      // Also update B based on new percent
       const taxBKrw = revenueBBeforeTax * newPercent / 100;
       const taxB = foreignMode && inlineFxRate > 0
         ? Math.round(taxBKrw / inlineFxRate)
@@ -214,16 +228,20 @@ export function ExpensePanel() {
       const valueKrw = foreignMode && inlineFxRate > 0 ? value * inlineFxRate : value;
       const newPercent = Math.round((valueKrw / revenueBBeforeTax) * 10000) / 100;
       setExpenseField('taxPercent', newPercent);
-      // Also update A based on new percent (A is KRW)
-      const taxA = Math.round(revenueABeforeTax * newPercent / 100);
+      // Also update A based on new percent
+      const taxAKrw = revenueABeforeTax * newPercent / 100;
+      const taxA = foreignMode && inlineFxRate > 0
+        ? Math.round(taxAKrw / inlineFxRate)
+        : Math.round(taxAKrw);
       setExpenseField('taxA', Math.max(0, taxA));
     }
   }, [revenueABeforeTax, revenueBBeforeTax, setExpenseField, foreignMode, inlineFxRate]);
 
   const totalA = expenses.costA + expenses.tipA + expenses.markA + expenses.taxA;
   const totalB = expenses.costB + expenses.tipB + expenses.markB + expenses.taxB;
+  const totalAKrw = foreignMode && inlineFxRate > 0 ? Math.round(totalA * inlineFxRate) : totalA;
   const totalBKrw = foreignMode && inlineFxRate > 0 ? Math.round(totalB * inlineFxRate) : totalB;
-  const bDecimals = foreignMode ? CURRENCY_CONFIG[inlineFxCurrency].decimals : 0;
+  const decimals = foreignMode ? CURRENCY_CONFIG[inlineFxCurrency].decimals : 0;
 
   return (
     <Card className="premium-card border-border/40 bg-card">
@@ -337,18 +355,30 @@ export function ExpensePanel() {
           <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span className="font-medium text-foreground">{t.expenses.total}</span>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums">
-              <span className="text-brand-red">A: {formatNumber(totalA, 0)} KRW</span>
               {foreignMode ? (
-                <span className="text-brand-gold">
-                  B: {formatNumber(totalB, bDecimals)} {inlineFxCurrency}
-                  {totalB > 0 && inlineFxRate > 0 && (
-                    <span className="ml-1 text-muted-foreground">
-                      (→ KRW {formatNumber(totalBKrw, 0)})
-                    </span>
-                  )}
-                </span>
+                <>
+                  <span className="text-brand-red">
+                    A: {formatNumber(totalA, decimals)} {inlineFxCurrency}
+                    {totalA !== 0 && inlineFxRate > 0 && (
+                      <span className="ml-1 text-muted-foreground">
+                        (→ KRW {formatNumber(totalAKrw, 0)})
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-brand-gold">
+                    B: {formatNumber(totalB, decimals)} {inlineFxCurrency}
+                    {totalB !== 0 && inlineFxRate > 0 && (
+                      <span className="ml-1 text-muted-foreground">
+                        (→ KRW {formatNumber(totalBKrw, 0)})
+                      </span>
+                    )}
+                  </span>
+                </>
               ) : (
-                <span className="text-brand-gold">B: {formatNumber(totalB, 0)} KRW</span>
+                <>
+                  <span className="text-brand-red">A: {formatNumber(totalA, 0)} KRW</span>
+                  <span className="text-brand-gold">B: {formatNumber(totalB, 0)} KRW</span>
+                </>
               )}
             </div>
           </div>

@@ -168,14 +168,18 @@ function HomePageContent() {
     if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
 
     const isManual = splitMode === 'manual';
-    // Transform foreign-currency expense B values to KRW before calculation.
-    // When inlineFxRate is set, expense B columns store foreign amounts that need
-    // conversion to the base currency (KRW) to match calculator expectations.
+    // Transform foreign-currency expense A/B values to KRW before calculation.
+    // When inlineFxRate is set, BOTH expense A and B columns store foreign amounts
+    // that need conversion to the base currency (KRW) for calculator consumption.
     const expensesForCalc = (expensesEnabled && inlineFxRate > 0) ? {
       ...expenses,
+      costA: Math.round(expenses.costA * inlineFxRate),
       costB: Math.round(expenses.costB * inlineFxRate),
+      tipA: Math.round(expenses.tipA * inlineFxRate),
       tipB: Math.round(expenses.tipB * inlineFxRate),
+      markA: Math.round(expenses.markA * inlineFxRate),
       markB: Math.round(expenses.markB * inlineFxRate),
+      taxA: Math.round(expenses.taxA * inlineFxRate),
       taxB: Math.round(expenses.taxB * inlineFxRate),
     } : expenses;
       const input: SettlementInput = {
