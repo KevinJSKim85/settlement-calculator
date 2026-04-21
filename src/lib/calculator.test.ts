@@ -192,12 +192,15 @@ describe('calcSettlement', () => {
       'KRW'
     );
 
+    // revenueB applies B-share (500 × 60%) minus feeForB (10) = 290
     expect(result.revenueB).toBe(290);
     expect(result.distribution[0]?.amount).toBe(290);
-    expect(result.totalRevenue).toBe(690);
     expect(result.balanceA).toBe(200);
     expect(result.balanceB).toBe(500);
-    expect(result.revenueA).toBe(400);
+    // revenueA is always direct: balanceA − feeForA − expenseTotalA = 200 − 0 − 0 = 200
+    expect(result.revenueA).toBe(200);
+    // totalRevenue now = revenueA + revenueB (independent sums, not balance-minus-fees)
+    expect(result.totalRevenue).toBe(490);
   });
 });
 
