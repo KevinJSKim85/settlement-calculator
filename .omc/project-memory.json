@@ -1,0 +1,220 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1776759893537,
+  "projectRoot": "/Users/kevinmacbookpro/Documents/settlement-calculator/.claude/worktrees/suspicious-morse",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.2.1",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.4",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.4",
+        "category": "frontend"
+      },
+      {
+        "name": "vitest",
+        "version": "4.1.1",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "eslint",
+      "test": "vitest run",
+      "test:watch": "vitest"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 5,
+      "lastAccessed": 1776759893522,
+      "keyFiles": [
+        "file.svg",
+        "globe.svg",
+        "next.svg",
+        "vercel.svg",
+        "window.svg"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1776759893523,
+      "keyFiles": []
+    },
+    "src/app": {
+      "path": "src/app",
+      "purpose": "Application code",
+      "fileCount": 5,
+      "lastAccessed": 1776759893525,
+      "keyFiles": [
+        "apple-icon.svg",
+        "globals.css",
+        "icon.svg"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 11,
+      "lastAccessed": 1776759893525,
+      "keyFiles": [
+        "ExpensePanel.tsx",
+        "ExportButtons.tsx",
+        "ExportDocument.tsx"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 10,
+      "lastAccessed": 1776759893525,
+      "keyFiles": [
+        "calculator.test.ts",
+        "calculator.ts",
+        "currency.test.ts"
+      ]
+    },
+    "src/types": {
+      "path": "src/types",
+      "purpose": "Type definitions",
+      "fileCount": 5,
+      "lastAccessed": 1776759893525,
+      "keyFiles": [
+        "currency.ts",
+        "index.ts",
+        "member.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/components/ExpensePanel.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776760271563,
+      "type": "file"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776760259936,
+      "type": "file"
+    },
+    {
+      "path": "src/components/InputForm.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776760097905,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ExportDocument.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776760102954,
+      "type": "file"
+    },
+    {
+      "path": "src/types/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760103529,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/currency.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760104029,
+      "type": "file"
+    },
+    {
+      "path": "src/types/settlement.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760112450,
+      "type": "file"
+    },
+    {
+      "path": "src/types/currency.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760112848,
+      "type": "file"
+    },
+    {
+      "path": "src/i18n/ko.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760118156,
+      "type": "file"
+    },
+    {
+      "path": "src/i18n/index.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776760118511,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 1,
+      "lastAccessed": 1776760265315,
+      "type": "directory"
+    },
+    {
+      "path": "src/lib/calculator.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776760266020,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

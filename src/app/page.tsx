@@ -168,6 +168,16 @@ function HomePageContent() {
     if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
 
     const isManual = splitMode === 'manual';
+    // Transform foreign-currency expense B values to KRW before calculation.
+    // When inlineFxRate is set, expense B columns store foreign amounts that need
+    // conversion to the base currency (KRW) to match calculator expectations.
+    const expensesForCalc = (expensesEnabled && inlineFxRate > 0) ? {
+      ...expenses,
+      costB: Math.round(expenses.costB * inlineFxRate),
+      tipB: Math.round(expenses.tipB * inlineFxRate),
+      markB: Math.round(expenses.markB * inlineFxRate),
+      taxB: Math.round(expenses.taxB * inlineFxRate),
+    } : expenses;
       const input: SettlementInput = {
       buying: isManual ? buyingAInBase + buyingBInBase : buyingInBase,
       buyingCurrency: baseCurrency,
@@ -179,7 +189,7 @@ function HomePageContent() {
       buyingB: isManual ? buyingBInBase : undefined,
       returningA: isManual ? returningAInBase : undefined,
       returningB: isManual ? returningBInBase : undefined,
-      expenses: expensesEnabled ? expenses : undefined,
+      expenses: expensesEnabled ? expensesForCalc : undefined,
     };
 
       const config: SettlementConfig = {

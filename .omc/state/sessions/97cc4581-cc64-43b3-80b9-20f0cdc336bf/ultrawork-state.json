@@ -1,0 +1,10 @@
+{
+  "active": true,
+  "started_at": "2026-04-21T08:26:05.869Z",
+  "original_prompt": "@/Users/kevinmacbookpro/Documents/settlement-calculator github pull 하고, 업데이트하자:\n경비 비용 부분에도\n외화가 반영될수 있게 위 처럼 칸을 만들어 주실수 있을까요?\n/harness /ultrawork",
+  "session_id": "97cc4581-cc64-43b3-80b9-20f0cdc336bf",
+  "project_path": "/Users/kevinmacbookpro/Documents/settlement-calculator/.claude/worktrees/suspicious-morse",
+  "reinforcement_count": 0,
+  "awaiting_confirmation": true,
+  "last_checked_at": "2026-04-21T08:26:05.870Z"
+}

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Receipt, ChevronDown, ChevronRight, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Receipt, ChevronDown, ChevronRight, ToggleLeft, ToggleRight, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CURRENCY_CONFIG } from '@/types';
+import type { Currency } from '@/types';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import type { Expenses } from '@/types';
 
 interface ExpenseRowProps {
   label: string;
@@ -18,6 +19,9 @@ interface ExpenseRowProps {
   onChangeA: (value: number) => void;
   onChangeB: (value: number) => void;
   extra?: React.ReactNode;
+  foreignMode?: boolean;
+  foreignCurrency?: Currency;
+  foreignRate?: number;
 }
 
 function ExpenseRow({
@@ -29,9 +33,16 @@ function ExpenseRow({
   onChangeA,
   onChangeB,
   extra,
+  foreignMode,
+  foreignCurrency,
+  foreignRate,
 }: ExpenseRowProps) {
   const [focusedField, setFocusedField] = useState<'A' | 'B' | null>(null);
   const [localValue, setLocalValue] = useState('');
+
+  const bDecimals = foreignMode && foreignCurrency
+    ? CURRENCY_CONFIG[foreignCurrency].decimals
+    : 0;
 
   const handleFocus = useCallback((side: 'A' | 'B', amount: number) => {
     setFocusedField(side);
@@ -51,7 +62,13 @@ function ExpenseRow({
   }, [onChangeA, onChangeB]);
 
   const displayA = focusedField === 'A' ? localValue : (valueA === 0 ? '' : formatNumber(valueA, 0));
-  const displayB = focusedField === 'B' ? localValue : (valueB === 0 ? '' : formatNumber(valueB, 0));
+  const displayB = focusedField === 'B' ? localValue : (valueB === 0 ? '' : formatNumber(valueB, bDecimals));
+
+  const bLabel = foreignMode && foreignCurrency
+    ? `B (${foreignCurrency} ${CURRENCY_CONFIG[foreignCurrency].symbol})`
+    : 'B';
+  const showKrwHint = foreignMode && foreignRate !== undefined && foreignRate > 0 && valueB > 0;
+  const krwEquivalent = showKrwHint ? Math.round(valueB * (foreignRate ?? 0)) : 0;
 
   return (
     <div className="space-y-1.5">
@@ -77,7 +94,7 @@ function ExpenseRow({
           />
         </div>
         <div className="space-y-1">
-          <span className="text-xs font-medium text-brand-gold">B</span>
+          <span className="truncate text-xs font-medium text-brand-gold">{bLabel}</span>
           <Input
             type="text"
             inputMode="decimal"
@@ -89,6 +106,12 @@ function ExpenseRow({
             placeholder="0"
             disabled={disabled}
           />
+          {showKrwHint && (
+            <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+              <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
+              <span className="font-medium">KRW ₩ {formatNumber(krwEquivalent, 0)}</span>
+            </div>
+          )}
         </div>
       </div>
       {extra}
@@ -112,6 +135,8 @@ export function ExpensePanel() {
   const storeBuyingB = useSettlementStore((s) => s.buyingB);
   const storeReturningA = useSettlementStore((s) => s.returningA);
   const storeReturningB = useSettlementStore((s) => s.returningB);
+  const inlineFxRate = useSettlementStore((s) => s.inlineFxRate);
+  const inlineFxCurrency = useSettlementStore((s) => s.inlineFxCurrency);
 
   // Tax percent focus state
   const [taxPercentFocused, setTaxPercentFocused] = useState(false);
@@ -119,10 +144,16 @@ export function ExpensePanel() {
 
   const buyingRate = manualExchangeRates[buying.currency] ?? 0;
 
+  // Foreign mode for B column is active when an inline FX rate is set
+  const foreignMode = inlineFxRate > 0;
+
   // Determine if loss (returning > buying) — disable tax
   const isManual = splitMode === 'manual';
-  const totalBuying = isManual ? storeBuyingA + storeBuyingB : buying.amount;
-  const totalReturning = isManual ? storeReturningA + storeReturningB : returning.amount;
+  // storeBuyingB/storeReturningB are foreign amounts when inlineFxRate>0 in manual mode
+  const manualBuyingBKrw = foreignMode ? Math.round(storeBuyingB * inlineFxRate) : storeBuyingB;
+  const manualReturningBKrw = foreignMode ? Math.round(storeReturningB * inlineFxRate) : storeReturningB;
+  const totalBuying = isManual ? storeBuyingA + manualBuyingBKrw : buying.amount;
+  const totalReturning = isManual ? storeReturningA + manualReturningBKrw : returning.amount;
   const isLoss = totalReturning > totalBuying;
 
   // Compute effective revenue A% (same logic as MemberManager)
@@ -131,57 +162,68 @@ export function ExpensePanel() {
     : revenueAPercent;
   const revenueBPercent = 100 - effectiveRevenueAPercent;
 
-  // Compute buying/returning in base for tax calculation
+  // Compute buying/returning in KRW for tax calculation
   const buyingKrw = buying.currency === 'KRW' ? buying.amount : buying.amount * buyingRate;
   const buyingABase = isManual ? storeBuyingA : Math.round(buyingKrw * effectiveRevenueAPercent / 100);
-  const buyingBBase = isManual ? storeBuyingB : buyingKrw - buyingABase;
+  const buyingBBase = isManual ? manualBuyingBKrw : buyingKrw - buyingABase;
   const returningRate = manualExchangeRates[returning.currency] ?? 0;
   const returningKrw = returning.currency === 'KRW' ? returning.amount : returning.amount * returningRate;
   const returningABase = isManual ? storeReturningA : Math.round(returningKrw * effectiveRevenueAPercent / 100);
-  const returningBBase = isManual ? storeReturningB : returningKrw - returningABase;
+  const returningBBase = isManual ? manualReturningBKrw : returningKrw - returningABase;
 
   const revenueABeforeTax = buyingABase - returningABase;
   const revenueBBeforeTax = buyingBBase - returningBBase;
 
   // Handle tax percent change → auto compute tax amounts
+  // taxA is always KRW; taxB is foreign when foreignMode, else KRW.
   const handleTaxPercentChange = useCallback((raw: string) => {
     setTaxPercentLocal(raw);
     const percent = parseFloat(raw) || 0;
     setExpenseField('taxPercent', percent);
     if (!isLoss && percent > 0) {
       const taxA = Math.round(revenueABeforeTax * percent / 100);
-      const taxB = Math.round(revenueBBeforeTax * percent / 100);
+      const taxBKrw = revenueBBeforeTax * percent / 100;
+      const taxB = foreignMode && inlineFxRate > 0
+        ? Math.round(taxBKrw / inlineFxRate)
+        : Math.round(taxBKrw);
       setExpenseField('taxA', Math.max(0, taxA));
       setExpenseField('taxB', Math.max(0, taxB));
     }
-  }, [isLoss, revenueABeforeTax, revenueBBeforeTax, setExpenseField]);
+  }, [isLoss, revenueABeforeTax, revenueBBeforeTax, setExpenseField, foreignMode, inlineFxRate]);
 
-  // Handle tax amount A change → recalc percent
+  // Handle tax amount A change → recalc percent (A is KRW)
   const handleTaxAChange = useCallback((value: number) => {
     setExpenseField('taxA', value);
     if (revenueABeforeTax > 0) {
       const newPercent = Math.round((value / revenueABeforeTax) * 10000) / 100;
       setExpenseField('taxPercent', newPercent);
-      // Also update B based on new percent
-      const taxB = Math.round(revenueBBeforeTax * newPercent / 100);
+      // Also update B based on new percent (foreign if foreignMode, else KRW)
+      const taxBKrw = revenueBBeforeTax * newPercent / 100;
+      const taxB = foreignMode && inlineFxRate > 0
+        ? Math.round(taxBKrw / inlineFxRate)
+        : Math.round(taxBKrw);
       setExpenseField('taxB', Math.max(0, taxB));
     }
-  }, [revenueABeforeTax, revenueBBeforeTax, setExpenseField]);
+  }, [revenueABeforeTax, revenueBBeforeTax, setExpenseField, foreignMode, inlineFxRate]);
 
   // Handle tax amount B change → recalc percent
+  // When foreignMode, `value` is foreign; convert to KRW for percent calc.
   const handleTaxBChange = useCallback((value: number) => {
     setExpenseField('taxB', value);
     if (revenueBBeforeTax > 0) {
-      const newPercent = Math.round((value / revenueBBeforeTax) * 10000) / 100;
+      const valueKrw = foreignMode && inlineFxRate > 0 ? value * inlineFxRate : value;
+      const newPercent = Math.round((valueKrw / revenueBBeforeTax) * 10000) / 100;
       setExpenseField('taxPercent', newPercent);
-      // Also update A based on new percent
+      // Also update A based on new percent (A is KRW)
       const taxA = Math.round(revenueABeforeTax * newPercent / 100);
       setExpenseField('taxA', Math.max(0, taxA));
     }
-  }, [revenueABeforeTax, revenueBBeforeTax, setExpenseField]);
+  }, [revenueABeforeTax, revenueBBeforeTax, setExpenseField, foreignMode, inlineFxRate]);
 
   const totalA = expenses.costA + expenses.tipA + expenses.markA + expenses.taxA;
   const totalB = expenses.costB + expenses.tipB + expenses.markB + expenses.taxB;
+  const totalBKrw = foreignMode && inlineFxRate > 0 ? Math.round(totalB * inlineFxRate) : totalB;
+  const bDecimals = foreignMode ? CURRENCY_CONFIG[inlineFxCurrency].decimals : 0;
 
   return (
     <Card className="premium-card border-border/40 bg-card">
@@ -223,6 +265,9 @@ export function ExpensePanel() {
           valueB={expenses.costB}
           onChangeA={(v) => setExpenseField('costA', v)}
           onChangeB={(v) => setExpenseField('costB', v)}
+          foreignMode={foreignMode}
+          foreignCurrency={inlineFxCurrency}
+          foreignRate={inlineFxRate}
         />
 
         <ExpenseRow
@@ -232,6 +277,9 @@ export function ExpensePanel() {
           valueB={expenses.tipB}
           onChangeA={(v) => setExpenseField('tipA', v)}
           onChangeB={(v) => setExpenseField('tipB', v)}
+          foreignMode={foreignMode}
+          foreignCurrency={inlineFxCurrency}
+          foreignRate={inlineFxRate}
         />
 
         <ExpenseRow
@@ -241,6 +289,9 @@ export function ExpensePanel() {
           valueB={expenses.markB}
           onChangeA={(v) => setExpenseField('markA', v)}
           onChangeB={(v) => setExpenseField('markB', v)}
+          foreignMode={foreignMode}
+          foreignCurrency={inlineFxCurrency}
+          foreignRate={inlineFxRate}
         />
 
         <ExpenseRow
@@ -252,6 +303,9 @@ export function ExpensePanel() {
           disabledHint={isLoss ? t.expenses.taxDisabled : undefined}
           onChangeA={handleTaxAChange}
           onChangeB={handleTaxBChange}
+          foreignMode={foreignMode}
+          foreignCurrency={inlineFxCurrency}
+          foreignRate={inlineFxRate}
           extra={
             <div className="flex items-center gap-2 rounded-lg bg-surface/60 px-3 py-2">
               <span className="text-xs text-muted-foreground">{t.expenses.taxPercent}</span>
@@ -280,11 +334,22 @@ export function ExpensePanel() {
 
         {/* Totals */}
         <div className="border-t border-border/20 pt-3">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span className="font-medium text-foreground">{t.expenses.total}</span>
-            <div className="flex items-center gap-4 tabular-nums">
-              <span className="text-brand-red">A: {formatNumber(totalA, 0)}</span>
-              <span className="text-brand-gold">B: {formatNumber(totalB, 0)}</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums">
+              <span className="text-brand-red">A: {formatNumber(totalA, 0)} KRW</span>
+              {foreignMode ? (
+                <span className="text-brand-gold">
+                  B: {formatNumber(totalB, bDecimals)} {inlineFxCurrency}
+                  {totalB > 0 && inlineFxRate > 0 && (
+                    <span className="ml-1 text-muted-foreground">
+                      (→ KRW {formatNumber(totalBKrw, 0)})
+                    </span>
+                  )}
+                </span>
+              ) : (
+                <span className="text-brand-gold">B: {formatNumber(totalB, 0)} KRW</span>
+              )}
             </div>
           </div>
         </div>
