@@ -486,9 +486,9 @@ export function InputForm() {
             />
             <ComputedRow
               label={`${t.input.balance} B`}
-              value={balanceB}
+              value={balanceB - balanceA}
               currency="KRW"
-              isNegative={balanceB < 0}
+              isNegative={balanceB - balanceA < 0}
             />
           </div>
         )}

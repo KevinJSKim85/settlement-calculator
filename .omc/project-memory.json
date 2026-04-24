@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776759893537,
+  "lastScanned": 1777019464852,
   "projectRoot": "/Users/kevinmacbookpro/Documents/settlement-calculator/.claude/worktrees/suspicious-morse",
   "techStack": {
     "languages": [
@@ -81,7 +81,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 5,
-      "lastAccessed": 1776759893522,
+      "lastAccessed": 1777019464834,
       "keyFiles": [
         "file.svg",
         "globe.svg",
@@ -94,14 +94,14 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1776759893523,
+      "lastAccessed": 1777019464834,
       "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
       "fileCount": 5,
-      "lastAccessed": 1776759893525,
+      "lastAccessed": 1777019464837,
       "keyFiles": [
         "apple-icon.svg",
         "globals.css",
@@ -112,7 +112,7 @@
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 11,
-      "lastAccessed": 1776759893525,
+      "lastAccessed": 1777019464837,
       "keyFiles": [
         "ExpensePanel.tsx",
         "ExportButtons.tsx",
@@ -123,7 +123,7 @@
       "path": "src/lib",
       "purpose": "Library code",
       "fileCount": 10,
-      "lastAccessed": 1776759893525,
+      "lastAccessed": 1777019464837,
       "keyFiles": [
         "calculator.test.ts",
         "calculator.ts",
@@ -134,7 +134,7 @@
       "path": "src/types",
       "purpose": "Type definitions",
       "fileCount": 5,
-      "lastAccessed": 1776759893525,
+      "lastAccessed": 1777019464838,
       "keyFiles": [
         "currency.ts",
         "index.ts",
@@ -144,39 +144,81 @@
   },
   "hotPaths": [
     {
+      "path": "src/components/ResultsDisplay.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1777019918440,
+      "type": "directory"
+    },
+    {
       "path": "src/components/ExpensePanel.tsx",
       "accessCount": 13,
       "lastAccessed": 1776762546075,
       "type": "file"
     },
     {
-      "path": "src/app/page.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1776762577994,
+      "path": "src/components/ExportDocument.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1777019948318,
       "type": "file"
     },
     {
       "path": "src/components/InputForm.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776760097905,
+      "accessCount": 6,
+      "lastAccessed": 1777019845340,
       "type": "file"
     },
     {
-      "path": "src/components/ExportDocument.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776760102954,
+      "path": "src/app/page.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1777019888717,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Infographics.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777019971021,
+      "type": "file"
+    },
+    {
+      "path": "src/components/RollingManager.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777019847107,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/currency.ts",
+      "accessCount": 4,
+      "lastAccessed": 1777019850301,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/calculator.ts",
+      "accessCount": 4,
+      "lastAccessed": 1777019985171,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/calculator.test.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777020078272,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 2,
+      "lastAccessed": 1777019842317,
+      "type": "directory"
+    },
+    {
+      "path": "src/app/globals.css",
+      "accessCount": 2,
+      "lastAccessed": 1777019956179,
       "type": "file"
     },
     {
       "path": "src/types/index.ts",
       "accessCount": 1,
       "lastAccessed": 1776760103529,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/currency.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776760104029,
       "type": "file"
     },
     {
@@ -210,15 +252,27 @@
       "type": "directory"
     },
     {
-      "path": "src/lib/calculator.ts",
+      "path": "src/lib/export.ts",
       "accessCount": 1,
-      "lastAccessed": 1776760266020,
+      "lastAccessed": 1777019846474,
       "type": "file"
     },
     {
-      "path": "src/lib/calculator.test.ts",
+      "path": "src/lib/utils.ts",
       "accessCount": 1,
-      "lastAccessed": 1776760435419,
+      "lastAccessed": 1777019846785,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/store.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777019851650,
+      "type": "file"
+    },
+    {
+      "path": "src/components/MemberManager.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777020049234,
       "type": "file"
     }
   ],

@@ -54,7 +54,7 @@ export function roundToPrecision(amount: number, currency: Currency): number {
 
 export function formatNumber(amount: number, decimals: number = 0): string {
 	return new Intl.NumberFormat("en-US", {
-		minimumFractionDigits: decimals,
+		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals,
 	}).format(amount);
 }

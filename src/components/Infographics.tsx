@@ -73,8 +73,8 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
     { label: `${t.input.targetA} ${t.input.balance}`, value: result.balanceA, color: result.balanceA < 0 ? 'text-brand-red' : 'text-foreground' },
     { label: `${t.input.targetB} ${t.input.balance}`, value: result.balanceB, color: result.balanceB < 0 ? 'text-brand-red' : 'text-foreground' },
     { label: t.input.rollingFee, value: -totalFees, color: 'text-brand-red' },
-    { label: `${t.result.revenueA} (${revenueAPercent}%)`, value: result.revenueA, color: 'text-brand-gold' },
-    { label: `${t.result.revenueB} (${revenueBPercent}%)`, value: result.revenueB, color: 'text-brand-gold' },
+    { label: `${t.result.revenueA} (${revenueAPercent.toFixed(2)}%)`, value: result.revenueA, color: 'text-brand-gold' },
+    { label: `${t.result.revenueB} (${revenueBPercent.toFixed(2)}%)`, value: result.revenueB, color: 'text-brand-gold' },
     { label: t.result.distribution, value: distributionTotal, color: distributionTotal < 0 ? 'text-brand-red' : 'text-foreground' },
   ];
 
@@ -88,7 +88,7 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
           <span className="line-clamp-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-[10px]">
             {c.label}
           </span>
-          <span className={`break-all text-[12px] font-bold tabular-nums leading-tight sm:text-sm ${c.color}`}>
+          <span className={`block min-w-0 truncate text-[12px] font-bold tabular-nums leading-tight sm:text-sm ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
         </div>
@@ -249,7 +249,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
           <span className="text-[8px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-[9px]">
             {t.result.revenue}
           </span>
-          <span className="text-[13px] font-bold tabular-nums leading-tight text-foreground sm:text-base">
+          <span className="min-w-0 truncate text-[13px] font-bold tabular-nums leading-tight text-foreground sm:text-base">
             {formatCurrency(result.totalRevenue, baseCurrency)}
           </span>
         </div>
@@ -375,7 +375,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             onMouseMove={move}
             onMouseLeave={() => { setHoveredIdx(null); hide(); }}
           >
-            <span className="w-14 shrink-0 truncate text-right text-[10px] font-medium text-muted-foreground sm:w-20 sm:text-[11px]">
+            <span className="w-14 shrink-0 truncate text-right text-[10px] font-medium leading-snug text-muted-foreground sm:w-20 sm:text-[11px]">
               {item.label}
             </span>
             <div className="relative h-6 flex-1 overflow-hidden rounded-md bg-surface/40 ring-1 ring-inset ring-border/20 sm:h-7">
@@ -387,7 +387,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
                 }}
               />
             </div>
-            <span className={`w-[5.5rem] shrink-0 truncate text-right text-[10px] font-semibold tabular-nums sm:w-24 sm:text-xs ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
+            <span className={`w-[5.5rem] shrink-0 truncate text-right text-[10px] font-semibold leading-snug tabular-nums sm:w-24 sm:text-xs ${item.value < 0 ? 'text-brand-red' : 'text-foreground'}`}>
               {formatCurrency(item.value, baseCurrency)}
             </span>
           </div>
@@ -418,10 +418,10 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
         <div className="flex h-8 overflow-hidden rounded-lg ring-1 ring-inset ring-border/20">
           <div
             role="img"
-            aria-label={`${t.result.revenueA}: ${revenueAPercent}%`}
+            aria-label={`${t.result.revenueA}: ${revenueAPercent.toFixed(2)}%`}
             className="flex cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-r from-brand-red to-brand-red/85 text-[10px] font-bold tracking-wide text-white transition-all duration-200 sm:text-[11px]"
             style={{
-              width: `${revenueAPercent}%`,
+              width: `${revenueAPercent.toFixed(2)}%`,
               opacity: hovered !== null ? (hovered === 'rev-a' ? 1 : 0.35) : 1,
               filter: hovered === 'rev-a' ? 'brightness(1.15) saturate(1.1)' : 'none',
             }}
@@ -430,22 +430,22 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
               show(e, {
                 label: t.result.revenueA,
                 amount: formatCurrency(result.revenueA, baseCurrency),
-                detail: `${revenueAPercent}%`,
+                detail: `${revenueAPercent.toFixed(2)}%`,
               });
             }}
             onMouseMove={move}
             onMouseLeave={() => { setHovered(null); hide(); }}
           >
             {revenueAPercent > 15 && (
-              <span className={revenueAPercent > 22 ? '' : 'hidden sm:inline'}>A  {revenueAPercent}%</span>
+              <span className={revenueAPercent > 22 ? '' : 'hidden sm:inline'}>A  {revenueAPercent.toFixed(2)}%</span>
             )}
           </div>
           <div
             role="img"
-            aria-label={`${t.result.revenueB}: ${revenueBPercent}%`}
+            aria-label={`${t.result.revenueB}: ${revenueBPercent.toFixed(2)}%`}
             className="flex cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-r from-brand-gold to-brand-gold/85 text-[10px] font-bold tracking-wide text-background transition-all duration-200 sm:text-[11px]"
             style={{
-              width: `${revenueBPercent}%`,
+              width: `${revenueBPercent.toFixed(2)}%`,
               opacity: hovered !== null ? (hovered === 'rev-b' ? 1 : 0.35) : 1,
               filter: hovered === 'rev-b' ? 'brightness(1.15) saturate(1.1)' : 'none',
             }}
@@ -454,14 +454,14 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
               show(e, {
                 label: t.result.revenueB,
                 amount: formatCurrency(result.revenueB, baseCurrency),
-                detail: `${revenueBPercent}%`,
+                detail: `${revenueBPercent.toFixed(2)}%`,
               });
             }}
             onMouseMove={move}
             onMouseLeave={() => { setHovered(null); hide(); }}
           >
             {revenueBPercent > 15 && (
-              <span className={revenueBPercent > 22 ? '' : 'hidden sm:inline'}>B  {revenueBPercent}%</span>
+              <span className={revenueBPercent > 22 ? '' : 'hidden sm:inline'}>B  {revenueBPercent.toFixed(2)}%</span>
             )}
           </div>
         </div>

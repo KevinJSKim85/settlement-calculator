@@ -288,6 +288,11 @@ function Row({
           fontSize: emphasized ? 11.5 : 10.5,
           fontWeight: emphasized ? 700 : 500,
           color: emphasized ? INK : indent ? INK_MUTED : INK,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          maxWidth: 0,
+          width: '50%',
         }}
       >
         {label}
@@ -574,13 +579,13 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
             accent={result.totalRevenue < 0 ? 'red' : 'ink'}
           />
           <SummaryTile
-            label={`${t.result.revenueA} · ${revenueAPercent}%`}
+            label={`${t.result.revenueA} · ${revenueAPercent.toFixed(2)}%`}
             amount={result.revenueA}
             baseCurrency={baseCurrency}
             accent="red"
           />
           <SummaryTile
-            label={`${t.result.revenueB} · ${revenueBPercent}%`}
+            label={`${t.result.revenueB} · ${revenueBPercent.toFixed(2)}%`}
             amount={result.revenueB}
             baseCurrency={baseCurrency}
             accent="gold"
@@ -659,37 +664,37 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
                 label={`${t.input.targetA} ${t.input.balance}`}
                 amount={result.balanceA}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueAPercent}%`}
+                ratio={`${revenueAPercent.toFixed(2)}%`}
                 indent
                 negative={result.balanceA < 0}
               />
               <Row
                 label={`${t.input.targetB} ${t.input.balance}`}
-                amount={result.balanceB}
+                amount={result.balanceB - result.balanceA}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueBPercent}%`}
+                ratio={`${revenueBPercent.toFixed(2)}%`}
                 indent
-                negative={result.balanceB < 0}
+                negative={result.balanceB - result.balanceA < 0}
               />
               <Row
                 label={t.result.buyingA}
                 amount={result.buyingA}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueAPercent}%`}
+                ratio={`${revenueAPercent.toFixed(2)}%`}
                 indent
               />
               <Row
                 label={t.result.buyingB}
                 amount={result.buyingB}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueBPercent}%`}
+                ratio={`${revenueBPercent.toFixed(2)}%`}
                 indent
               />
               <Row
                 label={t.result.returningA}
                 amount={result.returningA > 0 ? -result.returningA : result.returningA}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueAPercent}%`}
+                ratio={`${revenueAPercent.toFixed(2)}%`}
                 indent
                 negative={result.returningA > 0}
               />
@@ -697,7 +702,7 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
                 label={t.result.returningB}
                 amount={result.returningB > 0 ? -result.returningB : result.returningB}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueBPercent}%`}
+                ratio={`${revenueBPercent.toFixed(2)}%`}
                 indent
                 negative={result.returningB > 0}
               />
@@ -774,14 +779,14 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
                 label={t.result.revenueA}
                 amount={result.revenueA}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueAPercent}%`}
+                ratio={`${revenueAPercent.toFixed(2)}%`}
                 indent
               />
               <Row
                 label={t.result.revenueB}
                 amount={result.revenueB}
                 baseCurrency={baseCurrency}
-                ratio={`${revenueBPercent}%`}
+                ratio={`${revenueBPercent.toFixed(2)}%`}
                 indent
               />
 
@@ -851,7 +856,7 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
                     background: RED,
                   }}
                 />
-                A {revenueAPercent}%
+                A {revenueAPercent.toFixed(2)}%
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span
@@ -862,7 +867,7 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
                     background: GOLD,
                   }}
                 />
-                B {revenueBPercent}%
+                B {revenueBPercent.toFixed(2)}%
               </span>
             </div>
           </div>

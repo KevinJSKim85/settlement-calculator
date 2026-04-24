@@ -3,7 +3,9 @@ import { DEFAULT_EXPENSES } from '@/types';
 
 export function deriveRevenueAPercentFromRate(rate: number): number {
   if (!Number.isFinite(rate) || rate <= 0) return 0;
-  return Math.max(0, Math.min(100, Math.round(((100 / rate) * 100) * 100) / 100));
+  // Full JS-float precision. Display code rounds for the label but the
+  // underlying calc keeps the exact value (matches Excel's 100-100/rate*100).
+  return Math.max(0, Math.min(100, (100 / rate) * 100));
 }
 
 export function calcBalance(buying: number, returning: number): number {

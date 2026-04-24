@@ -205,7 +205,8 @@ describe('calcSettlement', () => {
 });
 
 describe('deriveRevenueAPercentFromRate', () => {
-  it('derives revenue A percent from exchange rate', () => {
-    expect(deriveRevenueAPercentFromRate(211)).toBe(47.39);
+  it('derives revenue A percent from exchange rate (full precision)', () => {
+    // 100 / 211 * 100 = 47.393364928909955... (unrounded for Excel parity)
+    expect(deriveRevenueAPercentFromRate(211)).toBeCloseTo(47.3933649289, 9);
   });
 });

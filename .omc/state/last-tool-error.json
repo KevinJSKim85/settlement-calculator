@@ -1,7 +1,0 @@
-{
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/kevinmacbookpro/Documents/settlement-calculator/.claude/worktrees/suspicious-morse/src/i18n/index.ts\"}",
-  "error": "File does not exist. Note: your current working directory is /Users/kevinmacbookpro/Documents/settlement-calculator/.claude/worktrees/suspicious-morse. Did you mean index.tsx?",
-  "timestamp": "2026-04-21T08:28:24.375Z",
-  "retry_count": 1
-}

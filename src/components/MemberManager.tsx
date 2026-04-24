@@ -149,7 +149,7 @@ export function MemberManager() {
                 inputMode="decimal"
                 min={0}
                 max={100}
-                value={revenueAFocused ? revenueALocal : effectiveRevenueAPercent}
+                value={revenueAFocused ? revenueALocal : effectiveRevenueAPercent.toFixed(2)}
                 onChange={handleRevenueAChange}
                 onFocus={handleRevenueAFocus}
                 onBlur={handleRevenueABlur}
@@ -162,14 +162,14 @@ export function MemberManager() {
             <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-muted-foreground">
               <span className="inline-block size-2 rounded-full bg-brand-gold/60" aria-hidden />
               {t.result.revenueB}
-              <span className="tabular-nums font-semibold text-foreground">{revenueBPercent}%</span>
+              <span className="tabular-nums font-semibold text-foreground">{revenueBPercent.toFixed(2)}%</span>
             </span>
           </div>
           {autoRevenueSplitFromRate && inlineFxRate > 0 && (
             <div className="inline-flex items-center rounded-md border border-brand-gold/15 bg-brand-gold/5 px-2 py-1 font-mono text-[11px] leading-none tabular-nums text-muted-foreground">
               <span>100 − 100 ÷ {inlineFxRate} × 100</span>
               <span className="mx-1.5 text-muted-foreground/40">=</span>
-              <span className="font-semibold text-brand-gold">{revenueBPercent}%</span>
+              <span className="font-semibold text-brand-gold">{revenueBPercent.toFixed(2)}%</span>
             </div>
           )}
           {/* Visual split bar */}
@@ -182,7 +182,7 @@ export function MemberManager() {
               />
               <div
                 className="bg-gradient-to-r from-brand-gold/60 to-brand-gold/40 transition-all duration-500"
-                style={{ width: `${revenueBPercent}%` }}
+                style={{ width: `${revenueBPercent.toFixed(2)}%` }}
               />
             </div>
             <span className="w-7 shrink-0 text-right text-[10px] font-bold uppercase tracking-wider text-brand-gold/80">B</span>

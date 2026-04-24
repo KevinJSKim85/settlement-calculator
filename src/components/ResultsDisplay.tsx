@@ -40,7 +40,7 @@ function MultiCurrencyLine({
   }));
 
   return (
-    <div className="mt-0.5 text-xs font-normal text-muted-foreground">
+    <div className="mt-0.5 min-w-0 truncate text-xs font-normal text-muted-foreground">
       {converted.map((c, i) => (
         <React.Fragment key={c.currency}>
           {i > 0 && <span className="mx-1 text-muted-foreground/60">|</span>}
@@ -68,7 +68,7 @@ function AmountCell({
   const isNegative = amount < 0 || forceNegativeStyle;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
-    <td className="whitespace-nowrap px-2 py-3 text-right align-top sm:px-3">
+    <td className="min-w-0 whitespace-nowrap px-2 py-3 text-right align-top sm:px-3">
       <div
         className={[
           bold ? 'text-sm font-bold sm:text-base' : 'text-[13px] font-medium sm:text-sm',
@@ -174,16 +174,16 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
         className="fade-in premium-card overflow-hidden rounded-xl border border-border/40 bg-card"
       >
         <div className="overflow-x-auto">
-        <table className="w-full min-w-[340px] border-collapse text-sm">
+        <table className="w-full min-w-[340px] border-collapse text-sm" style={{ tableLayout: 'fixed' }}>
           <thead>
             <tr className="border-b border-border/40 bg-surface/70">
-              <th className="px-2 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
+              <th className="w-[45%] px-2 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
                 {t.result.item}
               </th>
-              <th className="px-2 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
+              <th className="w-[35%] px-2 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
                 {t.result.amount} ({baseCurrency})
               </th>
-              <th className="w-[4.5rem] px-2 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:w-24 sm:px-3 sm:py-3.5">
+              <th className="w-[20%] px-2 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-3.5">
                 {t.result.ratio}
               </th>
             </tr>
@@ -206,17 +206,17 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{revenueAPercent}%</NoteCell>
+              <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
               <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.input.targetB} {t.input.balance}</td>
               <AmountCell
-                amount={result.balanceB}
+                amount={result.balanceB - result.balanceA}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{revenueBPercent}%</NoteCell>
+              <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
@@ -226,7 +226,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{revenueAPercent}%</NoteCell>
+              <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
@@ -236,7 +236,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{revenueBPercent}%</NoteCell>
+              <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
@@ -247,7 +247,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 exchangeRates={exchangeRates}
                 forceNegativeStyle={result.returningA > 0}
               />
-              <NoteCell>{revenueAPercent}%</NoteCell>
+              <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
@@ -258,14 +258,14 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 exchangeRates={exchangeRates}
                 forceNegativeStyle={result.returningB > 0}
               />
-              <NoteCell>{revenueBPercent}%</NoteCell>
+              <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             {result.rollingFees.map((rf) => (
               <tr key={rf.label} className="border-b border-border/20 transition-colors hover:bg-surface/30">
                 <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">
-                  <span className="break-words">{rollingFeeLabel(rf.label)}</span>
-                  <span className="ml-1.5 text-[11px] text-muted-foreground/70 sm:text-xs">
+                  <span className="block truncate">{rollingFeeLabel(rf.label)}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground/70 sm:text-xs">
                     {rf.target}
                   </span>
                 </td>
@@ -357,7 +357,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{revenueAPercent}%</NoteCell>
+              <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
@@ -367,7 +367,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />
-              <NoteCell>{revenueBPercent}%</NoteCell>
+              <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
 
             {/* Distribution total - accent bar */}
@@ -393,7 +393,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                     : ''
                 }`}
               >
-                <td className="break-words py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{dist.memberName}</td>
+                <td className="max-w-0 py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm"><span className="block truncate">{dist.memberName}</span></td>
                 <AmountCell
                   amount={dist.amount}
                   baseCurrency={baseCurrency}

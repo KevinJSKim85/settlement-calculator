@@ -73,7 +73,7 @@ function RollingFeeRow({
     setEditingAmount(false);
     const parsed = parseFormattedNumber(localFeeAmount);
     if (rollingAmount > 0 && parsed >= 0) {
-      const newPercent = Math.round((parsed / rollingAmount) * 10000) / 100;
+      const newPercent = Math.round((parsed / rollingAmount) * 1e9) / 1e7;
       onFeePercentChange(newPercent);
     }
     setLocalFeeAmount('');
@@ -87,7 +87,7 @@ function RollingFeeRow({
           <Input
             type="number"
             inputMode="decimal"
-            step={0.1}
+            step={0.0000001}
             min={0}
             value={feePercent}
             onChange={(e) => onFeePercentChange(parseFloat(e.target.value) || 0)}
@@ -174,7 +174,7 @@ function RollingSection({
               : 'rounded-full border-0 text-muted-foreground text-xs h-7 px-2.5 sm:h-6 sm:px-3 font-medium tracking-wide hover:bg-transparent hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'A')}
           >
-            {t.input.targetA} <span className="ml-1 tabular-nums opacity-80">{revenueAPercent}%</span>
+            {t.input.targetA} <span className="ml-1 tabular-nums opacity-80">{revenueAPercent.toFixed(2)}%</span>
           </Button>
           <Button
             type="button"
@@ -186,7 +186,7 @@ function RollingSection({
               : 'rounded-full border-0 text-muted-foreground text-xs h-7 px-2.5 sm:h-6 sm:px-3 font-medium tracking-wide hover:bg-transparent hover:text-foreground'}
             onClick={() => setRollingTarget(entry.id, 'B')}
           >
-            {t.input.targetB} <span className="ml-1 tabular-nums opacity-80">{revenueBPercent}%</span>
+            {t.input.targetB} <span className="ml-1 tabular-nums opacity-80">{revenueBPercent.toFixed(2)}%</span>
           </Button>
         </div>
         <Button
