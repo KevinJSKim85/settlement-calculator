@@ -232,8 +232,8 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   };
 
   return (
-    <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-[8rem_minmax(0,1fr)] md:gap-4 lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-6">
-      <div className="relative mx-auto size-32 shrink-0 md:size-32 lg:size-36">
+    <div className="flex flex-col items-center gap-5">
+      <div className="relative size-36 shrink-0 sm:size-40">
         <svg
           viewBox="0 0 120 120"
           className="size-full -rotate-90 cursor-pointer"
@@ -249,13 +249,13 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
           <span className="text-[8px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-[9px]">
             {t.result.revenue}
           </span>
-          <span className="min-w-0 truncate text-[13px] font-bold tabular-nums leading-tight text-foreground sm:text-base">
+          <span className="text-[13px] font-bold tabular-nums leading-tight text-foreground sm:text-sm">
             {formatCurrency(result.totalRevenue, baseCurrency)}
           </span>
         </div>
       </div>
 
-      <div className="min-w-0 space-y-1 text-xs">
+      <div className="w-full min-w-0 space-y-1 text-xs">
         {outerSegments.map((s) => {
           const isActive = hovered === s.key;
           return (

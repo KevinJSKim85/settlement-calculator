@@ -110,11 +110,11 @@ function ComputedRow({
 
   return (
     <div className={`flex flex-col gap-2 rounded-xl px-4 py-3 sm:grid sm:items-center sm:gap-3 ${isNegative ? 'bg-brand-red/5 border border-brand-red/15' : 'bg-brand-gold/5 border border-brand-gold/15'}`} style={{ gridTemplateColumns: '1fr auto auto' }}>
-      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-        <Scale className={`size-4 ${isNegative ? 'text-brand-red/70' : 'text-brand-gold/70'}`} />
-        {label}
+      <span className="flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-foreground">
+        <Scale className={`size-4 shrink-0 ${isNegative ? 'text-brand-red/70' : 'text-brand-gold/70'}`} />
+        <span className="whitespace-nowrap">{label}</span>
         {isNegative && (
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-red">({t.result.loss})</span>
+          <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-brand-red">({t.result.loss})</span>
         )}
       </span>
       <div className="flex items-baseline justify-between gap-3 sm:contents">
