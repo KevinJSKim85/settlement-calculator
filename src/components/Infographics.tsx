@@ -79,16 +79,16 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4 xl:grid-cols-7">
+    <div className="flex flex-col divide-y divide-border/40 rounded-xl border border-border/30 bg-surface/40 overflow-hidden">
       {cards.map((c) => (
         <div
           key={c.label}
-          className="group flex flex-col items-start justify-between gap-1.5 rounded-xl border border-border/30 bg-surface/50 px-2.5 py-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/60 hover:bg-surface/70 hover:shadow-md sm:gap-2 sm:px-3 sm:py-3"
+          className="flex items-center justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70"
         >
-          <span className="line-clamp-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-[10px]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-xs">
             {c.label}
           </span>
-          <span className={`block min-w-0 truncate text-[12px] font-bold tabular-nums leading-tight sm:text-sm ${c.color}`}>
+          <span className={`text-right text-sm font-bold tabular-nums leading-tight sm:text-base ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
         </div>
