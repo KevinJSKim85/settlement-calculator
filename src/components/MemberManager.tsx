@@ -15,6 +15,16 @@ function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, value));
 }
 
+const PERCENT_DRAFT_PATTERN = /^\d{0,3}(?:\.\d{0,2})?$/;
+
+function normalizePercentDraft(value: string): string {
+  return value.replace(',', '.').trim();
+}
+
+function isValidPercentDraft(value: string): boolean {
+  return PERCENT_DRAFT_PATTERN.test(value);
+}
+
 export function MemberManager() {
   const { t } = useTranslation();
   const members = useSettlementStore((s) => s.members);
@@ -52,8 +62,16 @@ export function MemberManager() {
   }, []);
 
   const handleRevenueAChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const nextPercent = clampPercent(parseFloat(e.target.value));
-    setRevenueALocal(e.target.value === '' ? '' : String(nextPercent));
+    const draft = normalizePercentDraft(e.target.value);
+    if (!isValidPercentDraft(draft)) return;
+
+    setRevenueALocal(draft);
+    if (draft === '' || draft === '.') {
+      setRevenueAPercent(0);
+      return;
+    }
+
+    const nextPercent = clampPercent(parseFloat(draft));
     setRevenueAPercent(nextPercent);
   }, [setRevenueAPercent]);
 
@@ -151,8 +169,9 @@ export function MemberManager() {
             </span>
             <div className="flex items-center gap-1 rounded-md border border-brand-gold/20 bg-surface pl-1.5 pr-1 py-0.5">
               <Input
-                type="number"
+                type="text"
                 inputMode="decimal"
+                pattern="[0-9]*[.]?[0-9]*"
                 min={0}
                 max={100}
                 value={revenueAFocused ? revenueALocal : effectiveRevenueAPercent.toFixed(2)}
@@ -217,8 +236,9 @@ export function MemberManager() {
                   <div className="flex items-center gap-0.5 rounded-md border border-border/40 bg-surface pl-1.5 pr-1 has-[input:focus-visible]:border-brand-gold/50 has-[input:focus-visible]:ring-1 has-[input:focus-visible]:ring-brand-gold/20 transition-colors">
                     <Input
                       className="h-10 w-14 border-0 bg-transparent px-0 text-right text-sm font-semibold tabular-nums text-foreground shadow-none focus-glow sm:h-8 sm:w-16"
-                      type="number"
+                      type="text"
                       inputMode="decimal"
+                      pattern="[0-9]*[.]?[0-9]*"
                       min={0}
                       max={100}
                       step={0.01}
@@ -232,8 +252,16 @@ export function MemberManager() {
                         setMemberPercentLocal('');
                       }}
                       onChange={(e) => {
-                        const nextPercent = clampPercent(parseFloat(e.target.value));
-                        setMemberPercentLocal(e.target.value === '' ? '' : String(nextPercent));
+                        const draft = normalizePercentDraft(e.target.value);
+                        if (!isValidPercentDraft(draft)) return;
+
+                        setMemberPercentLocal(draft);
+                        if (draft === '' || draft === '.') {
+                          updateMember(member.id, { percentage: 0 });
+                          return;
+                        }
+
+                        const nextPercent = clampPercent(parseFloat(draft));
                         updateMember(member.id, {
                           percentage: nextPercent,
                         });
