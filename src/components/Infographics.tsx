@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { PieChart, BarChart3, TrendingUp } from 'lucide-react';
 import { useTranslation } from '@/i18n';
@@ -22,10 +22,7 @@ interface TooltipData {
 }
 
 function ChartTooltip({ data, x, y }: { data: TooltipData | null; x: number; y: number }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
-  if (!mounted || !data) return null;
+  if (!data || typeof document === 'undefined') return null;
 
   return createPortal(
     <div
@@ -83,12 +80,12 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
       {cards.map((c) => (
         <div
           key={c.label}
-          className="flex items-center justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70"
+          className="flex items-start justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70"
         >
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-xs">
+          <span className="min-w-0 break-words text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-xs">
             {c.label}
           </span>
-          <span className={`text-right text-sm font-bold tabular-nums leading-tight sm:text-base ${c.color}`}>
+          <span className={`min-w-0 max-w-[55%] break-words text-right text-sm font-bold tabular-nums leading-tight sm:text-base ${c.color}`}>
             {formatCurrency(c.value, baseCurrency)}
           </span>
         </div>

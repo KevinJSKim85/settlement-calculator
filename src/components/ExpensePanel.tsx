@@ -97,9 +97,9 @@ function ExpenseRow({
             disabled={disabled}
           />
           {showKrwA && (
-            <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+            <div className="flex min-w-0 items-start justify-end gap-1 text-right text-[11px] tabular-nums text-muted-foreground">
               <ArrowRight className="size-3 text-brand-red/60" aria-hidden />
-              <span className="font-medium">KRW ₩ {formatNumber(krwA, 0)}</span>
+              <span className="min-w-0 break-words font-medium">KRW ₩ {formatNumber(krwA, 0)}</span>
             </div>
           )}
         </div>
@@ -117,9 +117,9 @@ function ExpenseRow({
             disabled={disabled}
           />
           {showKrwB && (
-            <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+            <div className="flex min-w-0 items-start justify-end gap-1 text-right text-[11px] tabular-nums text-muted-foreground">
               <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
-              <span className="font-medium">KRW ₩ {formatNumber(krwB, 0)}</span>
+              <span className="min-w-0 break-words font-medium">KRW ₩ {formatNumber(krwB, 0)}</span>
             </div>
           )}
         </div>
@@ -170,8 +170,6 @@ export function ExpensePanel() {
   const effectiveRevenueAPercent = autoRevenueSplitFromRate && buying.currency !== 'KRW' && buyingRate > 0
     ? Math.max(0, Math.min(100, Math.round(((100 / buyingRate) * 100) * 100) / 100))
     : revenueAPercent;
-  const revenueBPercent = 100 - effectiveRevenueAPercent;
-
   // Compute buying/returning in KRW for tax calculation
   const buyingKrw = buying.currency === 'KRW' ? buying.amount : buying.amount * buyingRate;
   const buyingABase = isManual ? storeBuyingA : Math.round(buyingKrw * effectiveRevenueAPercent / 100);
@@ -354,10 +352,10 @@ export function ExpensePanel() {
         <div className="border-t border-border/20 pt-3">
           <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span className="font-medium text-foreground">{t.expenses.total}</span>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums">
+            <div className="flex min-w-0 flex-wrap items-start justify-end gap-x-4 gap-y-1 text-right tabular-nums">
               {foreignMode ? (
                 <>
-                  <span className="text-brand-red">
+                  <span className="min-w-0 break-words text-brand-red">
                     A: {formatNumber(totalA, decimals)} {inlineFxCurrency}
                     {totalA !== 0 && inlineFxRate > 0 && (
                       <span className="ml-1 text-muted-foreground">
@@ -365,7 +363,7 @@ export function ExpensePanel() {
                       </span>
                     )}
                   </span>
-                  <span className="text-brand-gold">
+                  <span className="min-w-0 break-words text-brand-gold">
                     B: {formatNumber(totalB, decimals)} {inlineFxCurrency}
                     {totalB !== 0 && inlineFxRate > 0 && (
                       <span className="ml-1 text-muted-foreground">
@@ -376,8 +374,8 @@ export function ExpensePanel() {
                 </>
               ) : (
                 <>
-                  <span className="text-brand-red">A: {formatNumber(totalA, 0)} KRW</span>
-                  <span className="text-brand-gold">B: {formatNumber(totalB, 0)} KRW</span>
+                  <span className="min-w-0 break-words text-brand-red">A: {formatNumber(totalA, 0)} KRW</span>
+                  <span className="min-w-0 break-words text-brand-gold">B: {formatNumber(totalB, 0)} KRW</span>
                 </>
               )}
             </div>

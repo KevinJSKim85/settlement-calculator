@@ -1,4 +1,4 @@
-import { Currency, CURRENCIES, ExchangeRates, ExchangeRateData } from '@/types';
+import { Currency, ExchangeRates, ExchangeRateData } from '@/types';
 
 const FIAT_API_BASE = 'https://api.exchangerate-api.com/v4/latest';
 const COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price';

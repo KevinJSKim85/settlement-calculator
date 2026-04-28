@@ -5,7 +5,6 @@ import { useTheme } from 'next-themes';
 import { Sun, Moon, Calculator, RotateCcw, FileText } from 'lucide-react';
 import { InputForm } from '@/components/InputForm';
 import { ExpensePanel } from '@/components/ExpensePanel';
-import { SettingsPanel } from '@/components/SettingsPanel';
 import { MemberManager } from '@/components/MemberManager';
 import { RollingManager } from '@/components/RollingManager';
 import { RateTicker } from '@/components/RateTicker';
@@ -31,7 +30,8 @@ function ThemeToggle() {
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       className="tap-reset flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-brand-gold sm:size-8"
     >
-      {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      <Sun className="size-4 dark:hidden" />
+      <Moon className="hidden size-4 dark:block" />
     </button>
   );
 }
@@ -218,6 +218,8 @@ function HomePageContent() {
     storeReturningA,
     storeReturningB,
     inlineFxRate,
+    inlineFxCurrency,
+    autoRevenueSplitFromRate,
     expenses,
     expensesEnabled,
   ]);

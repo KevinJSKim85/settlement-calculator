@@ -145,7 +145,6 @@ function RollingSection({
   const setRollingTarget = useSettlementStore((s) => s.setRollingTarget);
 
   const label = String.fromCharCode(65 + index);
-  const rollingLabel = total > 1 ? `${t.input.rolling} ${label}` : t.input.rolling;
   const feeLabel = total > 1 ? `${t.input.rollingFee} ${label}` : t.input.rollingFee;
   const feeAmount = (entry.amount * entry.feePercent) / 100;
   const fieldId = entry.id;

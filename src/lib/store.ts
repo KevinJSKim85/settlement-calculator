@@ -168,7 +168,8 @@ export const useSettlementStore = create<SettlementStore>()(
 
       clearManualExchangeRate: (currency: Currency) =>
         set((state: SettlementStore) => {
-          const { [currency]: _, ...rest } = state.manualExchangeRates;
+          const rest = { ...state.manualExchangeRates };
+          delete rest[currency];
           return { manualExchangeRates: rest };
         }),
 

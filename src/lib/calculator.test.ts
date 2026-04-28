@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   calcBalance,
+  calcManualBalanceB,
   calcSplitBalance,
   calcDistribution,
   calcRollingFee,
@@ -24,6 +25,16 @@ describe('calcSplitBalance', () => {
 
   it('preserves negative split values in the combined total', () => {
     expect(calcSplitBalance(-305450, -339049)).toBe(-644499);
+  });
+});
+
+describe('calcManualBalanceB', () => {
+  it('subtracts A from the raw manual B balance', () => {
+    expect(calcManualBalanceB(429350000, 914515500)).toBe(485165500);
+  });
+
+  it('preserves negative displayed B balances', () => {
+    expect(calcManualBalanceB(500000, 200000)).toBe(-300000);
   });
 });
 
@@ -176,10 +187,11 @@ describe('calcSettlement', () => {
     expect(result.returningA).toBe(5);
     expect(result.returningB).toBe(40);
     expect(result.balanceA).toBe(15);
-    expect(result.balanceB).toBe(40);
+    expect(result.balanceB).toBe(25);
+    expect(result.balance).toBe(40);
     expect(result.balance).toBe(result.balanceA + result.balanceB);
     expect(result.revenueA).toBe(15);
-    expect(result.revenueB).toBe(40);
+    expect(result.revenueB).toBe(25);
   });
 
   it('keeps manual total balance equal to displayed A/B balances', () => {
@@ -193,7 +205,7 @@ describe('calcSettlement', () => {
         buyingA: 429350000,
         buyingB: 914515500,
         returningA: 0,
-        returningB: 429350000,
+        returningB: 0,
         rollingEntries: [],
       },
       {
@@ -231,15 +243,14 @@ describe('calcSettlement', () => {
       'KRW'
     );
 
-    // revenueB applies B-share (500 × 60%) minus feeForB (10) = 290
-    expect(result.revenueB).toBe(290);
-    expect(result.distribution[0]?.amount).toBe(290);
     expect(result.balanceA).toBe(200);
-    expect(result.balanceB).toBe(500);
-    // revenueA is always direct: balanceA − feeForA − expenseTotalA = 200 − 0 − 0 = 200
+    expect(result.balanceB).toBe(300);
+    // revenueA is always direct: balanceA - feeForA - expenseTotalA = 200 - 0 - 0 = 200
     expect(result.revenueA).toBe(200);
-    // totalRevenue now = revenueA + revenueB (independent sums, not balance-minus-fees)
-    expect(result.totalRevenue).toBe(490);
+    // revenueB applies B-share (300 x 60%) minus feeForB (10) = 170
+    expect(result.revenueB).toBe(170);
+    expect(result.distribution[0]?.amount).toBe(170);
+    expect(result.totalRevenue).toBe(370);
   });
 });
 

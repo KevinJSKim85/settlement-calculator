@@ -40,7 +40,7 @@ function MultiCurrencyLine({
   }));
 
   return (
-    <div className="mt-0.5 min-w-0 truncate text-xs font-normal text-muted-foreground">
+    <div className="mt-0.5 min-w-0 break-words text-xs font-normal leading-tight text-muted-foreground">
       {converted.map((c, i) => (
         <React.Fragment key={c.currency}>
           {i > 0 && <span className="mx-1 text-muted-foreground/60">|</span>}
@@ -64,13 +64,13 @@ function AmountCell({
   bold?: boolean;
   forceNegativeStyle?: boolean;
 }) {
-  const { t } = useTranslation();
   const isNegative = amount < 0 || forceNegativeStyle;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
-    <td className="min-w-0 whitespace-nowrap px-2 py-3 text-right align-top sm:px-3">
+    <td className="min-w-0 px-2 py-3 text-right align-top sm:px-3">
       <div
         className={[
+          'break-words leading-tight tabular-nums',
           bold ? 'text-sm font-bold sm:text-base' : 'text-[13px] font-medium sm:text-sm',
           isNegative ? 'text-brand-red' : '',
         ]
@@ -212,7 +212,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
             <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
               <td className="py-3 pl-4 pr-2 text-[13px] text-foreground/80 sm:pl-6 sm:pr-3 sm:text-sm">{t.input.targetB} {t.input.balance}</td>
               <AmountCell
-                amount={result.balanceB - result.balanceA}
+                amount={result.balanceB}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
               />

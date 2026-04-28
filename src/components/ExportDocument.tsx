@@ -297,11 +297,12 @@ function Row({
         style={{
           padding: '7px 10px',
           textAlign: 'right',
-          fontSize: emphasized ? 12 : 11,
+          fontSize: emphasized ? 11.5 : 10.5,
           fontWeight: emphasized ? 700 : 600,
           color: amountColor,
           fontVariantNumeric: 'tabular-nums',
-          whiteSpace: 'nowrap',
+          lineHeight: 1.2,
+          overflowWrap: 'anywhere',
         }}
       >
         {formatCurrency(amount, baseCurrency)}
@@ -666,11 +667,11 @@ export const ExportDocument = React.forwardRef<HTMLDivElement, ExportDocumentPro
               />
               <Row
                 label={`${t.input.targetB} ${t.input.balance}`}
-                amount={result.balanceB - result.balanceA}
+                amount={result.balanceB}
                 baseCurrency={baseCurrency}
                 ratio={`${revenueBPercent.toFixed(2)}%`}
                 indent
-                negative={result.balanceB - result.balanceA < 0}
+                negative={result.balanceB < 0}
               />
               <Row
                 label={t.result.buyingA}

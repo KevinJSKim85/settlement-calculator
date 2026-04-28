@@ -5,7 +5,7 @@ import { ShoppingCart, RotateCcw, Scale, ToggleLeft, ToggleRight, ArrowRight } f
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
-import { calcSplitBalance } from '@/lib/calculator';
+import { calcManualBalanceB, calcSplitBalance } from '@/lib/calculator';
 import { CURRENCIES, CURRENCY_CONFIG } from '@/types';
 import type { Currency } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,7 +132,10 @@ export function InputForm() {
   const buyingBKrw = inlineFxRate > 0 ? Math.round(storeBuyingB * inlineFxRate) : 0;
   const returningBKrw = inlineFxRate > 0 ? Math.round(storeReturningB * inlineFxRate) : 0;
   const balanceA = storeBuyingA - storeReturningA;
-  const balanceB = buyingBKrw - returningBKrw;
+  const rawBalanceB = buyingBKrw - returningBKrw;
+  const balanceB = isManual
+    ? calcManualBalanceB(balanceA, rawBalanceB)
+    : rawBalanceB;
   const balance = isManual
     ? calcSplitBalance(balanceA, balanceB)
     : buying.amount - returning.amount;
@@ -284,9 +287,9 @@ export function InputForm() {
                     placeholder="0"
                   />
                   {inlineFxRate > 0 && storeBuyingB > 0 && (
-                    <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+                    <div className="flex min-w-0 items-start justify-end gap-1 text-right text-[11px] tabular-nums text-muted-foreground">
                       <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
-                      <span className="font-medium">KRW ₩ {formatNumber(Math.round(storeBuyingB * inlineFxRate), 0)}</span>
+                      <span className="min-w-0 break-words font-medium">KRW ₩ {formatNumber(Math.round(storeBuyingB * inlineFxRate), 0)}</span>
                     </div>
                   )}
 
@@ -334,9 +337,9 @@ export function InputForm() {
                     placeholder="0"
                   />
                   {inlineFxRate > 0 && storeReturningB > 0 && (
-                    <div className="flex items-center justify-end gap-1 text-[11px] tabular-nums text-muted-foreground">
+                    <div className="flex min-w-0 items-start justify-end gap-1 text-right text-[11px] tabular-nums text-muted-foreground">
                       <ArrowRight className="size-3 text-brand-gold/60" aria-hidden />
-                      <span className="font-medium">KRW ₩ {formatNumber(Math.round(storeReturningB * inlineFxRate), 0)}</span>
+                      <span className="min-w-0 break-words font-medium">KRW ₩ {formatNumber(Math.round(storeReturningB * inlineFxRate), 0)}</span>
                     </div>
                   )}
 
@@ -424,7 +427,6 @@ export function InputForm() {
                 <ArrowRight className="size-3.5 shrink-0 text-brand-gold/60 sm:size-4" aria-hidden />
                 <div className="rounded-lg border border-dashed border-border/40 bg-surface/40 px-2.5 py-2 sm:px-3">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">KRW ₩</div>
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">KRW ₩</div>
                   <Input
                     type="text"
                     readOnly
@@ -448,9 +450,9 @@ export function InputForm() {
             />
             <ComputedRow
               label={`${t.input.balance} B`}
-              value={balanceB - balanceA}
+              value={balanceB}
               currency="KRW"
-              isNegative={balanceB - balanceA < 0}
+              isNegative={balanceB < 0}
             />
           </div>
         )}

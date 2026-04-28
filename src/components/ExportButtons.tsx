@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Image } from 'lucide-react';
+import { Download, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { Button } from '@/components/ui/button';
 import { exportToPDF, exportToImage } from '@/lib/export';
@@ -50,7 +50,7 @@ export function ExportButtons({ targetRef, disabled }: ExportButtonsProps) {
         variant="outline"
         className="tap-reset h-11 flex-1 rounded-lg border-brand-gold/30 bg-brand-gold/10 text-brand-gold font-medium tracking-wide shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] transition-all hover:border-brand-gold/50 hover:bg-brand-gold/15 active:scale-[0.98] disabled:opacity-30 sm:h-10"
       >
-        <Image className="mr-1.5 size-3.5" />
+        <ImageIcon className="mr-1.5 size-3.5" />
         {t.export.image}
       </Button>
     </div>

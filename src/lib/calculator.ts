@@ -16,6 +16,10 @@ export function calcSplitBalance(balanceA: number, balanceB: number): number {
   return balanceA + balanceB;
 }
 
+export function calcManualBalanceB(rawBalanceA: number, rawBalanceB: number): number {
+  return rawBalanceB - rawBalanceA;
+}
+
 export function calcRollingFee(rolling: number, feePercent: number): number {
   return Math.round((rolling * feePercent) / 100);
 }
@@ -93,8 +97,12 @@ export function calcSettlement(
   const returningB = isManual && input.returningB !== undefined
     ? input.returningB
     : input.returning - returningA;
-  const balanceA = calcBalance(buyingA, returningA);
-  const balanceB = calcBalance(buyingB, returningB);
+  const rawBalanceA = calcBalance(buyingA, returningA);
+  const rawBalanceB = calcBalance(buyingB, returningB);
+  const balanceA = rawBalanceA;
+  const balanceB = isManual
+    ? calcManualBalanceB(rawBalanceA, rawBalanceB)
+    : rawBalanceB;
   const balance = isManual
     ? calcSplitBalance(balanceA, balanceB)
     : calcBalance(input.buying, input.returning);
@@ -112,8 +120,8 @@ export function calcSettlement(
   const expenseTotalA = expenses.costA + expenses.tipA + expenses.markA + expenses.taxA;
   const expenseTotalB = expenses.costB + expenses.tipB + expenses.markB + expenses.taxB;
 
-  const revenueAFromBalance = buyingA - returningA;
-  const revenueBFromBalance = buyingB - returningB;
+  const revenueAFromBalance = balanceA;
+  const revenueBFromBalance = balanceB;
   const revenueBPercent = 100 - config.revenueAPercent;
 
   // Revenue A is always direct: (buyingA - returningA) - feeForA - expenseTotalA

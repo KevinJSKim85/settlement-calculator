@@ -10,6 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
+function clampPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, value));
+}
+
 export function MemberManager() {
   const { t } = useTranslation();
   const members = useSettlementStore((s) => s.members);
@@ -47,8 +52,9 @@ export function MemberManager() {
   }, []);
 
   const handleRevenueAChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setRevenueALocal(e.target.value);
-    setRevenueAPercent(parseFloat(e.target.value) || 0);
+    const nextPercent = clampPercent(parseFloat(e.target.value));
+    setRevenueALocal(e.target.value === '' ? '' : String(nextPercent));
+    setRevenueAPercent(nextPercent);
   }, [setRevenueAPercent]);
 
   // Member percentage focus state
@@ -178,11 +184,11 @@ export function MemberManager() {
             <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-surface ring-1 ring-inset ring-border/30">
               <div
                 className="bg-gradient-to-r from-brand-red/80 to-brand-red/60 transition-all duration-500"
-                style={{ width: `${effectiveRevenueAPercent}%` }}
+                style={{ width: `${clampPercent(effectiveRevenueAPercent)}%` }}
               />
               <div
                 className="bg-gradient-to-r from-brand-gold/60 to-brand-gold/40 transition-all duration-500"
-                style={{ width: `${revenueBPercent.toFixed(2)}%` }}
+                style={{ width: `${clampPercent(revenueBPercent)}%` }}
               />
             </div>
             <span className="w-7 shrink-0 text-right text-[10px] font-bold uppercase tracking-wider text-brand-gold/80">B</span>
@@ -226,9 +232,10 @@ export function MemberManager() {
                         setMemberPercentLocal('');
                       }}
                       onChange={(e) => {
-                        setMemberPercentLocal(e.target.value);
+                        const nextPercent = clampPercent(parseFloat(e.target.value));
+                        setMemberPercentLocal(e.target.value === '' ? '' : String(nextPercent));
                         updateMember(member.id, {
-                          percentage: parseFloat(e.target.value) || 0,
+                          percentage: nextPercent,
                         });
                       }}
                     />
