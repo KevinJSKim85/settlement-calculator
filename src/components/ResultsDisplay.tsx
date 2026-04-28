@@ -57,19 +57,26 @@ function AmountCell({
   exchangeRates,
   bold = false,
   forceNegativeStyle = false,
+  formula,
 }: {
   amount: number;
   baseCurrency: Currency;
   exchangeRates?: ExchangeRates;
   bold?: boolean;
   forceNegativeStyle?: boolean;
+  formula?: string;
 }) {
   const isNegative = amount < 0 || forceNegativeStyle;
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   return (
-    <td className="min-w-0 px-2 py-3 text-right align-top sm:px-3">
+    <td
+      className="min-w-0 px-2 py-3 text-right align-top sm:px-3"
+      title={formula}
+      aria-label={formula}
+    >
       <div
         className={[
+          formula ? 'cursor-help' : '',
           'break-words leading-tight tabular-nums',
           bold ? 'text-sm font-bold sm:text-base' : 'text-[13px] font-medium sm:text-sm',
           isNegative ? 'text-brand-red' : '',
@@ -167,6 +174,50 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
       result.rollingFees.length > 1
         ? `${t.input.rollingFee} ${label}`
         : t.input.rollingFee;
+    const feeForA = result.rollingFees
+      .filter((rf) => rf.target === 'A')
+      .reduce((sum, rf) => sum + rf.amount, 0);
+    const feeForB = result.rollingFees
+      .filter((rf) => rf.target === 'B')
+      .reduce((sum, rf) => sum + rf.amount, 0);
+    const formulaText = (formula: string, values?: string) =>
+      values
+        ? `${t.formula.label}: ${formula}\n${t.formula.values}: ${values}`
+        : `${t.formula.label}: ${formula}`;
+    const money = (amount: number) => formatCurrency(amount, baseCurrency);
+    const ratio = (value: number) => `${value.toFixed(2)}%`;
+    const totalBuying = result.buyingA + result.buyingB;
+    const totalReturning = result.returningA + result.returningB;
+    const outflow = (amount: number) => (amount > 0 ? -amount : amount);
+    const splitFormula = (
+      autoFormula: string,
+      autoValues: string,
+      directValue: number
+    ) =>
+      result.splitMode === 'manual'
+        ? formulaText(t.formula.directInput, money(directValue))
+        : formulaText(autoFormula, autoValues);
+    const revenueBFormula = result.applyFxRevenueBShare
+      ? t.formula.revenueBShared
+      : t.formula.revenueB;
+    const revenueBValues = result.applyFxRevenueBShare
+      ? `${money(result.balanceB)} × ${ratio(revenueBPercent)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`
+      : `${money(result.balanceB)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`;
+    const memberDistributionFormula = (
+      memberPercentage: number,
+      amount: number
+    ) =>
+      revenueBPercent <= 0
+        ? formulaText(t.formula.memberDistributionZero, money(amount))
+        : formulaText(
+            t.formula.memberDistribution,
+            `${money(result.revenueB)} × ${memberPercentage.toFixed(1)}% ÷ ${ratio(revenueBPercent)} = ${money(amount)}`
+          );
+    const expenseFormula = (label: string, amountA: number, amountB: number) =>
+      formulaText(
+        label,
+        `${money(-amountA)} + ${money(-amountB)} = ${money(-(amountA + amountB))}`
+      );
 
     return (
       <div
@@ -195,6 +246,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.balance}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={formulaText(
+                  t.formula.balance,
+                  `${money(result.balanceA)} + ${money(result.balanceB)} = ${money(result.balance)}`
+                )}
               />
               <NoteCell />
             </tr>
@@ -205,6 +260,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.balanceA}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={formulaText(
+                  t.formula.balanceA,
+                  `${money(result.buyingA)} - ${money(result.returningA)} = ${money(result.balanceA)}`
+                )}
               />
               <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -215,6 +274,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.balanceB}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={formulaText(
+                  t.formula.balanceB,
+                  `${money(result.balance)} - ${money(result.balanceA)} = ${money(result.balanceB)}`
+                )}
               />
               <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -225,6 +288,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.buyingA}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={splitFormula(
+                  t.formula.buyingA,
+                  `${money(totalBuying)} × ${ratio(revenueAPercent)} = ${money(result.buyingA)}`,
+                  result.buyingA
+                )}
               />
               <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -235,6 +303,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.buyingB}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={splitFormula(
+                  t.formula.buyingB,
+                  `${money(totalBuying)} - ${money(result.buyingA)} = ${money(result.buyingB)}`,
+                  result.buyingB
+                )}
               />
               <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -246,6 +319,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
                 forceNegativeStyle={result.returningA > 0}
+                formula={splitFormula(
+                  t.formula.returningADisplay,
+                  `-(${money(totalReturning)} × ${ratio(revenueAPercent)}) = ${money(outflow(result.returningA))}`,
+                  outflow(result.returningA)
+                )}
               />
               <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -257,6 +335,11 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
                 forceNegativeStyle={result.returningB > 0}
+                formula={splitFormula(
+                  t.formula.returningBDisplay,
+                  `-(${money(totalReturning)} - ${money(result.returningA)}) = ${money(outflow(result.returningB))}`,
+                  outflow(result.returningB)
+                )}
               />
               <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -274,6 +357,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                   baseCurrency={baseCurrency}
                   exchangeRates={exchangeRates}
                   forceNegativeStyle
+                  formula={formulaText(
+                    t.formula.rollingFee,
+                    `${money(rf.sourceAmount)} × ${rf.feePercent}% = ${money(-rf.amount)}`
+                  )}
                 />
                 <NoteCell>{rf.feePercent}%</NoteCell>
               </tr>
@@ -285,7 +372,17 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 {result.expenses.costA + result.expenses.costB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
                     <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.expenses.cost}</td>
-                    <AmountCell amount={-(result.expenses.costA + result.expenses.costB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
+                    <AmountCell
+                      amount={-(result.expenses.costA + result.expenses.costB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                      formula={expenseFormula(
+                        t.expenses.cost,
+                        result.expenses.costA,
+                        result.expenses.costB
+                      )}
+                    />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
                         <span><span className="mr-1 font-semibold text-muted-foreground/60">A</span>{formatCurrency(-result.expenses.costA, baseCurrency)}</span>
@@ -297,7 +394,17 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 {result.expenses.tipA + result.expenses.tipB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
                     <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.expenses.tip}</td>
-                    <AmountCell amount={-(result.expenses.tipA + result.expenses.tipB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
+                    <AmountCell
+                      amount={-(result.expenses.tipA + result.expenses.tipB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                      formula={expenseFormula(
+                        t.expenses.tip,
+                        result.expenses.tipA,
+                        result.expenses.tipB
+                      )}
+                    />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
                         <span><span className="mr-1 font-semibold text-muted-foreground/60">A</span>{formatCurrency(-result.expenses.tipA, baseCurrency)}</span>
@@ -309,7 +416,17 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 {result.expenses.markA + result.expenses.markB > 0 && (
                   <tr className="border-b border-border/20 transition-colors hover:bg-surface/30">
                     <td className="px-2 py-3 text-[13px] text-foreground sm:px-3 sm:text-sm">{t.expenses.mark}</td>
-                    <AmountCell amount={-(result.expenses.markA + result.expenses.markB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
+                    <AmountCell
+                      amount={-(result.expenses.markA + result.expenses.markB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                      formula={expenseFormula(
+                        t.expenses.mark,
+                        result.expenses.markA,
+                        result.expenses.markB
+                      )}
+                    />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
                         <span><span className="mr-1 font-semibold text-muted-foreground/60">A</span>{formatCurrency(-result.expenses.markA, baseCurrency)}</span>
@@ -324,7 +441,17 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                       {t.expenses.tax}
                       {result.expenses.taxPercent > 0 && <span className="ml-1.5 text-[11px] text-muted-foreground/70">{result.expenses.taxPercent}%</span>}
                     </td>
-                    <AmountCell amount={-(result.expenses.taxA + result.expenses.taxB)} baseCurrency={baseCurrency} exchangeRates={exchangeRates} forceNegativeStyle />
+                    <AmountCell
+                      amount={-(result.expenses.taxA + result.expenses.taxB)}
+                      baseCurrency={baseCurrency}
+                      exchangeRates={exchangeRates}
+                      forceNegativeStyle
+                      formula={expenseFormula(
+                        t.expenses.tax,
+                        result.expenses.taxA,
+                        result.expenses.taxB
+                      )}
+                    />
                     <NoteCell useBadge={false}>
                       <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-muted-foreground/80">
                         <span><span className="mr-1 font-semibold text-muted-foreground/60">A</span>{formatCurrency(-result.expenses.taxA, baseCurrency)}</span>
@@ -346,6 +473,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
                 bold
+                formula={formulaText(
+                  t.formula.revenue,
+                  `${money(result.revenueA)} + ${money(result.revenueB)} = ${money(result.totalRevenue)}`
+                )}
               />
               <NoteCell bold>100%</NoteCell>
             </tr>
@@ -356,6 +487,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.revenueA}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={formulaText(
+                  t.formula.revenueA,
+                  `${money(result.balanceA)} - ${money(feeForA)} - ${money(result.expenseTotalA)} = ${money(result.revenueA)}`
+                )}
               />
               <NoteCell>{revenueAPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -366,6 +501,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 amount={result.revenueB}
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
+                formula={formulaText(
+                  revenueBFormula,
+                  revenueBValues
+                )}
               />
               <NoteCell>{revenueBPercent.toFixed(2)}%</NoteCell>
             </tr>
@@ -380,6 +519,10 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
                 bold
+                formula={formulaText(
+                  t.formula.distribution,
+                  `${money(result.revenueB)} = ${money(distributionTotal)}`
+                )}
               />
               <NoteCell bold />
             </tr>
@@ -398,6 +541,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                   amount={dist.amount}
                   baseCurrency={baseCurrency}
                   exchangeRates={exchangeRates}
+                  formula={memberDistributionFormula(dist.percentage, dist.amount)}
                 />
                 <NoteCell useBadge={false}>
                   <div className="flex flex-col items-end gap-1">

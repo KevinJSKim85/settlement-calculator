@@ -73,6 +73,7 @@ export function calcDistribution(
 export function calcRollingFees(entries: RollingFeeEntry[]): RollingFeeResult[] {
   return entries.map((entry, index) => ({
     label: String.fromCharCode(65 + index),
+    sourceAmount: entry.amount,
     amount: calcRollingFee(entry.amount, entry.feePercent),
     feePercent: entry.feePercent,
     target: entry.target,
@@ -137,6 +138,8 @@ export function calcSettlement(
   const distribution = calcDistribution(distributionBase, config.members, revenueBPercent);
 
   return {
+    splitMode: isManual ? 'manual' : 'auto',
+    applyFxRevenueBShare: Boolean(config.applyFxRevenueBShare),
     balance,
     balanceA,
     balanceB,

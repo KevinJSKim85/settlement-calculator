@@ -5,7 +5,13 @@ import { createPortal } from 'react-dom';
 import { PieChart, BarChart3, TrendingUp } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/lib/currency';
-import type { Currency, SettlementResult } from '@/types';
+import type {
+  Currency,
+  DistributionAmount,
+  RollingFeeResult,
+  SettlementResult,
+} from '@/types';
+import type { TranslationKeys } from '@/i18n';
 
 interface InfographicsProps {
   result: SettlementResult;
@@ -19,6 +25,7 @@ interface TooltipData {
   label: string;
   amount: string;
   detail: string;
+  formula?: string;
 }
 
 function ChartTooltip({ data, x, y }: { data: TooltipData | null; x: number; y: number }) {
@@ -34,9 +41,96 @@ function ChartTooltip({ data, x, y }: { data: TooltipData | null; x: number; y: 
       {data.detail && (
         <div className="mt-0.5 text-[11px] text-muted-foreground">{data.detail}</div>
       )}
+      {data.formula && (
+        <div className="mt-1 max-w-64 whitespace-pre-line border-t border-border/30 pt-1 text-[11px] leading-snug text-muted-foreground">
+          {data.formula}
+        </div>
+      )}
     </div>,
     document.body
   );
+}
+
+function createFormulaContext(
+  result: SettlementResult,
+  baseCurrency: Currency,
+  revenueAPercent: number,
+  t: TranslationKeys
+) {
+  const revenueBPercent = 100 - revenueAPercent;
+  const feeForA = result.rollingFees
+    .filter((rf) => rf.target === 'A')
+    .reduce((sum, rf) => sum + rf.amount, 0);
+  const feeForB = result.rollingFees
+    .filter((rf) => rf.target === 'B')
+    .reduce((sum, rf) => sum + rf.amount, 0);
+  const totalFees = result.rollingFees.reduce((sum, rf) => sum + rf.amount, 0);
+  const distributionTotal = result.distribution.reduce((sum, d) => sum + d.amount, 0);
+  const money = (amount: number) => formatCurrency(amount, baseCurrency);
+  const ratio = (value: number) => `${value.toFixed(2)}%`;
+  const formulaText = (formula: string, values?: string) =>
+    values
+      ? `${t.formula.label}: ${formula}\n${t.formula.values}: ${values}`
+      : `${t.formula.label}: ${formula}`;
+  const rollingFeeFormula = (fee: RollingFeeResult) =>
+    formulaText(
+      t.formula.rollingFee,
+      `${money(fee.sourceAmount)} × ${fee.feePercent}% = ${money(-fee.amount)}`
+    );
+  const revenueBFormula = result.applyFxRevenueBShare
+    ? t.formula.revenueBShared
+    : t.formula.revenueB;
+  const revenueBValues = result.applyFxRevenueBShare
+    ? `${money(result.balanceB)} × ${ratio(revenueBPercent)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`
+    : `${money(result.balanceB)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`;
+  const memberFormula = (member: DistributionAmount) =>
+    revenueBPercent <= 0
+      ? formulaText(t.formula.memberDistributionZero, money(member.amount))
+      : formulaText(
+          t.formula.memberDistribution,
+          `${money(result.revenueB)} × ${member.percentage.toFixed(1)}% ÷ ${ratio(revenueBPercent)} = ${money(member.amount)}`
+        );
+
+  return {
+    revenueBPercent,
+    totalFees,
+    distributionTotal,
+    money,
+    balance: formulaText(
+      t.formula.balance,
+      `${money(result.balanceA)} + ${money(result.balanceB)} = ${money(result.balance)}`
+    ),
+    balanceA: formulaText(
+      t.formula.balanceA,
+      `${money(result.buyingA)} - ${money(result.returningA)} = ${money(result.balanceA)}`
+    ),
+    balanceB: formulaText(
+      t.formula.balanceB,
+      `${money(result.balance)} - ${money(result.balanceA)} = ${money(result.balanceB)}`
+    ),
+    rollingTotal: formulaText(
+      t.formula.rollingTotal,
+      result.rollingFees.length > 0
+        ? `${result.rollingFees.map((fee) => money(-fee.amount)).join(' + ')} = ${money(-totalFees)}`
+        : money(0)
+    ),
+    rollingFeeFormula,
+    revenue: formulaText(
+      t.formula.revenue,
+      `${money(result.revenueA)} + ${money(result.revenueB)} = ${money(result.totalRevenue)}`
+    ),
+    revenueA: formulaText(
+      t.formula.revenueA,
+      `${money(result.balanceA)} - ${money(feeForA)} - ${money(result.expenseTotalA)} = ${money(result.revenueA)}`
+    ),
+    revenueB: formulaText(revenueBFormula, revenueBValues),
+    distribution: formulaText(
+      t.formula.distribution,
+      `${money(result.revenueB)} = ${money(distributionTotal)}`
+    ),
+    memberFormula,
+    cashFlow: formulaText(t.formula.cashFlow),
+  };
 }
 
 function useTooltip() {
@@ -61,18 +155,46 @@ function useTooltip() {
 
 function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
   const { t } = useTranslation();
-  const revenueBPercent = 100 - revenueAPercent;
-  const totalFees = result.rollingFees.reduce((s, r) => s + r.amount, 0);
-  const distributionTotal = result.distribution.reduce((s, d) => s + d.amount, 0);
+  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
 
   const cards = [
-    { label: t.input.balance, value: result.balance, color: 'text-foreground' },
-    { label: `${t.input.targetA} ${t.input.balance}`, value: result.balanceA, color: result.balanceA < 0 ? 'text-brand-red' : 'text-foreground' },
-    { label: `${t.input.targetB} ${t.input.balance}`, value: result.balanceB, color: result.balanceB < 0 ? 'text-brand-red' : 'text-foreground' },
-    { label: t.input.rollingFee, value: -totalFees, color: 'text-brand-red' },
-    { label: `${t.result.revenueA} (${revenueAPercent.toFixed(2)}%)`, value: result.revenueA, color: 'text-brand-gold' },
-    { label: `${t.result.revenueB} (${revenueBPercent.toFixed(2)}%)`, value: result.revenueB, color: 'text-brand-gold' },
-    { label: t.result.distribution, value: distributionTotal, color: distributionTotal < 0 ? 'text-brand-red' : 'text-foreground' },
+    { label: t.input.balance, value: result.balance, color: 'text-foreground', formula: formulas.balance },
+    {
+      label: `${t.input.targetA} ${t.input.balance}`,
+      value: result.balanceA,
+      color: result.balanceA < 0 ? 'text-brand-red' : 'text-foreground',
+      formula: formulas.balanceA,
+    },
+    {
+      label: `${t.input.targetB} ${t.input.balance}`,
+      value: result.balanceB,
+      color: result.balanceB < 0 ? 'text-brand-red' : 'text-foreground',
+      formula: formulas.balanceB,
+    },
+    {
+      label: t.input.rollingFee,
+      value: -formulas.totalFees,
+      color: 'text-brand-red',
+      formula: formulas.rollingTotal,
+    },
+    {
+      label: `${t.result.revenueA} (${revenueAPercent.toFixed(2)}%)`,
+      value: result.revenueA,
+      color: 'text-brand-gold',
+      formula: formulas.revenueA,
+    },
+    {
+      label: `${t.result.revenueB} (${formulas.revenueBPercent.toFixed(2)}%)`,
+      value: result.revenueB,
+      color: 'text-brand-gold',
+      formula: formulas.revenueB,
+    },
+    {
+      label: t.result.distribution,
+      value: formulas.distributionTotal,
+      color: formulas.distributionTotal < 0 ? 'text-brand-red' : 'text-foreground',
+      formula: formulas.distribution,
+    },
   ];
 
   return (
@@ -80,7 +202,9 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
       {cards.map((c) => (
         <div
           key={c.label}
-          className="flex items-start justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70"
+          className="flex cursor-help items-start justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70"
+          title={c.formula}
+          aria-label={c.formula}
         >
           <span className="min-w-0 break-words text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 sm:text-xs">
             {c.label}
@@ -102,6 +226,7 @@ interface ChartSegment {
   pct: number;
   color: string;
   amount: number;
+  formula: string;
 }
 
 function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
@@ -110,10 +235,25 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   const [hovered, setHovered] = useState<string | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const revenueBPercent = 100 - revenueAPercent;
+  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
 
   const outerSegments: ChartSegment[] = [
-    { key: 'o-0', label: t.result.revenueA, pct: revenueAPercent, color: '#C0301E', amount: result.revenueA },
-    { key: 'o-1', label: t.result.revenueB, pct: revenueBPercent, color: 'var(--brand-gold)', amount: result.revenueB },
+    {
+      key: 'o-0',
+      label: t.result.revenueA,
+      pct: revenueAPercent,
+      color: '#C0301E',
+      amount: result.revenueA,
+      formula: formulas.revenueA,
+    },
+    {
+      key: 'o-1',
+      label: t.result.revenueB,
+      pct: revenueBPercent,
+      color: 'var(--brand-gold)',
+      amount: result.revenueB,
+      formula: formulas.revenueB,
+    },
   ];
 
   const innerSegments: ChartSegment[] = result.distribution.map((d, i) => ({
@@ -122,6 +262,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
     pct: d.overallPercent > 0 ? d.overallPercent : d.percentage,
     color: `hsl(${15 + i * 25}, 70%, ${45 + i * 8}%)`,
     amount: d.amount,
+    formula: formulas.memberFormula(d),
   }));
 
   const setHoveredSync = useCallback((key: string | null) => {
@@ -135,6 +276,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
       label: seg.label,
       amount: formatCurrency(seg.amount, baseCurrency),
       detail: `${seg.pct.toFixed(1)}%`,
+      formula: seg.formula,
     });
   }, [baseCurrency, show, setHoveredSync]);
 
@@ -188,6 +330,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
           label: found.label,
           amount: formatCurrency(found.amount, baseCurrency),
           detail: `${found.pct.toFixed(1)}%`,
+          formula: found.formula,
         });
       } else {
         move(e);
@@ -260,6 +403,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
               key={s.label}
               role="img"
               aria-label={`${s.label}: ${s.pct}%`}
+              title={s.formula}
               className="grid cursor-pointer grid-cols-[0.75rem_minmax(0,1fr)_auto] items-center gap-2.5 rounded-md px-2 py-1 transition-all duration-200"
               style={{
                 backgroundColor: isActive ? 'var(--surface)' : 'transparent',
@@ -292,6 +436,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
               key={s.key}
               role="img"
               aria-label={`${s.label}: ${s.pct.toFixed(1)}%`}
+              title={s.formula}
               className="grid cursor-pointer grid-cols-[0.625rem_minmax(0,1fr)_auto] items-center gap-2.5 rounded-md px-2 py-0.5 transition-all duration-200"
               style={{
                 backgroundColor: isActive ? 'var(--surface)' : 'transparent',
@@ -319,19 +464,43 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
 /* ── Waterfall Chart (CSS bars) ── */
 
-function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
+function WaterfallChart({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
   const { t } = useTranslation();
   const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const totalFees = result.rollingFees.reduce((s, r) => s + r.amount, 0);
-  const distributionTotal = result.distribution.reduce((s, d) => s + d.amount, 0);
+  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
 
   const items = [
-    { label: t.input.buying, value: result.balance > 0 ? result.balance : 0, type: 'inflow' as const },
-    { label: t.input.rollingFee, value: -totalFees, type: 'outflow' as const },
-    { label: t.result.revenueA, value: result.revenueA, type: 'revA' as const },
-    { label: t.result.revenueB, value: result.revenueB, type: 'revB' as const },
-    { label: t.result.distribution, value: distributionTotal, type: distributionTotal >= 0 ? 'distribution' as const : 'outflow' as const },
+    {
+      label: t.input.buying,
+      value: result.balance > 0 ? result.balance : 0,
+      type: 'inflow' as const,
+      formula: formulas.balance,
+    },
+    {
+      label: t.input.rollingFee,
+      value: -formulas.totalFees,
+      type: 'outflow' as const,
+      formula: formulas.rollingTotal,
+    },
+    {
+      label: t.result.revenueA,
+      value: result.revenueA,
+      type: 'revA' as const,
+      formula: formulas.revenueA,
+    },
+    {
+      label: t.result.revenueB,
+      value: result.revenueB,
+      type: 'revB' as const,
+      formula: formulas.revenueB,
+    },
+    {
+      label: t.result.distribution,
+      value: formulas.distributionTotal,
+      type: formulas.distributionTotal >= 0 ? 'distribution' as const : 'outflow' as const,
+      formula: formulas.distribution,
+    },
   ];
 
   const maxAbs = Math.max(...items.map((i) => Math.abs(i.value)), 1);
@@ -359,6 +528,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
             key={item.label}
             role="img"
             aria-label={`${item.label}: ${formatCurrency(item.value, baseCurrency)}`}
+            title={item.formula}
             className="flex cursor-pointer items-center gap-2 rounded-lg px-1 transition-all duration-200 sm:gap-3"
             style={{ opacity: anyHovered ? (isActive ? 1 : 0.35) : 1 }}
             onMouseEnter={(e) => {
@@ -367,6 +537,7 @@ function WaterfallChart({ result, baseCurrency }: InfographicsProps) {
                 label: item.label,
                 amount: formatCurrency(item.value, baseCurrency),
                 detail: `${widthPct.toFixed(1)}%`,
+                formula: item.formula,
               });
             }}
             onMouseMove={move}
@@ -403,6 +574,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
   const [hovered, setHovered] = useState<string | null>(null);
   const revenueBPercent = 100 - revenueAPercent;
   const totalPct = result.distribution.reduce((s, d) => s + Math.abs(d.percentage), 0);
+  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
 
   return (
     <div className="space-y-4 overflow-hidden">
@@ -416,6 +588,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
           <div
             role="img"
             aria-label={`${t.result.revenueA}: ${revenueAPercent.toFixed(2)}%`}
+            title={formulas.revenueA}
             className="flex cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-r from-brand-red to-brand-red/85 text-[10px] font-bold tracking-wide text-white transition-all duration-200 sm:text-[11px]"
             style={{
               width: `${revenueAPercent.toFixed(2)}%`,
@@ -428,6 +601,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                 label: t.result.revenueA,
                 amount: formatCurrency(result.revenueA, baseCurrency),
                 detail: `${revenueAPercent.toFixed(2)}%`,
+                formula: formulas.revenueA,
               });
             }}
             onMouseMove={move}
@@ -440,6 +614,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
           <div
             role="img"
             aria-label={`${t.result.revenueB}: ${revenueBPercent.toFixed(2)}%`}
+            title={formulas.revenueB}
             className="flex cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-r from-brand-gold to-brand-gold/85 text-[10px] font-bold tracking-wide text-background transition-all duration-200 sm:text-[11px]"
             style={{
               width: `${revenueBPercent.toFixed(2)}%`,
@@ -452,6 +627,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                 label: t.result.revenueB,
                 amount: formatCurrency(result.revenueB, baseCurrency),
                 detail: `${revenueBPercent.toFixed(2)}%`,
+                formula: formulas.revenueB,
               });
             }}
             onMouseMove={move}
@@ -484,6 +660,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                   key={d.memberId}
                   role="img"
                   aria-label={`${d.memberName}: ${d.percentage.toFixed(1)}%`}
+                  title={formulas.memberFormula(d)}
                   className="flex cursor-pointer items-center justify-center gap-1 overflow-hidden px-1 text-[10px] font-semibold tracking-tight text-white transition-all duration-200 sm:text-[11px]"
                   style={{
                     width: `${widthPct}%`,
@@ -497,6 +674,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                       label: d.memberName,
                       amount: formatCurrency(d.amount, baseCurrency),
                       detail: detailParts.join(' · '),
+                      formula: formulas.memberFormula(d),
                     });
                   }}
                   onMouseMove={move}

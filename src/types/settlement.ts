@@ -11,6 +11,7 @@ export interface RollingFeeEntry {
 
 export interface RollingFeeResult {
   label: string;
+  sourceAmount: number;
   amount: number;
   feePercent: number;
   target: RollingTarget;
@@ -59,6 +60,8 @@ export interface SettlementConfig {
 }
 
 export interface SettlementResult {
+  splitMode: 'auto' | 'manual';
+  applyFxRevenueBShare: boolean;
   balance: number;
   balanceA: number;
   balanceB: number;
