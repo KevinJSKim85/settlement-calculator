@@ -12,11 +12,13 @@ import type {
   SettlementResult,
 } from '@/types';
 import type { TranslationKeys } from '@/i18n';
+import { useFormulaHoverEnabled } from '@/hooks/useFormulaHoverEnabled';
 
 interface InfographicsProps {
   result: SettlementResult;
   baseCurrency: Currency;
   revenueAPercent: number;
+  formulaHoverEnabled?: boolean;
 }
 
 /* ── Chart Tooltip ── */
@@ -55,7 +57,8 @@ function createFormulaContext(
   result: SettlementResult,
   baseCurrency: Currency,
   revenueAPercent: number,
-  t: TranslationKeys
+  t: TranslationKeys,
+  formulaHoverEnabled: boolean
 ) {
   const revenueBPercent = 100 - revenueAPercent;
   const feeForA = result.rollingFees
@@ -68,10 +71,12 @@ function createFormulaContext(
   const distributionTotal = result.distribution.reduce((sum, d) => sum + d.amount, 0);
   const money = (amount: number) => formatCurrency(amount, baseCurrency);
   const ratio = (value: number) => `${value.toFixed(2)}%`;
-  const formulaText = (formula: string, values?: string) =>
-    values
+  const formulaText = (formula: string, values?: string) => {
+    if (!formulaHoverEnabled) return undefined;
+    return values
       ? `${t.formula.label}: ${formula}\n${t.formula.values}: ${values}`
       : `${t.formula.label}: ${formula}`;
+  };
   const rollingFeeFormula = (fee: RollingFeeResult) =>
     formulaText(
       t.formula.rollingFee,
@@ -153,9 +158,20 @@ function useTooltip() {
 
 /* ── Summary Cards ── */
 
-function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
+function SummaryCards({
+  result,
+  baseCurrency,
+  revenueAPercent,
+  formulaHoverEnabled = false,
+}: InfographicsProps) {
   const { t } = useTranslation();
-  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
+  const formulas = createFormulaContext(
+    result,
+    baseCurrency,
+    revenueAPercent,
+    t,
+    formulaHoverEnabled
+  );
 
   const cards = [
     { label: t.input.balance, value: result.balance, color: 'text-foreground', formula: formulas.balance },
@@ -202,7 +218,10 @@ function SummaryCards({ result, baseCurrency, revenueAPercent }: InfographicsPro
       {cards.map((c) => (
         <div
           key={c.label}
-          className="flex cursor-help items-start justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70"
+          className={[
+            'flex items-start justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface/70',
+            formulaHoverEnabled ? 'cursor-help' : '',
+          ].filter(Boolean).join(' ')}
           title={c.formula}
           aria-label={c.formula}
         >
@@ -226,16 +245,27 @@ interface ChartSegment {
   pct: number;
   color: string;
   amount: number;
-  formula: string;
+  formula?: string;
 }
 
-function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
+function DonutChart({
+  result,
+  baseCurrency,
+  revenueAPercent,
+  formulaHoverEnabled = false,
+}: InfographicsProps) {
   const { t } = useTranslation();
   const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
   const [hovered, setHovered] = useState<string | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const revenueBPercent = 100 - revenueAPercent;
-  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
+  const formulas = createFormulaContext(
+    result,
+    baseCurrency,
+    revenueAPercent,
+    t,
+    formulaHoverEnabled
+  );
 
   const outerSegments: ChartSegment[] = [
     {
@@ -271,6 +301,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   }, []);
 
   const onSegEnter = useCallback((e: React.MouseEvent, seg: ChartSegment) => {
+    if (!formulaHoverEnabled) return;
     setHoveredSync(seg.key);
     show(e, {
       label: seg.label,
@@ -278,7 +309,7 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
       detail: `${seg.pct.toFixed(1)}%`,
       formula: seg.formula,
     });
-  }, [baseCurrency, show, setHoveredSync]);
+  }, [baseCurrency, formulaHoverEnabled, show, setHoveredSync]);
 
   const onSegMove = move;
 
@@ -300,6 +331,11 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
   };
 
   const handleSvgMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!formulaHoverEnabled) {
+      if (hoveredRef.current !== null) { setHoveredSync(null); hide(); }
+      return;
+    }
+
     const rect = e.currentTarget.getBoundingClientRect();
     const vx = ((e.clientX - rect.left) / rect.width) * 120;
     const vy = ((e.clientY - rect.top) / rect.height) * 120;
@@ -457,18 +493,29 @@ function DonutChart({ result, baseCurrency, revenueAPercent }: InfographicsProps
         })}
       </div>
 
-      <ChartTooltip data={tipData} x={tipPos.x} y={tipPos.y} />
+      <ChartTooltip data={formulaHoverEnabled ? tipData : null} x={tipPos.x} y={tipPos.y} />
     </div>
   );
 }
 
 /* ── Waterfall Chart (CSS bars) ── */
 
-function WaterfallChart({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
+function WaterfallChart({
+  result,
+  baseCurrency,
+  revenueAPercent,
+  formulaHoverEnabled = false,
+}: InfographicsProps) {
   const { t } = useTranslation();
   const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
+  const formulas = createFormulaContext(
+    result,
+    baseCurrency,
+    revenueAPercent,
+    t,
+    formulaHoverEnabled
+  );
 
   const items = [
     {
@@ -532,6 +579,7 @@ function WaterfallChart({ result, baseCurrency, revenueAPercent }: InfographicsP
             className="flex cursor-pointer items-center gap-2 rounded-lg px-1 transition-all duration-200 sm:gap-3"
             style={{ opacity: anyHovered ? (isActive ? 1 : 0.35) : 1 }}
             onMouseEnter={(e) => {
+              if (!formulaHoverEnabled) return;
               setHoveredIdx(idx);
               show(e, {
                 label: item.label,
@@ -561,20 +609,31 @@ function WaterfallChart({ result, baseCurrency, revenueAPercent }: InfographicsP
           </div>
         );
       })}
-      <ChartTooltip data={tipData} x={tipPos.x} y={tipPos.y} />
+      <ChartTooltip data={formulaHoverEnabled ? tipData : null} x={tipPos.x} y={tipPos.y} />
     </div>
   );
 }
 
 /* ── Stacked Bar ── */
 
-function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
+function StackedBar({
+  result,
+  baseCurrency,
+  revenueAPercent,
+  formulaHoverEnabled = false,
+}: InfographicsProps) {
   const { t } = useTranslation();
   const { data: tipData, pos: tipPos, show, move, hide } = useTooltip();
   const [hovered, setHovered] = useState<string | null>(null);
   const revenueBPercent = 100 - revenueAPercent;
   const totalPct = result.distribution.reduce((s, d) => s + Math.abs(d.percentage), 0);
-  const formulas = createFormulaContext(result, baseCurrency, revenueAPercent, t);
+  const formulas = createFormulaContext(
+    result,
+    baseCurrency,
+    revenueAPercent,
+    t,
+    formulaHoverEnabled
+  );
 
   return (
     <div className="space-y-4 overflow-hidden">
@@ -596,6 +655,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
               filter: hovered === 'rev-a' ? 'brightness(1.15) saturate(1.1)' : 'none',
             }}
             onMouseEnter={(e) => {
+              if (!formulaHoverEnabled) return;
               setHovered('rev-a');
               show(e, {
                 label: t.result.revenueA,
@@ -622,6 +682,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
               filter: hovered === 'rev-b' ? 'brightness(1.15) saturate(1.1)' : 'none',
             }}
             onMouseEnter={(e) => {
+              if (!formulaHoverEnabled) return;
               setHovered('rev-b');
               show(e, {
                 label: t.result.revenueB,
@@ -669,6 +730,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
                     filter: isActive ? 'brightness(1.15) saturate(1.1)' : 'none',
                   }}
                   onMouseEnter={(e) => {
+                    if (!formulaHoverEnabled) return;
                     setHovered(key);
                     show(e, {
                       label: d.memberName,
@@ -689,7 +751,7 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
           </div>
         </div>
       )}
-      <ChartTooltip data={tipData} x={tipPos.x} y={tipPos.y} />
+      <ChartTooltip data={formulaHoverEnabled ? tipData : null} x={tipPos.x} y={tipPos.y} />
     </div>
   );
 }
@@ -698,11 +760,17 @@ function StackedBar({ result, baseCurrency, revenueAPercent }: InfographicsProps
 
 export function Infographics({ result, baseCurrency, revenueAPercent }: InfographicsProps) {
   const { t } = useTranslation();
+  const formulaHoverEnabled = useFormulaHoverEnabled();
 
   return (
     <div className="space-y-4">
       <div className="premium-card rounded-xl border border-border/40 bg-card p-4">
-        <SummaryCards result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
+        <SummaryCards
+          result={result}
+          baseCurrency={baseCurrency}
+          revenueAPercent={revenueAPercent}
+          formulaHoverEnabled={formulaHoverEnabled}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -711,7 +779,12 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
             <PieChart className="size-3.5" />
             {t.result.revenue}
           </h3>
-          <DonutChart result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
+          <DonutChart
+            result={result}
+            baseCurrency={baseCurrency}
+            revenueAPercent={revenueAPercent}
+            formulaHoverEnabled={formulaHoverEnabled}
+          />
         </div>
 
         <div className="premium-card overflow-hidden rounded-xl border border-border/40 bg-card p-4">
@@ -719,7 +792,12 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
             <BarChart3 className="size-3.5" />
             {t.result.distribution}
           </h3>
-          <StackedBar result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
+          <StackedBar
+            result={result}
+            baseCurrency={baseCurrency}
+            revenueAPercent={revenueAPercent}
+            formulaHoverEnabled={formulaHoverEnabled}
+          />
         </div>
       </div>
 
@@ -728,7 +806,12 @@ export function Infographics({ result, baseCurrency, revenueAPercent }: Infograp
           <TrendingUp className="size-3.5" />
           Cash Flow
         </h3>
-        <WaterfallChart result={result} baseCurrency={baseCurrency} revenueAPercent={revenueAPercent} />
+        <WaterfallChart
+          result={result}
+          baseCurrency={baseCurrency}
+          revenueAPercent={revenueAPercent}
+          formulaHoverEnabled={formulaHoverEnabled}
+        />
       </div>
     </div>
   );

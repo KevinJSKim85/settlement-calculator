@@ -6,6 +6,7 @@ import { useTranslation } from '@/i18n';
 import type { Currency, ExchangeRates, SettlementResult } from '@/types';
 import { CURRENCIES } from '@/types';
 import { convertAmount, formatCurrency } from '@/lib/currency';
+import { useFormulaHoverEnabled } from '@/hooks/useFormulaHoverEnabled';
 
 interface ResultsDisplayProps {
   result: SettlementResult | null;
@@ -151,6 +152,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
     ref
   ) {
     const { t } = useTranslation();
+    const formulaHoverEnabled = useFormulaHoverEnabled();
 
     if (!result) {
       return (
@@ -180,10 +182,12 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
     const feeForB = result.rollingFees
       .filter((rf) => rf.target === 'B')
       .reduce((sum, rf) => sum + rf.amount, 0);
-    const formulaText = (formula: string, values?: string) =>
-      values
+    const formulaText = (formula: string, values?: string) => {
+      if (!formulaHoverEnabled) return undefined;
+      return values
         ? `${t.formula.label}: ${formula}\n${t.formula.values}: ${values}`
         : `${t.formula.label}: ${formula}`;
+    };
     const money = (amount: number) => formatCurrency(amount, baseCurrency);
     const ratio = (value: number) => `${value.toFixed(2)}%`;
     const totalBuying = result.buyingA + result.buyingB;
