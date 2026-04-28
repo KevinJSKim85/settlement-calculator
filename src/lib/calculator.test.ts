@@ -221,7 +221,7 @@ describe('calcSettlement', () => {
     expect(result.balance).toBe(result.balanceA + result.balanceB);
   });
 
-  it('derives revenue B from the B ratio when FX revenue sharing is enabled', () => {
+  it('derives revenue B directly from B balance minus B rolling fee', () => {
     const result = calcSettlement(
       {
         buying: 1000,
@@ -238,7 +238,6 @@ describe('calcSettlement', () => {
       {
         revenueAPercent: 40,
         members: [{ id: 'm1', name: '멤버 1', percentage: 60 }],
-        applyFxRevenueBShare: true,
       },
       'KRW'
     );
@@ -247,10 +246,43 @@ describe('calcSettlement', () => {
     expect(result.balanceB).toBe(300);
     // revenueA is always direct: balanceA - feeForA - expenseTotalA = 200 - 0 - 0 = 200
     expect(result.revenueA).toBe(200);
-    // revenueB applies B-share (300 x 60%) minus feeForB (10) = 170
-    expect(result.revenueB).toBe(170);
-    expect(result.distribution[0]?.amount).toBe(170);
-    expect(result.totalRevenue).toBe(370);
+    expect(result.revenueB).toBe(290);
+    expect(result.distribution[0]?.amount).toBe(290);
+    expect(result.totalRevenue).toBe(490);
+  });
+
+  it('keeps B distribution equal to B balance minus B rolling fee for the reported case', () => {
+    const result = calcSettlement(
+      {
+        buying: 2303680000,
+        buyingCurrency: 'KRW',
+        returning: 959814500,
+        returningCurrency: 'KRW',
+        splitMode: 'manual',
+        buyingA: 736000000,
+        buyingB: 1567680000,
+        returningA: 306650000,
+        returningB: 653164500,
+        rollingEntries: [
+          { amount: 312528300, feePercent: 100, target: 'A' },
+          { amount: 448254874, feePercent: 100, target: 'B' },
+        ],
+      },
+      {
+        revenueAPercent: 46.95,
+        members: [
+          { id: 'm1', name: '멤버 1', percentage: 5 },
+          { id: 'm2', name: '멤버 2', percentage: 10 },
+          { id: 'm3', name: '멤버 3', percentage: 38.05 },
+        ],
+      },
+      'KRW'
+    );
+
+    expect(result.balanceA).toBe(429350000);
+    expect(result.balanceB).toBe(485165500);
+    expect(result.revenueB).toBe(36910626);
+    expect(result.distribution.reduce((sum, item) => sum + item.amount, 0)).toBe(36910626);
   });
 });
 

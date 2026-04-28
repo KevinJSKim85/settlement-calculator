@@ -76,7 +76,6 @@ export const ko = {
     revenue: '수익 = 수익 A + 수익 B',
     revenueA: '수익 A = 발란스 A - A 롤피 - A 지출',
     revenueB: '수익 B = 발란스 B - B 롤피 - B 지출',
-    revenueBShared: '수익 B = 발란스 B × B 비율 - B 롤피 - B 지출',
     distribution: '수익분배 = 수익 B를 멤버 비율대로 배분',
     memberDistribution: '멤버 배분 = 수익 B × 멤버 비율 ÷ 수익 B 비율',
     memberDistributionZero: '멤버 배분 = 수익 B 비율이 0%이면 0',

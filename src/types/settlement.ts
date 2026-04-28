@@ -56,12 +56,10 @@ export interface SettlementInput {
 export interface SettlementConfig {
   revenueAPercent: number;
   members: DistributionMember[];
-  applyFxRevenueBShare?: boolean;
 }
 
 export interface SettlementResult {
   splitMode: 'auto' | 'manual';
-  applyFxRevenueBShare: boolean;
   balance: number;
   balanceA: number;
   balanceB: number;

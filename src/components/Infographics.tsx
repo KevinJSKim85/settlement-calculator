@@ -82,12 +82,7 @@ function createFormulaContext(
       t.formula.rollingFee,
       `${money(fee.sourceAmount)} × ${fee.feePercent}% = ${money(-fee.amount)}`
     );
-  const revenueBFormula = result.applyFxRevenueBShare
-    ? t.formula.revenueBShared
-    : t.formula.revenueB;
-  const revenueBValues = result.applyFxRevenueBShare
-    ? `${money(result.balanceB)} × ${ratio(revenueBPercent)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`
-    : `${money(result.balanceB)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`;
+  const revenueBValues = `${money(result.balanceB)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`;
   const memberFormula = (member: DistributionAmount) =>
     revenueBPercent <= 0
       ? formulaText(t.formula.memberDistributionZero, money(member.amount))
@@ -128,7 +123,7 @@ function createFormulaContext(
       t.formula.revenueA,
       `${money(result.balanceA)} - ${money(feeForA)} - ${money(result.expenseTotalA)} = ${money(result.revenueA)}`
     ),
-    revenueB: formulaText(revenueBFormula, revenueBValues),
+    revenueB: formulaText(t.formula.revenueB, revenueBValues),
     distribution: formulaText(
       t.formula.distribution,
       `${money(result.revenueB)} = ${money(distributionTotal)}`

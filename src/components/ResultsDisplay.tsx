@@ -201,12 +201,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
       result.splitMode === 'manual'
         ? formulaText(t.formula.directInput, money(directValue))
         : formulaText(autoFormula, autoValues);
-    const revenueBFormula = result.applyFxRevenueBShare
-      ? t.formula.revenueBShared
-      : t.formula.revenueB;
-    const revenueBValues = result.applyFxRevenueBShare
-      ? `${money(result.balanceB)} × ${ratio(revenueBPercent)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`
-      : `${money(result.balanceB)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`;
+    const revenueBValues = `${money(result.balanceB)} - ${money(feeForB)} - ${money(result.expenseTotalB)} = ${money(result.revenueB)}`;
     const memberDistributionFormula = (
       memberPercentage: number,
       amount: number
@@ -506,7 +501,7 @@ const ResultsDisplay = React.forwardRef<HTMLDivElement, ResultsDisplayProps>(
                 baseCurrency={baseCurrency}
                 exchangeRates={exchangeRates}
                 formula={formulaText(
-                  revenueBFormula,
+                  t.formula.revenueB,
                   revenueBValues
                 )}
               />

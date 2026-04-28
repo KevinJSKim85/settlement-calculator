@@ -76,7 +76,6 @@ export const zh = {
     revenue: '收益 = 收益 A + 收益 B',
     revenueA: '收益 A = A 上下水 - A 码粮 - A 支出',
     revenueB: '收益 B = B 上下水 - B 码粮 - B 支出',
-    revenueBShared: '收益 B = B 上下水 × B 比例 - B 码粮 - B 支出',
     distribution: '收益分配 = 按成员比例分配收益 B',
     memberDistribution: '成员金额 = 收益 B × 成员比例 ÷ 收益 B 比例',
     memberDistributionZero: '收益 B 比例为 0% 时，成员金额为 0',

@@ -76,7 +76,6 @@ export const en = {
     revenue: 'Revenue = Revenue A + Revenue B',
     revenueA: 'Revenue A = Balance A - A fees - A expenses',
     revenueB: 'Revenue B = Balance B - B fees - B expenses',
-    revenueBShared: 'Revenue B = Balance B × B ratio - B fees - B expenses',
     distribution: 'Distribution = Revenue B allocated by member ratios',
     memberDistribution: 'Member amount = Revenue B × member ratio ÷ Revenue B ratio',
     memberDistributionZero: 'Member amount = 0 when Revenue B ratio is 0%',
