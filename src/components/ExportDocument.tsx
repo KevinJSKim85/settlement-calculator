@@ -27,7 +27,6 @@ const LINE = '#E6DFD3';
 const LINE_SOFT = '#F0EADF';
 const RED = '#C0301E';
 const GOLD = '#B8892F';
-const GOLD_SOFT = '#F6DA9D';
 
 /* ── Mini donut chart (SVG) for revenue A/B split ── */
 function MiniDonut({
@@ -220,23 +219,20 @@ function SummaryTile({
           textTransform: 'uppercase',
           color: INK_SOFT,
           marginBottom: 4,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          lineHeight: 1.25,
         }}
       >
         {label}
       </div>
       <div
         style={{
-          fontSize: 15,
+          fontSize: 13.5,
           fontWeight: 700,
           color,
           fontVariantNumeric: 'tabular-nums',
           letterSpacing: '-0.01em',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          lineHeight: 1.2,
+          overflowWrap: 'anywhere',
         }}
       >
         {formatCurrency(amount, baseCurrency)}

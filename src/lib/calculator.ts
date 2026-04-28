@@ -1,4 +1,4 @@
-import type { Currency, DistributionAmount, Expenses, RollingFeeEntry, RollingFeeResult, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
+import type { Currency, DistributionAmount, RollingFeeEntry, RollingFeeResult, SettlementConfig, SettlementInput, SettlementResult } from '@/types';
 import { DEFAULT_EXPENSES } from '@/types';
 
 export function deriveRevenueAPercentFromRate(rate: number): number {
@@ -10,6 +10,10 @@ export function deriveRevenueAPercentFromRate(rate: number): number {
 
 export function calcBalance(buying: number, returning: number): number {
   return buying - returning;
+}
+
+export function calcSplitBalance(balanceA: number, balanceB: number): number {
+  return balanceA + balanceB;
 }
 
 export function calcRollingFee(rolling: number, feePercent: number): number {
@@ -89,12 +93,11 @@ export function calcSettlement(
   const returningB = isManual && input.returningB !== undefined
     ? input.returningB
     : input.returning - returningA;
-  const balance = calcBalance(
-    isManual ? buyingA + buyingB : input.buying,
-    isManual ? returningA + returningB : input.returning
-  );
-  const balanceA = buyingA - returningA;
-  const balanceB = buyingB - returningB;
+  const balanceA = calcBalance(buyingA, returningA);
+  const balanceB = calcBalance(buyingB, returningB);
+  const balance = isManual
+    ? calcSplitBalance(balanceA, balanceB)
+    : calcBalance(input.buying, input.returning);
 
   const rollingFees = calcRollingFees(input.rollingEntries);
 

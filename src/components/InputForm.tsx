@@ -5,6 +5,7 @@ import { ShoppingCart, RotateCcw, Scale, ToggleLeft, ToggleRight, ArrowRight } f
 import { useTranslation } from '@/i18n';
 import { useSettlementStore } from '@/lib/store';
 import { formatNumber, parseFormattedNumber } from '@/lib/currency';
+import { calcSplitBalance } from '@/lib/calculator';
 import { CURRENCIES, CURRENCY_CONFIG } from '@/types';
 import type { Currency } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 
 function CurrencySelect({
   value,
@@ -41,56 +41,6 @@ function CurrencySelect({
   );
 }
 
-function InputRow({
-  label,
-  icon,
-  value,
-  currency,
-  onValueChange,
-  onCurrencyChange,
-  onFocus,
-  onBlur,
-  topExtra,
-  footer,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  value: string;
-  currency: Currency;
-  onValueChange: (value: string) => void;
-  onCurrencyChange: (currency: Currency) => void;
-  onFocus: () => void;
-  onBlur: () => void;
-  topExtra?: React.ReactNode;
-  footer?: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">{icon}</span>
-          <span className="text-sm font-medium text-foreground">{label}</span>
-        </div>
-        {topExtra}
-      </div>
-      <div className="flex items-center gap-2">
-        <CurrencySelect value={currency} onValueChange={onCurrencyChange} />
-        <Input
-          type="text"
-          inputMode="decimal"
-          className="flex-1 border-border/40 bg-surface text-right tabular-nums text-foreground focus-glow"
-          value={value}
-          onChange={(e) => onValueChange(e.target.value)}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          placeholder="0"
-        />
-      </div>
-      {footer}
-    </div>
-  );
-}
-
 function ComputedRow({
   label,
   value,
@@ -109,20 +59,34 @@ function ComputedRow({
   const displayValue = `${sign}${formatted}`;
 
   return (
-    <div className={`flex flex-col gap-2 rounded-xl px-4 py-3 sm:grid sm:items-center sm:gap-3 ${isNegative ? 'bg-brand-red/5 border border-brand-red/15' : 'bg-brand-gold/5 border border-brand-gold/15'}`} style={{ gridTemplateColumns: '1fr auto auto' }}>
-      <span className="flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-foreground">
-        <Scale className={`size-4 shrink-0 ${isNegative ? 'text-brand-red/70' : 'text-brand-gold/70'}`} />
-        <span className="whitespace-nowrap">{label}</span>
-        {isNegative && (
-          <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-brand-red">({t.result.loss})</span>
-        )}
-      </span>
-      <div className="flex items-baseline justify-between gap-3 sm:contents">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground sm:text-right">
+    <div
+      className={`min-w-0 rounded-xl border px-4 py-3 ${
+        isNegative ? 'border-brand-red/15 bg-brand-red/5' : 'border-brand-gold/15 bg-brand-gold/5'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
+          <Scale className={`size-4 shrink-0 ${isNegative ? 'text-brand-red/70' : 'text-brand-gold/70'}`} />
+        </span>
+        <span
+          className={`min-w-0 flex-1 text-right text-sm font-semibold ${
+            isNegative ? 'text-brand-red' : 'text-brand-gold'
+          }`}
+        >
+          <span className="break-words">{label}</span>
+          {isNegative && (
+            <span className="ml-1.5 text-[11px] font-semibold uppercase tracking-wide text-brand-red">
+              ({t.result.loss})
+            </span>
+          )}
+        </span>
+      </div>
+      <div className="mt-2 flex flex-col items-end gap-1 text-right">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {currency} {CURRENCY_CONFIG[currency].symbol}
         </span>
         <span
-          className={`text-right text-lg tabular-nums font-bold tracking-tight ${
+          className={`max-w-full break-all text-base font-bold leading-tight tabular-nums sm:text-lg ${
             isNegative ? 'text-brand-red' : 'text-brand-gold'
           }`}
         >
@@ -147,9 +111,7 @@ export function InputForm() {
   const inlineForeignAmount = useSettlementStore((s) => s.inlineForeignAmount);
   const inlineRetForeignAmount = useSettlementStore((s) => s.inlineRetForeignAmount);
   const setBuying = useSettlementStore((s) => s.setBuying);
-  const setBuyingCurrency = useSettlementStore((s) => s.setBuyingCurrency);
   const setReturning = useSettlementStore((s) => s.setReturning);
-  const setReturningCurrency = useSettlementStore((s) => s.setReturningCurrency);
   const setInlineFxRate = useSettlementStore((s) => s.setInlineFxRate);
   const setInlineFxCurrency = useSettlementStore((s) => s.setInlineFxCurrency);
   const setInlineForeignAmount = useSettlementStore((s) => s.setInlineForeignAmount);
@@ -172,7 +134,7 @@ export function InputForm() {
   const balanceA = storeBuyingA - storeReturningA;
   const balanceB = buyingBKrw - returningBKrw;
   const balance = isManual
-    ? balanceA + balanceB
+    ? calcSplitBalance(balanceA, balanceB)
     : buying.amount - returning.amount;
 
   const handleFocus = useCallback((field: string, amount: number) => {
@@ -477,7 +439,7 @@ export function InputForm() {
         )}
 
         {isManual && (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             <ComputedRow
               label={`${t.input.balance} A`}
               value={balanceA}

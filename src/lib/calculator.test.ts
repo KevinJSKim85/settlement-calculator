@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   calcBalance,
+  calcSplitBalance,
   calcDistribution,
   calcRollingFee,
   calcSettlement,
@@ -13,6 +14,16 @@ describe('calcBalance', () => {
     expect(calcBalance(20000000, 15000000)).toBe(5000000);
     expect(calcBalance(10000000, 18850000)).toBe(-8850000);
     expect(calcBalance(0, 0)).toBe(0);
+  });
+});
+
+describe('calcSplitBalance', () => {
+  it('returns the sum of split balances', () => {
+    expect(calcSplitBalance(429350000, 485165500)).toBe(914515500);
+  });
+
+  it('preserves negative split values in the combined total', () => {
+    expect(calcSplitBalance(-305450, -339049)).toBe(-644499);
   });
 });
 
@@ -166,8 +177,36 @@ describe('calcSettlement', () => {
     expect(result.returningB).toBe(40);
     expect(result.balanceA).toBe(15);
     expect(result.balanceB).toBe(40);
+    expect(result.balance).toBe(result.balanceA + result.balanceB);
     expect(result.revenueA).toBe(15);
     expect(result.revenueB).toBe(40);
+  });
+
+  it('keeps manual total balance equal to displayed A/B balances', () => {
+    const result = calcSettlement(
+      {
+        buying: 1343865500,
+        buyingCurrency: 'KRW',
+        returning: 429350000,
+        returningCurrency: 'KRW',
+        splitMode: 'manual',
+        buyingA: 429350000,
+        buyingB: 914515500,
+        returningA: 0,
+        returningB: 429350000,
+        rollingEntries: [],
+      },
+      {
+        revenueAPercent: 46.92,
+        members: [{ id: 'm1', name: '멤버 1', percentage: 53.08 }],
+      },
+      'KRW'
+    );
+
+    expect(result.balanceA).toBe(429350000);
+    expect(result.balanceB).toBe(485165500);
+    expect(result.balance).toBe(914515500);
+    expect(result.balance).toBe(result.balanceA + result.balanceB);
   });
 
   it('derives revenue B from the B ratio when FX revenue sharing is enabled', () => {
