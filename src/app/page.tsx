@@ -163,9 +163,10 @@ function HomePageContent() {
     }));
 
     const memberSum = members.reduce((sum, m) => sum + m.percentage, 0);
-    const normalizedMemberSum = Math.round(memberSum * 100) / 100;
-    const normalizedTarget = Math.round(revenueBPercent * 100) / 100;
-    if (normalizedMemberSum !== normalizedTarget || members.length === 0) return null;
+    const normalizedMemberSum = Math.round(memberSum * 1e7) / 1e7;
+    const normalizedTarget = Math.round(revenueBPercent * 1e7) / 1e7;
+    // Allow tiny floating-point slack so 7-decimal user inputs sum to target without false rejections
+    if (Math.abs(normalizedMemberSum - normalizedTarget) > 1e-6 || members.length === 0) return null;
 
     const isManual = splitMode === 'manual';
     // Transform foreign-currency expense A/B values to KRW before calculation.
@@ -222,8 +223,8 @@ function HomePageContent() {
     expensesEnabled,
   ]);
 
-  const memberPercentSum = Math.round(members.reduce((sum, m) => sum + m.percentage, 0) * 100) / 100;
-  const targetPercent = Math.round(revenueBPercent * 100) / 100;
+  const memberPercentSum = Math.round(members.reduce((sum, m) => sum + m.percentage, 0) * 1e7) / 1e7;
+  const targetPercent = Math.round(revenueBPercent * 1e7) / 1e7;
   const showDistributionWarning = memberPercentSum !== targetPercent && members.length > 0;
 
   return (

@@ -40,11 +40,11 @@ export function MemberManager() {
   const effectiveRevenueAPercent = autoRevenueSplitFromRate && inlineFxRate > 0
     ? deriveRevenueAPercentFromRate(inlineFxRate)
     : revenueAPercent;
-  const revenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 100) / 100;
+  const revenueBPercent = Math.round((100 - effectiveRevenueAPercent) * 1e7) / 1e7;
   const sum = members.reduce((acc, m) => acc + m.percentage, 0);
-  const roundedSum = Math.round(sum * 100) / 100;
-  const roundedTarget = Math.round(revenueBPercent * 100) / 100;
-  const remaining = Math.round((revenueBPercent - sum) * 100) / 100;
+  const roundedSum = Math.round(sum * 1e7) / 1e7;
+  const roundedTarget = Math.round(revenueBPercent * 1e7) / 1e7;
+  const remaining = Math.round((revenueBPercent - sum) * 1e7) / 1e7;
   const progressPct = roundedTarget > 0 ? Math.min((roundedSum / roundedTarget) * 100, 100) : 0;
 
   // Revenue A percentage input focus state
@@ -85,7 +85,7 @@ export function MemberManager() {
     if (focusedMemberId !== null) return;
     if (members.length === 1 && revenueBPercent > 0) {
       const member = members[0];
-      const target = Math.round(revenueBPercent * 100) / 100;
+      const target = Math.round(revenueBPercent * 1e7) / 1e7;
       if (member.percentage !== target) {
         updateMember(member.id, { percentage: target });
       }
@@ -123,7 +123,7 @@ export function MemberManager() {
   const handleFillRemaining = () => {
     if (members.length === 0 || remaining <= 0) return;
     const lastMember = members[members.length - 1];
-    const newPercent = Math.round((lastMember.percentage + remaining) * 100) / 100;
+    const newPercent = Math.round((lastMember.percentage + remaining) * 1e7) / 1e7;
     updateMember(lastMember.id, { percentage: newPercent });
   };
 
@@ -241,7 +241,7 @@ export function MemberManager() {
                       pattern="[0-9]*[.]?[0-9]*"
                       min={0}
                       max={100}
-                      step={0.01}
+                      step="any"
                       value={focusedMemberId === member.id ? memberPercentLocal : member.percentage}
                       onFocus={() => {
                         setFocusedMemberId(member.id);
