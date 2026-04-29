@@ -15,7 +15,7 @@ function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, value));
 }
 
-const PERCENT_DRAFT_PATTERN = /^\d{0,3}(?:\.\d{0,2})?$/;
+const PERCENT_DRAFT_PATTERN = /^\d{0,3}(?:\.\d{0,7})?$/;
 
 function normalizePercentDraft(value: string): string {
   return value.replace(',', '.').trim();

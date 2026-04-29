@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"export PATH=\\\"/usr/local/bin:/opt/homebrew/bin:$PATH\\\" && npm test -- --run 2>&1 | tail -3 && git add -A && git commit -m \\\"feat: member % accepts up to 7 decimal places\\n\\n- step={0.01} →...",
+  "error": "Exit code 1\n\u001b[2m   Start at \u001b[22m 17:55:54\n\u001b[2m   Duration \u001b[22m 709ms\u001b[2m (transform 85ms, setup 0ms, import 114ms, tests 16ms, environment 1.71s)\u001b[22m\n\n[claude/suspicious-morse 6481c07] feat: member % accepts up to 7 decimal places\n 7 files changed, 29 insertions(+), 322 deletions(-)\n delete mode 100644 .omc/state/agent-replay-97cc4581-cc64-43b3-80b9-20f0cdc336bf.jsonl\n delete mode 100644 .omc/state/subagent-tracking.json\nTo https://github.com/KevinJSKim85/settlement-calculator.git\n ! [rejecte...",
+  "timestamp": "2026-04-29T08:55:56.828Z",
+  "retry_count": 1
+}
